@@ -2,6 +2,8 @@
 
 Supymem is a local desktop app for working with Charlie on your idea, research, and experiments. Your workspace lives on your computer. You bring your own model key and accounts, or try the app with sample data.
 
+New here? Follow the step-by-step [setup guide](docs/self-hosting/SETUP_GUIDE.md).
+
 ## Start from source
 
 From your source checkout, run `./start` on macOS or Linux, or `.\start.ps1` in Windows PowerShell.

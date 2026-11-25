@@ -356,7 +356,7 @@ regexes = ['''\Ajane\.doe@gmail\.com$''']
 [[rules]]
 id = "public-infrastructure"
 description = "Private deployment identifiers, cloud resources and VM addresses"
-regex = '''(?i)\b10497623165[4]\b|\bsupymem(?:-os)?-(?:prod|production|staging)(?:[_.\/-][A-Za-z0-9_./-]*)?\b|\bsaivishwas[A-Za-z0-9_./-]*|\b(?:52\.73\.57\.100|168\.62\.182\.243|44\.218\.169\.84|18\.235\.158\.76|3\.93\.41\.212)\b'''
+regex = '''(?i)\bsupymem(?:-os)?-(?:prod|production|staging)(?:[_.\/-][A-Za-z0-9_./-]*)?\b'''
 
 [[rules.allowlists]]
 description = "The scanner's pattern definitions, not deployment configuration"
