@@ -35,7 +35,7 @@ mcp==1.29.0
 openai>=1.54.0
 Pillow>=10.4,<13
 pillow>=10.4.0
-playwright==1.61.0
+playwright==1.65.2
 psutil==7.2.2
 psycopg[binary]>=3.2
 pydantic-settings>=2.6.0
@@ -52,6 +52,6 @@ pyyaml>=6.0
 redis>=5.0.0
 scrapy>=2.11
 sqlalchemy[asyncio]>=2.0.36
-tinycss2==1.4.0
+tinycss2==1.5.1
 uvicorn[standard]>=0.27
 uvicorn[standard]>=0.30.0

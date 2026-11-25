@@ -29,7 +29,7 @@ dependencies = [
   # First-look pages are rendered from templates, never by a coding agent (45 §3).
   "jinja2>=3.1.4",
   # Parse CSS resource references when freezing first-look asset versions.
-  "tinycss2==1.4.0",
+  "tinycss2==1.5.1",
   "python-multipart>=0.0.9",
   # OpenWorker keyless web search (vendor/openworker DuckDuckGo provider).
   "ddgs>=9",
