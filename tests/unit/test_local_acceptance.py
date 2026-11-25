@@ -756,6 +756,7 @@ sys.path[:0] = [str(root / 'scripts'), str(root / 'packages')]
 import local_value_journey as journey
 
 assert 'site' not in sys.modules
+os.environ['HOME'] = os.environ['USERPROFILE'] = str(scratch)
 os.environ['SUPYMEM_TEST_FAKE_CODING_TOOL'] = '1'
 os.environ.pop('COMPANY_OS_PACKAGED', None)
 journey.__file__ = str(scratch / 'scripts' / 'local_value_journey.py')
@@ -768,6 +769,7 @@ def stop_at_launch(command, *, cwd, env, **kwargs):
     raise journey.AcceptanceFailure('Reached isolated stack launch.')
 
 journey.subprocess.Popen = stop_at_launch
+journey.free_ports = lambda: (3300, 3100, 3301)
 examples = root / 'scripts' / 'local_journeys'
 assert journey.gate_main(['--env-file', str(scratch / 'input.env'), '--log-dir', str(scratch / 'logs'),
     '--arguments-file', str(examples / 'consumer_fintech.json'),
@@ -778,10 +780,10 @@ assert journey.gate_main(['--env-file', str(scratch / 'input.env'), '--log-dir',
     assert "Next step: Reached isolated stack launch." in run.stdout
 
 
-def test_offline_gate_stages_both_fake_tool_journeys_under_home(value_journey, monkeypatch, tmp_path, capsys):
-    home = tmp_path / "home"
-    home.mkdir(mode=0o700)
-    monkeypatch.setenv("HOME", str(home))
+def test_offline_gate_stages_both_fake_tool_journeys_without_home(value_journey, monkeypatch, tmp_path, capsys):
+    monkeypatch.setenv("HOME", str(tmp_path / "missing-home"))
+    monkeypatch.setenv("TMPDIR", str(tmp_path))
+    monkeypatch.setattr(value_journey.tempfile, "tempdir", None)
     monkeypatch.setenv("SUPYMEM_TEST_FAKE_CODING_TOOL", "1")
     monkeypatch.delenv("COMPANY_OS_PACKAGED", raising=False)
     examples = Path(value_journey.__file__).parent / "local_journeys"
@@ -789,7 +791,7 @@ def test_offline_gate_stages_both_fake_tool_journeys_under_home(value_journey, m
     def stop_before_launch(directory, selections, **options):
         assert selections == [True, True]
         gate_data = directory.parent.parent
-        assert gate_data.parent == home
+        assert gate_data.parent == tmp_path
         assert gate_data.stat().st_mode & 0o777 == 0o700
         raise value_journey.AcceptanceFailure("Reached private tool staging.")
 

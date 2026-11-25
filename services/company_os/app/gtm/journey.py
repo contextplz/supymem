@@ -1707,6 +1707,7 @@ def _post_results(wid: str, vid: str, run_id: str) -> bool:
         view = status(wid, vid, authorize=False)
         if (is_local() and view.get("discovery_started") and view.get("can_prepare")
                 and view.get("state") in {"ready", "needs_input"}
+                and not (view.get("channels") or view.get("need_signals"))
                 and view.get("error_code") in {None, "no_public_candidates", "search_engine_limited"}):
             from app.research.local_providers import customer_search_notice
 

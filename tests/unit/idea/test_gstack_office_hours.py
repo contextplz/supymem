@@ -23,12 +23,10 @@ hosted_client = connector_oauth.client
 
 @pytest.fixture()
 def client(request, monkeypatch):
-    if (COMPANY_OS / "app/admin/internal.py").is_file():
+    callspec = getattr(request.node, "callspec", None)
+    if (COMPANY_OS / "app/admin/internal.py").is_file() or not (callspec and callspec.params.get("mode") == "local"):
         yield request.getfixturevalue("hosted_client")
         return
-    callspec = getattr(request.node, "callspec", None)
-    if callspec and callspec.params.get("mode") == "hosted":
-        pytest.skip("Hosted idea review is not in the public local release.")
     monkeypatch.setenv("SUPYMEM_MODE", "local")
     monkeypatch.setenv("APP_ENV", "local")
 
@@ -997,7 +995,8 @@ def test_looks_right_once_queues_one_gstack_run_and_replays_are_no_ops(client, s
 
 
 @pytest.mark.parametrize("summary,customer,relevant", [
-    ("B2B SaaS developer tools customer feedback manual beta workflow", "API platform teams", True),
+    pytest.param("B2B SaaS developer tools customer feedback manual beta workflow", "API platform teams", True,
+                 id="relevant-pack"),
     ("Unrelated quantum neutrino crystals", "Neutrino physicists", False),
 ])
 def test_summary_and_looks_right_show_only_relevant_offline_references(client, seen, monkeypatch,

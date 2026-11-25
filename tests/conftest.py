@@ -61,6 +61,23 @@ _HOSTED_INFRA = {
     "tests/unit/infra/test_b5_build_runtime_terraform.py",
     "tests/unit/infra/test_production_build_runtime_terraform.py",
 }
+_PLATFORM_TEST_MODULES = {
+    f"tests/unit/llm/test_{name}.py" for name in (
+        "client_catalog_ledger", "platform_credential_capture", "reasoning_effort", "single_attempt",
+        "sol_dispatch", "time_context", "tool_round_budget",
+    )
+} | {"tests/unit/simulation/test_provider_mode.py"}
+_PLATFORM_TESTS = {
+    "tests/unit/chat/test_customers_in_chat.py": {
+        "test_empty_customer_search_offers_public_routes_and_still_accepts_explicit_refinements",
+        "test_hidden_page_links_become_in_chat_actions",
+    },
+    "tests/unit/llm/test_provider_limiter.py": {"test_limiter_is_on_real_sdk_chat_and_responses_requests"},
+    "tests/unit/test_forced_update_halts_hosted.py": {"test_cloud_provider_ignores_desktop_update_snapshot"},
+    "tests/unit/test_sole_llm_provider.py": {
+        "test_require_env_api_key_ok_when_matches", "test_require_env_api_key_rejects_mismatch",
+    },
+}
 _PRIVATE_WORKFLOW = ".github/workflows/ci.yml"
 _PRIVATE_HOSTED_CORE = ("services/company_os/app/admin/internal.py",)
 _PRIVATE_CONSUMER_API = ("services/company_os/app/api/consumer_api.py",)
@@ -69,6 +86,8 @@ _PRIVATE_PAGE_ARCHIVES = tuple(f"tests/unit/pagebuilder/fixtures/{name}_real_cod
 _PRIVATE_PMF_PACK = ("services/company_os/app/knowledge/startup_pmf.json.gz",)
 _PRIVATE_COACHING_PACKS = (*_PRIVATE_PMF_PACK, "services/company_os/app/knowledge/yc_video_advice.json.gz")
 _PRIVATE_HARNESS = ("packages/harness/loop.py",)
+_PRIVATE_TICK = ("services/company_os/app/api/internal_tick.py",)
+_PRIVATE_STRIPE = ("services/company_os/app/payments/stripe.py",)
 _PRIVATE_FIXTURE_INPUTS = {
     "tests/integration/test_gateway_auth.py": {"client": _PRIVATE_GATEWAY},
     "tests/integration/test_no_secret_egress.py": {"client": _PRIVATE_GATEWAY},
@@ -94,13 +113,38 @@ _PRIVATE_FIXTURE_INPUTS = {
     "tests/unit/test_venture_soft_delete.py": {"client": _PRIVATE_HOSTED_CORE},
 }
 _PRIVATE_INPUTS = {
+    "tests/unit/billing/test_stripe_checkout.py": {
+        "test_checkout_closed_until_payments_accepting": ("services/company_os/app/payments/registry.py",),
+        "test_checkout_uses_stripe_when_configured": _PRIVATE_STRIPE,
+    },
+    "tests/unit/chat/test_live_harness_steer.py": {"test_live_instruction_does_not_enqueue": _PRIVATE_HARNESS},
+    "tests/unit/credits/test_metering_guard.py": {
+        "test_converted_feature_modules_keep_shared_facade[hosted-think]": ("services/company_os/app/gbrain/think.py",),
+    },
+    "tests/unit/idea/test_gstack_office_hours.py": {
+        "test_summary_and_looks_right_show_only_relevant_offline_references[relevant-pack]": _PRIVATE_COACHING_PACKS,
+    },
+    "tests/unit/planning/test_harness_research.py": {"test_harness_research_uses_explore_then_writes_note": _PRIVATE_HARNESS},
+    "tests/unit/test_linear_connector.py": {
+        "test_linear_fake_lists_teams": ("data/fixtures/connectors/linear/resources.json",),
+        "test_linear_webhook_rejects_tamper_and_stale": ("data/fixtures/connectors/linear/webhook.json",),
+    },
+    "tests/unit/test_outreach_stripe_webhook.py": {"*": _PRIVATE_STRIPE},
+    "tests/unit/test_referral_rewards.py": {
+        "test_claim_replay_self_legacy_usage_and_private_summary": ("services/company_os/app/api/beta_api.py",),
+    },
+    "tests/unit/test_teardown_connections.py": {
+        "test_teardown_refuses_connected_workspace": ("data/fixtures/connectors/linear/account.json",),
+    },
     "tests/unit/chat/test_yc_coaching.py": {
         "test_local_advice_prompt_uses_bundled_coaching_and_names_missing_files": _PRIVATE_COACHING_PACKS,
         "test_relevance_and_frequency": _PRIVATE_COACHING_PACKS[1:],
     },
     "tests/unit/product/test_stages_20_23.py": {"test_admin_security_lists_events": _PRIVATE_HOSTED_CORE},
     "tests/unit/tasks/test_scheduler.py": {
-        "test_tick_transaction_belongs_to_scheduler_service": ("services/company_os/app/api/internal_tick.py",),
+        "test_tick_transaction_belongs_to_scheduler_service": _PRIVATE_TICK,
+        "test_signed_tick_and_scheduler_share_dedupe_window": _PRIVATE_TICK,
+        "test_signed_tick_respects_specialist_worker_kinds": _PRIVATE_TICK,
     },
     "tests/unit/test_pmf_knowledge.py": {
         **dict.fromkeys((
@@ -144,6 +188,8 @@ _PRIVATE_INPUTS = {
         "test_build_my_landing_page_never_offers_a_template_page",
     ), _PRIVATE_HOSTED_CORE),
     "tests/unit/knowledge/test_founder_coaching.py": {
+        "test_idea_references_abstain_on_failure_and_never_pad_a_single_case": _PRIVATE_PMF_PACK,
+        "test_references_require_customer_industry_or_decision_overlap[relevant-pack]": _PRIVATE_COACHING_PACKS,
         "test_real_cards_have_why_do_avoid_metric_sources_and_refresh": _PRIVATE_PMF_PACK,
         "test_yc_mode_switch_and_real_excerpt": _PRIVATE_COACHING_PACKS[1:],
         "test_compact_runtime_manifest_and_planning_context": _PRIVATE_COACHING_PACKS[1:],
@@ -313,6 +359,7 @@ _PRIVATE_INPUTS = {
         "test_every_inventory_feature_maps_to_a_slug": ("docs/supymem/feature-audit-2026-09-30/INVENTORY.md",),
     },
     "tests/unit/chat/test_jarvis_control.py": {
+        "test_account_questions_and_requests_run_without_cards[hosted]": ("services/company_os/app/api/payments_api.py",),
         "test_every_founder_page_is_reachable_by_name": (
             "apps/console/src/app/pagebuilder-lab/layout.tsx", "apps/console/src/app/lab/diagrams/layout.tsx",
         ),
@@ -378,7 +425,10 @@ _PRIVATE_INPUTS = {
         "test_local_flow_files_are_registered_once_in_ci": (_PRIVATE_WORKFLOW,),
         "test_windows_release_smokes_the_installed_nsis_payload": (".github/workflows/desktop-release.yml",),
     },
-    "tests/unit/test_local_startup.py": {"test_ci_keeps_hosted_boundaries_out_of_local_mode": (_PRIVATE_WORKFLOW,)},
+    "tests/unit/test_local_startup.py": {
+        "test_ci_keeps_hosted_boundaries_out_of_local_mode": (_PRIVATE_WORKFLOW,),
+        "test_hosted_setup_keeps_provider_environment_and_native_update_help": ("docker-compose.companyos.yml",),
+    },
     "tests/unit/test_scale_loadtest.py": {
         "test_stub_seed_is_scoped_and_unknown_providers_fail_closed": (
             "scripts/loadtest/k6/seed.py", "scripts/loadtest/k6/provider_stubs.py", "scripts/loadtest/k6/scenarios.js",
@@ -424,7 +474,7 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
         if local and (hosted_only or item.get_closest_marker("hosted")):
             item.add_marker(pytest.mark.skip(reason="Hosted service contract; run with SUPYMEM_MODE unset."))
         private = _PRIVATE_INPUTS.get(path, {})
-        inputs = set(private.get(name, private.get("*", ())))
+        inputs = set(private.get(item.name, private.get(name, private.get("*", ()))))
         if isinstance(item, pytest.Function):
             parameters = item.callspec.params if hasattr(item, "callspec") else {}
             for fixture_name in item.fixturenames:
@@ -474,6 +524,14 @@ def _unit_data_paths(_unit_data_defaults, tmp_path, monkeypatch):
     monkeypatch.setenv("COMPANY_OS_DB_URL", f"sqlite:///{tmp_path}/owner.db")
     monkeypatch.setenv("COMPANY_OS_WORKING_MEMORY_PATH", str(tmp_path / "memory.db"))
     monkeypatch.setenv("COMPANY_OS_SECRETS_ENV", str(tmp_path / "import.env"))
+
+
+@pytest.fixture(autouse=True)
+def _platform_provider_mode(request, monkeypatch):
+    node = request.node
+    path = node.path.relative_to(ROOT).as_posix() if node.path.is_relative_to(ROOT) else ""
+    if path in _PLATFORM_TEST_MODULES or getattr(node, "originalname", None) in _PLATFORM_TESTS.get(path, ()):
+        monkeypatch.delenv("SUPYMEM_MODE", raising=False)
 
 
 @pytest.fixture(autouse=True)

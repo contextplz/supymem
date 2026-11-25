@@ -20,6 +20,7 @@ Native first-launch matrix, pending the coordinator's Windows/macOS runners:
 """
 import importlib.util
 from contextlib import nullcontext
+from gzip import compress
 from io import BytesIO
 import json
 import plistlib
@@ -42,7 +43,7 @@ def test_payload_copies_bundled_coaching_packs_and_fingerprints_them(tmp_path, d
     knowledge.mkdir(parents=True)
     names = ("startup_pmf.json.gz", "yc_video_advice.json.gz")
     for name in names:
-        shutil.copy2(ROOT / "services/company_os/app/knowledge" / name, knowledge / name)
+        (knowledge / name).write_bytes(compress(json.dumps({"fixture": domain, "pack": name}).encode(), mtime=0))
     (knowledge / "corpus.json.gz").write_bytes(b"private data")
     destination = tmp_path / "payload/services/company_os/app"
     builder.copy_source(source, destination)

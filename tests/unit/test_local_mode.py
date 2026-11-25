@@ -1223,14 +1223,24 @@ def test_local_errors_never_record_or_alert(local_app, monkeypatch):
 
 
 def test_local_admin_denies_before_authentication(local_app, monkeypatch):
-    from app.admin import deps, internal
+    from importlib.util import find_spec
+    from app.admin import deps
 
     verify = MagicMock(side_effect=AssertionError("authentication must not run"))
     monkeypatch.setattr(deps, "verify_caller", verify)
-    monkeypatch.setattr(internal, "verify_caller", verify)
+    checks = [deps.require_admin("audit.view")]
+    if find_spec("app.admin.internal"):
+        from app.admin import internal
+
+        monkeypatch.setattr(internal, "verify_caller", verify)
+        checks.append(internal._require_system)
+    else:
+        from app.main import create_app
+
+        assert not any(path.startswith("/internal/admin") for path in create_app().openapi()["paths"])
     request = Request({"type": "http", "method": "GET", "path": "/admin",
                        "headers": [], "client": (local_app, 1)})
-    for check in (deps.require_admin("audit.view"), internal._require_system):
+    for check in checks:
         with pytest.raises(HTTPException) as denied:
             check(request)
         assert denied.value.status_code == 404

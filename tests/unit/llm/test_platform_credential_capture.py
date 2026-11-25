@@ -16,7 +16,6 @@ from pydantic import SecretStr
 
 @pytest.fixture
 def platform_env(monkeypatch):
-    monkeypatch.delenv("SUPYMEM_MODE", raising=False)
     monkeypatch.setenv("LLM_PROFILE", "prod")
     monkeypatch.setenv("LLM_API_KEY", "original-fixture-key")
     monkeypatch.delenv("MODEL_ROUTING_OVERRIDES", raising=False)

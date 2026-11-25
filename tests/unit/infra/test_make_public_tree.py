@@ -376,8 +376,11 @@ def test_gitleaks_document_and_fixture_paths_are_scoped(tmp_path, domain):
         source_file = ROOT / name
         if not source_file.is_file():
             continue
+        source_text = source_file.read_text()
+        if name == "tests/fixtures/boundary/positives.json":
+            source_text = "\n".join(row["text"] for row in json.loads(source_text))
         for pattern in allowlist["regexes"]:
-            match = re.search(pattern[2:-1], source_file.read_text())
+            match = re.search(pattern[2:-1], source_text)
             assert match is not None
             value = match.group()
             assert _allowed({"allowlists": [allowlist]}, name, value, "")

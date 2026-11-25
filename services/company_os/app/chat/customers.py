@@ -712,6 +712,14 @@ def send_block_message(code: str) -> str:
     return _SEND_ERRORS.get(code) or BLOCKED.get(code) or "Open Find customers and review your saved drafts and send records before retrying."
 
 
+def _daily_send_limit_message() -> str:
+    from app.autopilot import guard
+
+    resets_at = (guard.day_start() + timedelta(days=1)).isoformat()
+    return ("Your daily send limit is reached. Your approved drafts stay saved. "
+            f"Your limit resets at {resets_at} UTC. You can ask to send your saved emails after it resets.")
+
+
 def _send_section(venture_id: str, view: dict) -> tuple[str, list[dict]]:
     batch = next((b for b in view.get("batches") or [] if b.get("approved_count")), None)
     if batch is None:
@@ -727,11 +735,7 @@ def _send_section(venture_id: str, view: dict) -> tuple[str, list[dict]]:
         return send_block_message(reason), actions
     remaining = _remaining_today(venture_id, view)
     if not remaining:
-        from app.autopilot import guard
-
-        resets_at = (guard.day_start() + timedelta(days=1)).isoformat()
-        return ("Your daily send limit is reached. Your approved drafts stay saved. "
-                f"Your limit resets at {resets_at} UTC. You can ask to send your saved emails after it resets."), []
+        return _daily_send_limit_message(), []
     n = min(batch["approved_count"], batch["cap"], remaining)
     sender = (view.get("gmail") or {}).get("sender") or "your Gmail"
     if batch.get("senders"):
@@ -1167,7 +1171,11 @@ def render(venture_id: str, view: dict, *, lead_limit: int | None = None, offset
             actions.append({"label": "Connect Gmail", "action": "connections.connect", "payload": {"query": "connect gmail"}, "style": "primary"})
         parts.append(f"{emailable} of them publish an email address. {setup} Drafts still depend on fit and permission.")
     review = (view.get("outreach_next_step") or journey._next_step(venture_id, view)) if is_local() and show_saved and drafts else {}
-    send_text, send_actions = (review["body_md"], []) if review.get("reason") == "approved_drafts" else _send_section(venture_id, view)
+    if review.get("reason") == "approved_drafts":
+        send_text = review["body_md"] if _remaining_today(venture_id, view) else _daily_send_limit_message()
+        send_actions = []
+    else:
+        send_text, send_actions = _send_section(venture_id, view)
     if send_text:
         parts.append(send_text)
         actions += send_actions

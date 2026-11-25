@@ -279,20 +279,25 @@ def test_batch_approval_reviews_without_sending(venture, monkeypatch):
     assert not reply["actions"] and "Ask to send" in reply["body_md"]
 
 
-def test_account_questions_and_requests_run_without_cards(venture, monkeypatch):
+@pytest.mark.parametrize("mode", ["local", "hosted"])
+def test_account_questions_and_requests_run_without_cards(request, monkeypatch, mode):
+    if mode == "local":
+        monkeypatch.setenv("SUPYMEM_MODE", "local")
+    else:
+        monkeypatch.delenv("SUPYMEM_MODE", raising=False)
+    venture = request.getfixturevalue("venture")
     from app.chat.execute import execute_action
 
     assert "Settings" in say(venture, "what did I spend today")["body_md"]
     assert "credit" not in say(venture, "what did I spend today")["body_md"]
-    from app.core.local_mode import is_local
-    if is_local():
+    if mode == "local":
         requested = say(venture, "request credits")
         assert "Settings > Keys and connections" in requested["body_md"]
         assert "recorded model spending this month" in requested["body_md"]
         assert "credits" not in requested["body_md"] and "team" not in requested["body_md"]
         assert requested["kind"] != "confirmation"
         assert not any(action.get("confirmation") for action in requested["actions"])
-    monkeypatch.delenv("SUPYMEM_MODE", raising=False)
+        return
     requested = say(venture, "request credits")
     assert not any(action.get("confirmation") for action in requested["actions"])
     assert "saved for the team" in requested["body_md"]

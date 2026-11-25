@@ -207,7 +207,8 @@ def test_idea_references_mode_switch_personal_and_incidental_requirements(knowle
       "customer": "Power station mechanics", "offer": "An easy product to track their work before they buy"}, False),
     ({"summary": "Consumer audio app for amateur birdwatchers identifying migrating birds in local woodlands",
       "customer": "Weekend nature enthusiasts", "offer": "An easy product to track their observations before they buy"}, False),
-    ({"summary": "B2B SaaS developer tools customer feedback manual beta workflow", "customer": "API platform teams"}, True),
+    pytest.param({"summary": "B2B SaaS developer tools customer feedback manual beta workflow", "customer": "API platform teams"},
+                 True, id="relevant-pack"),
 ])
 def test_references_require_customer_industry_or_decision_overlap(knowledge, monkeypatch, idea, relevant):
     pmf, yc = knowledge

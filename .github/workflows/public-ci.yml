@@ -107,7 +107,7 @@ jobs:
         run: |
           journey_home=$(mktemp -d "$RUNNER_TEMP/supymem-journey-home.XXXXXX")
           sudo unshare --net bash -c 'ip link set lo up && exec runuser -u "$1" -p -- "${@:2}"' \
-            _ "$(id -un)" env "HOME=$journey_home" "PATH=$PATH" "PYTHONPATH=$PYTHONPATH" SUPYMEM_TEST_FAKE_CODING_TOOL=1 \
+            _ "$(id -un)" env "HOME=$journey_home" "TMPDIR=$journey_home" "PATH=$PATH" "PYTHONPATH=$PYTHONPATH" SUPYMEM_TEST_FAKE_CODING_TOOL=1 \
             .venv/bin/python scripts/local_value_journey.py --offline --timeout 45
 
   console:

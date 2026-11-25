@@ -542,6 +542,10 @@ def test_requested_email_automation_executes_without_customer_search(customer_ch
     journey.update_icp(data["wid"], data["vid"], data["audience"], problem=data["problem"], start=False)
     if connected:
         _mail(data)
+    elif is_local():
+        from app.core.local_secrets import update_settings
+
+        update_settings("capabilities", {"send_email": True}, {})
     monkeypatch.setattr(outreach, "_send_one", lambda *_args: pytest.fail("Automation must retain the sending worker checks"))
     reply = asyncio.run(execute_action(data["vid"], "gtm.automate",
         payload={"prepare": True}, actor_subject=data["actor"]))
@@ -809,6 +813,7 @@ def test_waiting_draft_commands_keep_their_draft_routes(outreach_email_chat, mon
 def test_explicit_people_search_with_saved_outreach_starts_without_showing_records(outreach_email_chat, monkeypatch, saved_state):
     from app.autopilot import outreach
     from app.chat.execute import find_customers_reply
+    from app.core.local_mode import is_local
     from app.credits import metered
     from app.db.models import GtmTouch, Job, PlannedTask
     from app.gtm import journey
@@ -841,7 +846,8 @@ def test_explicit_people_search_with_saved_outreach_starts_without_showing_recor
     request = f"Find 10 {data['audience']} I can interview about {data['problem']}. Do not send anything."
     reply = asyncio.run(find_customers_reply(data["vid"], request))
     assert reply["kind"] == "gtm_search_progress", reply
-    assert "Finding people" in reply["body_md"] and "check progress" in reply["body_md"].lower()
+    progress = "Searching public sources" if is_local() else "Finding people"
+    assert progress in reply["body_md"] and "check progress" in reply["body_md"].lower()
     assert "Nothing is sent" in reply["body_md"] and "credit" not in reply["body_md"].lower()
     assert contact.email not in reply["body_md"] and contact.first_name not in reply["body_md"]
     assert "Your saved leads" not in reply["body_md"] and "Your email records" not in reply["body_md"]
@@ -996,6 +1002,7 @@ def test_typed_recipient_draft_is_saved_for_the_checked_send_path(customer_chat,
         if is_local():
             from app.core.local_secrets import update_settings
             update_settings("smtp", {"postal_address": _settings(session, data["wid"]).sender_postal_address}, {})
+            update_settings("capabilities", {"send_email": True}, {})
     if connected:
         _mail(data)
     async def compose(*args):
