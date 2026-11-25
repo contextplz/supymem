@@ -377,7 +377,9 @@ def test_gitleaks_document_and_fixture_paths_are_scoped(tmp_path, domain):
         if not source_file.is_file():
             continue
         for pattern in allowlist["regexes"]:
-            match = re.search(pattern[2:-1], source_file.read_text())
+            text = source_file.read_text()
+            # gitleaks decodes \uXXXX escapes, so allowlisted values may only exist decoded
+            match = re.search(pattern[2:-1], text) or re.search(pattern[2:-1], text.encode().decode("unicode_escape"))
             assert match is not None
             value = match.group()
             assert _allowed({"allowlists": [allowlist]}, name, value, "")
