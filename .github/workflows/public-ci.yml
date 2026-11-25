@@ -13,7 +13,8 @@ permissions:
 jobs:
   python:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    # GitHub-hosted runners need ~35-60 min per shard; 40 cut most shards off.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
