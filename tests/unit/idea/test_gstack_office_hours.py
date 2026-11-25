@@ -256,6 +256,7 @@ def test_office_hours_reuses_known_topics_and_keeps_source_choices(known_case, m
 
 ROOT = Path(__file__).resolve().parents[3]
 VENDORED = ROOT / "third_party" / "gstack"
+PRIVATE_SKILLS_MANIFEST = ROOT / "vendor" / "skills" / "MANIFEST.yaml"
 RISK = "No bakery has yet paid for order intake."
 SKIP_TEXT = "Skip — run the review with what you have"
 
@@ -1081,9 +1082,9 @@ def test_edit_stays_in_chat_changes_revision_and_requires_fresh_looks_right(clie
 def test_vendored_licence_pin_and_questions_come_from_the_skill_text():
     from app.gstack import methodology as m
     assert "MIT License" in (VENDORED / "LICENSE").read_text() and "Garry Tan" in (VENDORED / "LICENSE").read_text()
-    assert "Garry Tan" in (VENDORED / "NOTICE").read_text()
-    manifest = (ROOT / "vendor" / "skills" / "MANIFEST.yaml").read_text()
-    assert m.pinned_sha() in manifest
+    notice = (VENDORED / "NOTICE").read_text()
+    assert "Garry Tan" in notice
+    assert re.fullmatch(r"[0-9a-f]{40}", m.pinned_sha()) and m.pinned_sha() in notice
     skill = (VENDORED / "openclaw/skills/gstack-openclaw-office-hours/SKILL.md").read_text()
     asks = re.findall(r'\*\*Ask:\*\* "([^"]+)"', skill)
     assert len(asks) == 6
@@ -1091,6 +1092,13 @@ def test_vendored_licence_pin_and_questions_come_from_the_skill_text():
     assert "Specificity is the only currency" in m.office_hours_text()
     assert "Zero silent failures" in m.CEO_PRIME_DIRECTIVES[0]
     assert "Zero silent failures" in (VENDORED / "openclaw/skills/gstack-openclaw-ceo-review/SKILL.md").read_text()
+
+
+@pytest.mark.skipif(not PRIVATE_SKILLS_MANIFEST.is_file(), reason="Private skills manifest is not in the public export")
+def test_vendored_pin_matches_private_manifest():
+    from app.gstack import methodology as m
+
+    assert m.pinned_sha() in PRIVATE_SKILLS_MANIFEST.read_text()
 
 
 def test_office_hours_questions_then_answers_then_critique_and_feed_forward(client, monkeypatch, seen):

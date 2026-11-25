@@ -29,6 +29,8 @@ TOOLS = [{"type": "function", "function": {"name": "read_file", "parameters": {
 
 @pytest.fixture
 def config(monkeypatch):
+    monkeypatch.delenv("SUPYMEM_MODE", raising=False)
+    monkeypatch.setenv("LLM_CASSETTE_MODE", "off")
     monkeypatch.setenv("LLM_API_KEY", "offline-budget-test")
     monkeypatch.setenv("MODEL_ROUTING_OVERRIDES", '{"*":{"model":"sol-deploy","catalog_model":"gpt-6.1-sol"}}')
     monkeypatch.setattr(sole, "resolve_override", lambda *args, **kwargs: None)

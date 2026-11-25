@@ -157,6 +157,8 @@ async def test_pagebuilder_rejected_sdk_request_has_no_retry_fallback_or_usage(m
 
 @pytest.fixture(autouse=True)
 def boundary(monkeypatch):
+    monkeypatch.delenv("SUPYMEM_MODE", raising=False)
+    monkeypatch.delenv("MODEL_ROUTING_OVERRIDES", raising=False)
     register_filter(lambda messages, **kwargs: Decision(messages=list(messages)))
     monkeypatch.setattr(sole, "_workspace_resolver", None)
     monkeypatch.setattr(sole, "_usage_recorder", None)
