@@ -1,0 +1,35 @@
+{
+  "id": "gym_churn",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Predict gym member churn and prioritize retention follow-up.",
+    "customer": "Fitness club operators"
+  },
+  "direct": [
+    {
+      "name": "Keepme",
+      "domain": "keepme.ai",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.keepme.ai/antares/ember",
+          "fact": "Fitness platform with predictive membership retention and engagement tools.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [],
+  "oss": [],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status.",
+    "No inactive or dead direct attempt has been independently verified for this case; dead recall is not applicable.",
+    "Only one directly sourced prediction vendor is included; this recall denominator is small."
+  ]
+}

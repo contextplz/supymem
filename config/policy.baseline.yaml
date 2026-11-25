@@ -1,0 +1,122 @@
+# Founder-signed governance baseline. Weakening without a founder-authorized
+# change freezes the Evolution Engine (14 §8). Checksum is recomputed by the
+# warden on load; the signed_checksum field is the expected value at sign-off.
+
+version: "1.0.0"
+signed_by: founder
+signed_at: "2026-07-28T00:00:00Z"
+# Placeholder — warden computes and stores the live checksum on first boot.
+# After founder sign-off, replace with the real sha256 of the canonical body.
+signed_checksum: "UNSIGNED_BASELINE_REPLACE_ON_SIGNOFF"
+
+autonomy_floor: L0
+autonomy_default: L2          # assisted — OQ-2 locked 2026-08-04
+autonomy_ceiling_without_redteam: L2
+
+caps:
+  max_active_agents: 12
+  max_agent_spawns_per_day: 3
+  max_promotions_per_cycle: 2
+  max_code_promotions_per_day: 3
+  max_concurrent_coding_runs: 1
+  max_concurrent_agent_runs: 3
+  daily_token_budget_usd: 5.0
+  monthly_channel_spend_usd: 25.0
+  spend_per_day_usd: 25.0           # OQ-3 hard stop — real money + LLM + tools
+  max_human_tasks_visible: 5
+  max_rework_loops: 2
+  max_clarification_rounds: 2
+  max_items_in_flight: 3
+  max_slates_per_day: 12
+  max_actuations_per_hour: 30
+  chat_max_proactive_per_day: 6
+
+# Ads: never autonomous until 30 days positive unit economics (OQ-9).
+ads:
+  autonomous_allowed: false
+  require_approval_until: unit_economics_positive_30d
+
+autopilot:
+  default: assisted                 # maps to L2
+  pause_on:
+    - dispute_created
+    - error_rate_above: 0.05
+    - founder_rejection_count: 2
+    - unattributed_revenue_above_usd: 5
+    - warden_drift_detected
+  quiet_hours: null
+  resume: requires_founder_ack
+
+# Paths relative to repo root, compared after canonicalize.
+filesystem_denylist:
+  - services/warden
+  - data/warden.db
+  - config/policy.baseline.yaml
+  - .env
+  - .env.local
+  - data/vault.enc
+
+# Writable workspace roots for generated / coding-agent work.
+filesystem_allowlist:
+  - data/ventures
+  - apps
+  - packages
+  - services/company_os
+  - services/gateway
+  - tests
+  - scripts
+  - docs
+
+# Hostnames agents may reach when network_egress is permitted.
+network_allowlist:
+  - 127.0.0.1
+  - localhost
+  - api.github.com
+  - registry.npmjs.org
+  - pypi.org
+  - files.pythonhosted.org
+  - zernio.com
+  - api.zernio.com
+  - mcp.zernio.com
+  - api.outstand.so
+
+# Binaries permitted for proc:spawn
+binary_allowlist:
+  - cursor-agent
+  - agent
+  - claude
+  - codex
+  - git
+  - node
+  - pnpm
+  - npm
+  - python
+  - python3
+  - pytest
+  - ruff
+  - mypy
+  - alembic
+
+# Packages install_dependency may allow at L3+
+dependency_allowlist:
+  - fastapi
+  - uvicorn
+  - pydantic
+  - sqlalchemy
+  - httpx
+  - pytest
+  - ruff
+
+# Baseline permission floors — weakening below these is unauthorized drift.
+dimension_floors:
+  plan: allow
+  read: allow
+  write_code: propose
+  deploy: propose
+  post_public: propose
+  message_customer: propose
+  spend_money: deny
+  install_dependency: propose
+  network_egress: allow_readonly
+  modify_org: propose
+  modify_self: deny

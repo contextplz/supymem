@@ -1,0 +1,26 @@
+{
+  "version": {"version": "2.4", "ok": true, "command": "version", "data": {"os": "linux", "target": "x86_64", "version": "0.10.1"}},
+  "snapshot": {"version": "2.4", "ok": false, "command": "snapshot", "error": {"code": "PLATFORM_NOT_SUPPORTED", "disposition": {"delivery": "unknown", "retry": "unknown"}}},
+  "macos_report": {
+    "provenance": "Founder-reported arm64 CLI observations on November 5, 2026; no raw Mac JSON was supplied",
+    "version": "0.10.1",
+    "checksum_verified": true,
+    "accessibility_granted": true,
+    "working_commands": ["list-windows", "snapshot", "clear", "type", "get"],
+    "snapshot_selector": "--window-id",
+    "type_text": "positional",
+    "stdin_option_supported": false,
+    "app_selector_error": "AMBIGUOUS_TARGET",
+    "fresh_snapshot_and_get_value_verified_text": true,
+    "press_delivery": "delivered_unverified",
+    "press_closed_sheet": false,
+    "unchanged_element_old_ref_worked": true
+  },
+  "macos_contract_examples": {
+    "provenance": "Synthetic source-shaped envelopes for unit tests, not captured Mac output",
+    "windows": {"version": "2.4", "ok": true, "command": "list-windows", "data": [
+      {"id": "w-42", "title": "Document", "app_name": "Example", "pid": 11, "is_focused": true, "accessible": true},
+      {"id": "w-43", "title": "Another document", "app_name": "Example", "pid": 12, "is_focused": false, "accessible": true}
+    ]}
+  }
+}

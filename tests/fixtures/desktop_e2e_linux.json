@@ -1,0 +1,95 @@
+{
+  "enterprise": {
+    "idea": "I want to build software for finance teams at multinational retailers to reconcile store cash deposits. They currently compare bank statements and till exports in spreadsheets, which delays month-end reporting. I have no product or customers yet.",
+    "name": "Deposit Ledger",
+    "landing_page": {
+      "headline": "Reconcile your store cash deposits",
+      "hero": "Help shape deposit reconciliation for retail finance teams.",
+      "steps": ["Upload bank statements and till exports.", "Match deposits.", "Review amounts without a match."]
+    },
+    "answers": {
+      "customer": "Finance teams at multinational retailers who reconcile store cash deposits.",
+      "offer": "Software that reconciles store cash deposits for retail finance teams.",
+      "workflow": "You upload bank statements and till exports, match deposits, and review unmatched amounts.",
+      "pricing_hypothesis": "I would test a monthly subscription with retail finance teams before setting a price.",
+      "first_user_path": "I would ask retail finance teams for interviews through industry associations. I have not contacted anyone yet.",
+      "desired_outcome": "A finance team completes a deposit reconciliation with fewer unmatched records.",
+      "constraints": "The first version must not move money or expose store financial records.",
+      "problem": "Comparing bank statements and till exports in spreadsheets delays month-end reporting.",
+      "requirements": "You must be able to review and correct every suggested deposit match.",
+      "Q1": "I have no customers, payments or interviews yet. I would first interview retail finance teams about deposit reconciliation.",
+      "Q2": "Retail finance teams compare bank statements and till exports in spreadsheets today.",
+      "Q3": "Finance directors at multinational retailers manage deposit reconciliation and month-end reporting."
+    },
+    "people": "Find finance directors at multinational retailers who reconcile store cash deposits.",
+    "experiment": "Design a one-week experiment to test whether these finance teams will pay for deposit reconciliation. Do not send messages or publish anything.",
+    "demo": {
+      "idea": "I want to build software for finance teams at retailers to reconcile store deposits. No customers yet.",
+      "name": "Deposit Ledger",
+      "people": "Find finance teams to interview.",
+      "experiment": "Design a one-week paid pilot experiment."
+    }
+  },
+  "health_tech": {
+    "idea": "I want to build software for outpatient cardiology clinics to follow up with patients after hospital discharge. Nurses currently track callback lists in spreadsheets and miss patients who need timely appointments. I have no product or customers yet.",
+    "name": "Followup Desk",
+    "landing_page": {
+      "headline": "Keep discharge follow-up in view",
+      "hero": "Help shape callback coordination for outpatient cardiology clinics.",
+      "steps": ["Import an authorized callback list.", "Record contact attempts.", "Track appointments that still need follow-up."]
+    },
+    "answers": {
+      "customer": "Nurse managers at outpatient cardiology clinics who coordinate discharge follow-up.",
+      "offer": "Software that organizes callback lists and follow-up appointments for outpatient cardiology clinics.",
+      "workflow": "You import an authorized callback list, record contact attempts, and track appointments that still need follow-up.",
+      "pricing_hypothesis": "I would test a monthly clinic subscription after interviewing nurse managers.",
+      "first_user_path": "I would request interviews with clinic nurse managers through professional associations. I have not contacted anyone yet.",
+      "desired_outcome": "A nurse manager can identify every callback that still needs follow-up.",
+      "constraints": "The first version must not make medical decisions or collect patient records without authorization.",
+      "problem": "Spreadsheet callback lists make it difficult to track patients who need timely appointments.",
+      "requirements": "You must be able to correct the callback status and limit access to authorized clinic staff.",
+      "Q1": "I have no customers, payments or interviews yet. I would first interview nurse managers about follow-up coordination.",
+      "Q2": "Clinic nurses currently track callback lists and appointment follow-up in spreadsheets.",
+      "Q3": "Nurse managers at outpatient cardiology clinics coordinate discharge follow-up and review outstanding callbacks."
+    },
+    "people": "Find nurse managers at outpatient cardiology clinics who coordinate follow-up after hospital discharge.",
+    "experiment": "Design a one-week experiment to test whether these clinics will pay for discharge follow-up coordination. Do not send messages or publish anything.",
+    "demo": {
+      "idea": "I want to build software for outpatient cardiology clinics to coordinate follow-up after hospital discharge. No customers yet.",
+      "name": "Followup Desk",
+      "people": "Find nurse managers to interview.",
+      "experiment": "Design a one-week paid coordination experiment."
+    }
+  },
+  "consumer": {
+    "idea": "I want to build an app for parents teaching their children to cook affordable meals. They currently collect recipes on paper and struggle to plan safe beginner lessons. I have no product or customers yet.",
+    "name": "Kitchen Lessons",
+    "landing_page": {
+      "headline": "Plan safe beginner cooking lessons",
+      "hero": "Help shape affordable beginner cooking lesson planning for parents.",
+      "steps": ["Choose a beginner recipe.", "Review adult-supervision requirements.", "Plan an affordable cooking lesson."]
+    },
+    "answers": {
+      "customer": "Parents teaching their children to cook affordable meals at home.",
+      "offer": "An app that helps parents plan safe beginner cooking lessons for their children.",
+      "workflow": "You choose a beginner recipe, review adult-supervision requirements, and plan an affordable cooking lesson.",
+      "pricing_hypothesis": "I would test a paid lesson pack with parents before choosing a subscription price.",
+      "first_user_path": "I would ask parents for interviews through local cooking groups. I have not contacted anyone yet.",
+      "desired_outcome": "A parent plans an affordable beginner cooking lesson with appropriate adult supervision.",
+      "constraints": "The first version must not contact children or collect their personal information.",
+      "problem": "Parents collect recipes on paper and struggle to plan safe beginner cooking lessons.",
+      "requirements": "You must be able to review ingredients, allergies and adult-supervision requirements before a lesson.",
+      "Q1": "I have no customers, payments or interviews yet. I would first interview parents about beginner cooking lessons.",
+      "Q2": "Parents currently collect recipes on paper and plan cooking lessons themselves.",
+      "Q3": "Parents who want affordable beginner cooking lessons for their children look for ideas in local cooking groups."
+    },
+    "people": "Find parents looking for beginner cooking lessons for their children.",
+    "experiment": "Design a one-week experiment to test whether these parents will pay for cooking lessons. Do not send messages or publish anything.",
+    "demo": {
+      "idea": "I want to build an app for parents teaching children to cook affordable meals. No customers yet.",
+      "name": "Kitchen Lessons",
+      "people": "Find parents to interview.",
+      "experiment": "Design a one-week paid lesson experiment."
+    }
+  }
+}

@@ -1,0 +1,171 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border: 1px solid var(--line, #e2e2e2);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  background: var(--bg-1, #fff);
+}
+
+.notice {
+  border: 1px solid #d9e4d4;
+  border-radius: 12px;
+  padding: 0.85rem 1.05rem;
+  background: #f4f8f2;
+  color: #243024;
+}
+
+.notice strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.notice p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #3a4a3a;
+}
+
+.card {
+  border: 1px solid var(--line, #e2e2e2);
+  border-radius: 12px;
+  background: var(--bg-1, #fff);
+  padding: 1rem 1.1rem;
+}
+
+.nextStep {
+  border-color: #a8bbdf;
+  background: #f5f8ff;
+}
+
+.nextStep .btn {
+  display: inline-block;
+  margin-top: 0.25rem;
+  text-decoration: none;
+}
+
+details.card > .card {
+  border: 0;
+  padding: 0.75rem 0 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .grid2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #555;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  background: #fff;
+}
+
+.textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.btn {
+  border-radius: 8px;
+  border: 1px solid var(--line, #ccc);
+  background: #111;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  background: #fff;
+  color: #111;
+}
+
+.fake {
+  border-style: dashed;
+  background: #faf8f2;
+}
+
+.muted {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.pill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid var(--line, #ddd);
+  background: #fafafa;
+}
+
+.err {
+  color: #a11;
+  font-size: 0.85rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview {
+  width: 100%;
+  min-height: 22rem;
+  border: 1px solid var(--line, #e2e2e2);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.artifact {
+  margin: 0;
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}

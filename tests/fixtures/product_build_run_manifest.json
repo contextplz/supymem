@@ -1,0 +1,31 @@
+{
+  "task_id": "task_one",
+  "title": "Build a dinner tip splitter",
+  "instruction": "Build the reviewed tip splitter inside the venture folder.",
+  "applications": [
+    "com.companyos.app"
+  ],
+  "origins": [],
+  "actions": [
+    "editor.edit",
+    "terminal.execute"
+  ],
+  "coding_loop_verification": {
+    "max_iterations": 6,
+    "max_wall_seconds": 2700,
+    "per_call_seconds": 720,
+    "operation": "workspace_loop_v1",
+    "provider": "codex",
+    "workspace_slug": "test-venture",
+    "profile": "web_app_vercel_v1",
+    "check_recipe": "web_app_vercel_checks_v1",
+    "phase": "implement",
+    "network": "none",
+    "read_scope": "venture_workspace",
+    "write_scope": "venture_workspace",
+    "plan_order_id": "dwo_plan1",
+    "plan_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "credit_ceiling_micro": 0,
+  "duration_seconds": 2700
+}

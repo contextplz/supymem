@@ -1,0 +1,4 @@
+.choices { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; min-width: 0; }
+.option { display: grid; gap: 3px; }
+.recommendation { color: var(--fg-2); font-size: 11px; line-height: 14px; }
+.choices p { flex-basis: 100%; margin: 0; font-size: 12px; }

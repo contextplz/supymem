@@ -1,0 +1,6 @@
+# Shared generated-copy lint configuration.
+#
+# This extends config/firstlook/lint.yaml so future generated surfaces use the
+# same anti-fabrication vocabulary rather than a separate, weaker word list.
+version: 1
+extends: config/firstlook/lint.yaml

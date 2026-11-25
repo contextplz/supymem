@@ -1,0 +1,18 @@
+# USD per 1M tokens — verify against Azure portal (17 §7).
+tiers:
+  pro:
+    input: 0.55
+    output: 2.19
+  flash:
+    input: 0.07
+    output: 0.28
+
+# Channel action costs (USD) used by GTM planning.
+channels:
+  x_post: 0.015
+  x_post_with_url: 0.20
+  email_send: 0.0004
+  reddit_post: 0.0
+  instagram_post: 0.0
+  linkedin_post: 0.0
+  landing_page: 0.0

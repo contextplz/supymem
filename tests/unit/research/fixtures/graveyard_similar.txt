@@ -1,0 +1,8 @@
+# CrumbQueue
+Sector: Bakery software
+Founded: 2018
+Ended: 2022
+Cash burned: $2 million
+CrumbQueue handled order intake for independent bakery owners.
+Failure: Too few shops paid enough to cover onboarding costs.
+Learnings: Do not reuse this catalogue's prose or its rebuild plans.

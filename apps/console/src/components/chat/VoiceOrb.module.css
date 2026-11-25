@@ -1,0 +1,19 @@
+.root { --lvl: 0; position: fixed; inset: 0; z-index: 90; pointer-events: none; }
+.orb {
+  position: fixed; right: 28px; top: calc(50% - 40px); width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #e0e7ff, var(--accent, #6251bb) 50%, #302a65);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--accent, #6251bb) 35%, transparent);
+  transform: scale(calc(1 + var(--lvl) * .35)); transition: transform 80ms linear;
+}
+.orb::after { content: ""; position: absolute; inset: -8px; border: 1px solid var(--accent, #6251bb); border-radius: inherit; opacity: .45; }
+.connecting { opacity: .5; transform: none; }
+.connecting::after { animation: breathe 1.8s ease-in-out infinite; }
+.thinking { background: conic-gradient(#d8d0ff, var(--accent, #6251bb), #302a65, #d8d0ff); animation: orbit 3s linear infinite; }
+.speaking { background: radial-gradient(circle at 32% 28%, #fff1d8, #c3796d 50%, #6b3c74); }
+@keyframes breathe { 50% { transform: scale(1.14); opacity: .8; } }
+@keyframes orbit { to { rotate: 360deg; } }
+@media (max-width: 1099px) { .orb { top: auto; bottom: 96px; right: 16px; width: 56px; height: 56px; } }
+@media (prefers-reduced-motion: reduce) {
+  .orb, .orb::after { animation: none; transform: none; rotate: none; transition: none; }
+  .thinking { background: var(--accent, #6251bb); }
+}

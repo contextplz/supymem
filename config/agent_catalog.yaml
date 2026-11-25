@@ -1,0 +1,248 @@
+# Agent role archetypes — composer draws from this palette (07 §2).
+# Triggers are evaluated deterministically against Charter + IdeaBrief.
+
+max_active_agents: 14
+
+roles:
+  - role: gtm_god
+    trigger: always
+    multiplicity: 1
+    priority: 99
+    deliverable: GTM diagnosis, specialist spawn, founder instructions
+    fitness_metric: wo_throughput_per_day
+    retire_when: never
+    allowed_tools: [list_agents, emit_signal, summarize_runs]
+    model_tier: flash
+    stages: [org_planning, fork_choice, demand_testing, live]
+
+  - role: orchestrator
+    trigger: always
+    multiplicity: 1
+    priority: 100
+    deliverable: Stage progression, unblocking, escalation
+    fitness_metric: stage_velocity_days
+    retire_when: Venture archived
+    allowed_tools: [list_agents, set_priority, emit_signal, summarize_runs]
+    model_tier: flash
+    stages: [org_planning, fork_choice, building, demand_testing, readiness_review, hosting, live]
+
+  - role: architect
+    trigger: "gtm_order == product_first or stage in [building, org_planning]"
+    multiplicity: 1
+    priority: 90
+    deliverable: The locked ADR
+    fitness_metric: gate_pass_rate_first_try
+    retire_when: ADR locked and no rework for 7d
+    allowed_tools: [propose_code, check_policy]
+    model_tier: pro
+    stages: [org_planning, building]
+
+  - role: builder
+    trigger: "stage in [building] or gtm_order == product_first"
+    multiplicity: work_order_tracks  # capped at 3 in composer
+    max_count: 3
+    priority: 85
+    deliverable: Merged Work Orders
+    fitness_metric: wo_throughput_per_day
+    retire_when: Build complete
+    allowed_tools: [propose_code, run_oracle, run_rl_smoke]
+    model_tier: pro
+    stages: [building]
+
+  - role: reviewer
+    trigger: "has_role == builder"
+    multiplicity: 1
+    priority: 84
+    deliverable: Peer review verdicts
+    fitness_metric: defect_escape_rate
+    retire_when: Build complete
+    allowed_tools: [propose_code, check_policy]
+    model_tier: pro
+    stages: [building]
+
+  - role: qa
+    trigger: "complexity_score >= 0.4"
+    multiplicity: 1
+    priority: 70
+    deliverable: Test suites, gate findings
+    fitness_metric: escaped_bug_count
+    retire_when: Readiness gate passed
+    allowed_tools: [run_oracle, run_rl_smoke]
+    model_tier: flash
+    stages: [building, readiness_review]
+
+  - role: designer
+    trigger: "build_archetype != integration_bot"
+    multiplicity: 1
+    priority: 60
+    deliverable: Design tokens, page layouts
+    fitness_metric: ui_gate_pass_rate
+    retire_when: MVP UI complete
+    allowed_tools: [propose_config]
+    model_tier: flash
+    stages: [org_planning, building]
+
+  - role: copywriter
+    trigger: always
+    multiplicity: 1
+    priority: 50
+    deliverable: Landing copy, in-app strings, post drafts
+    fitness_metric: landing_conversion_rate
+    retire_when: never
+    allowed_tools: [propose_config, emit_signal]
+    model_tier: flash
+    stages: [org_planning, demand_testing, building, live]
+
+  - role: growth
+    trigger: "gtm_order == market_first or stage == live"
+    multiplicity: 1
+    priority: 75
+    deliverable: Campaign plans
+    fitness_metric: qualified_signups_per_usd
+    retire_when: never
+    allowed_tools: [propose_config, emit_signal, summarize_runs]
+    model_tier: flash
+    stages: [demand_testing, live, fork_choice]
+
+  - role: channel_operator
+    trigger: "armed_channels > 0"
+    multiplicity: per_armed_channel
+    priority: 65
+    deliverable: Scheduled/published posts
+    fitness_metric: engagement_rate
+    retire_when: Channel disarmed
+    allowed_tools: [emit_signal]
+    model_tier: flash
+    stages: [demand_testing, live]
+
+  - role: support
+    trigger: "stage == live"
+    multiplicity: 1
+    priority: 55
+    deliverable: Answered inbound, feedback events
+    fitness_metric: first_response_minutes
+    retire_when: never
+    allowed_tools: [ingest_feedback, list_feedback]
+    model_tier: flash
+    stages: [live]
+
+  - role: analyst
+    trigger: "stage == live"
+    multiplicity: 1
+    priority: 55
+    deliverable: Metric rollups, fitness computation
+    fitness_metric: metric_freshness_minutes
+    retire_when: never
+    allowed_tools: [summarize_runs, list_feedback]
+    model_tier: flash
+    stages: [live]
+
+  - role: payments_specialist
+    trigger: "monetization != free and monetization != none"
+    multiplicity: 1
+    priority: 72
+    deliverable: Billing integration + reconciliation
+    fitness_metric: payment_success_rate
+    retire_when: Payments shipped and stable 14d
+    allowed_tools: [propose_code, check_policy]
+    model_tier: pro
+    stages: [building, live]
+
+  - role: compliance
+    trigger: "regulatory_surface != none"
+    multiplicity: 1
+    priority: 80
+    deliverable: Policy docs, consent flows
+    fitness_metric: compliance_gate_pass
+    retire_when: Readiness gate passed
+    allowed_tools: [check_policy, propose_config]
+    model_tier: pro
+    stages: [org_planning, building, readiness_review]
+
+  - role: integrator
+    trigger: "integrations_count > 2"
+    multiplicity: extra_integrations
+    priority: 68
+    deliverable: Working integration + credential Human Tasks
+    fitness_metric: integration_uptime
+    retire_when: Integration stable 7d
+    allowed_tools: [propose_code, emit_signal]
+    model_tier: flash
+    stages: [building, live]
+
+  - role: maintainer
+    trigger: "stage == live"
+    multiplicity: 1
+    priority: 90
+    deliverable: Dependency updates, error watch, backup verify
+    fitness_metric: uptime_pct
+    retire_when: never
+    allowed_tools: [run_oracle, summarize_runs, check_policy]
+    model_tier: flash
+    stages: [live]
+
+  - role: pricing
+    trigger: "monetization != free and stage == live"
+    multiplicity: 1
+    priority: 40
+    deliverable: Pricing experiments
+    fitness_metric: arpu
+    retire_when: never
+    allowed_tools: [propose_config]
+    model_tier: flash
+    stages: [live]
+
+  - role: researcher
+    trigger: "stage in [classifying, clarifying]"
+    multiplicity: 1
+    priority: 30
+    deliverable: Sourced research notes
+    fitness_metric: sourced_claim_ratio
+    retire_when: Immediately after intake
+    allowed_tools: [explore_web, emit_signal, summarize_runs, list_agents]
+    model_tier: flash
+    stages: [classifying, clarifying]
+
+  - role: signal_scout
+    trigger: "gtm_track in [relationships, community] or stage == live"
+    multiplicity: 1
+    priority: 70
+    deliverable: New GTM signals with evidence URL, deduped to a company
+    fitness_metric: signals_per_day_icp_precision
+    retire_when: never
+    allowed_tools: [explore_web, emit_signal]
+    model_tier: flash
+    stages: [demand_testing, live]
+
+  - role: lead_researcher
+    trigger: "signals_unresearched > 0 or stage == live"
+    multiplicity: 1
+    priority: 68
+    deliverable: Contact dossier with one personal hook in MemoryPort
+    fitness_metric: dossier_acceptance_rate
+    retire_when: never
+    allowed_tools: [explore_web, emit_signal]
+    model_tier: flash
+    stages: [demand_testing, live]
+
+  - role: relationship_manager
+    trigger: "contacts_in_sequence > 0 or stage == live"
+    multiplicity: 1
+    priority: 72
+    deliverable: Drafted touches, state transitions, reply triage
+    fitness_metric: positive_reply_rate
+    retire_when: never
+    allowed_tools: [emit_signal, summarize_runs]
+    model_tier: flash
+    stages: [live]
+
+  - role: gtm_analyst
+    trigger: "stage == live"
+    multiplicity: 1
+    priority: 45
+    deliverable: Weekly L1/L2/L3 funnel by source and mailbox health
+    fitness_metric: attribution_coverage
+    retire_when: never
+    allowed_tools: [summarize_runs, emit_signal]
+    model_tier: flash
+    stages: [live]

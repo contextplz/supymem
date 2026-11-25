@@ -1,0 +1,44 @@
+# YAML is a template library for seed_icp_template(workspace_id).
+# It is not a shared ICP. Each workspace stores its own GtmMarketProfile.
+# Ideal Customer Profile for Loop 1 signal filtering (docs 115–117).
+# Edit per workspace later; this is the starter ICP.
+
+version: 1
+name: starter_b2b_founders
+
+include:
+  accelerators: []  # not the primary path — ICP fit over directory membership
+  signal_kinds:
+    - web_icp
+    - rss
+    - launch_hn
+    - raise
+    - ph_launch
+    - gh_new_org
+    - yc_admit
+    - ef_admit
+  roles:
+    - founder
+    - co-founder
+    - ceo
+    - cto
+    - coo
+  hq_countries: []  # worldwide — no geo gate for Loop 1 discovery
+
+exclude:
+  employee_min: null
+  employee_max: null
+  email_confidence_min: risky  # published emails only; never guessed
+
+scoring:
+  web_icp: 0.95
+  launch_hn: 0.9
+  raise: 0.85
+  ph_launch: 0.8
+  rss: 0.75
+  gh_new_org: 0.6
+  yc_admit: 0.55
+  ef_admit: 0.5
+  min_icp_score: 0.55
+
+product_mention_blocklist: []

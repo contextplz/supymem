@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0.0</string>
+  <key>CFBundleVersion</key>
+  <string>1.0.0</string>
+  <key>SupymemReleaseVersion</key>
+  <string>1.0.0-rc.2</string>
+  <key>LSEnvironment</key>
+  <dict><key>SUPYMEM_MODE</key><string>local</string></dict>
+  <key>CFBundleURLTypes</key>
+  <array><dict>
+    <key>CFBundleURLName</key><string>com.supymem.local</string>
+    <key>CFBundleURLSchemes</key><array><string>supymem-local</string></array>
+  </dict></array>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>You can use your microphone when you choose to talk instead of typing.</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>You can transcribe your speech when you choose Dictate.</string>
+  <key>NSAppleEventsUsageDescription</key>
+  <string>You can open your coding tool on your venture folder when you start a local build.</string>
+</dict>
+</plist>

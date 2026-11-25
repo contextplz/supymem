@@ -1,0 +1,33 @@
+# Idea Lab activity lines (37, 27 §3). Merged into the deck by load_deck.
+# Every text ≤ 72 chars, second person, no jargon.
+
+idealab.orient:
+  running: "Clearing a bench to think on."
+  done: "Ready to look for openings for you."
+idealab.scan:
+  running: "Reading the evidence I already have."
+  done: "Read {count} signals I already had on hand."
+  done_partial: "No research on hand — reasoned, not researched."
+idealab.slate:
+  running: "Shaping a few openings you can compare."
+  done: "Here are {count} openings, side by side."
+  done_partial: "Only {count} held up. I'd rather show fewer."
+  blocked: "Nothing held up well enough to show you."
+  detail_hint: "Lists each opening with its first customer."
+
+idealab.researched:
+  done: "Backed by sources you can open yourself."
+idealab.reasoned:
+  done: "Reasoned, not researched."
+
+idealab.saved:
+  done: "Saved that one to your bench."
+idealab.rejected:
+  done: "Noted. I won't bring that shape back."
+idealab.teaser:
+  running: "Making a page for that one."
+  done: "That one has a page you can look at now."
+idealab.promoted:
+  done: "Started {company} with what you already told me."
+idealab.prefilled:
+  done: "Carried {count} answers over, so I ask you less."

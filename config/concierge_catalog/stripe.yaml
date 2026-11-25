@@ -1,0 +1,41 @@
+id: stripe_test_keys
+title: Get Stripe test API keys
+verified_on: "2026-06-01"
+prerequisites: [stripe_account]
+steps:
+  - id: open_dashboard
+    title: Open API keys page
+    url: "https://dashboard.stripe.com/test/apikeys"
+    ui_locator: "text=API keys"
+    expect_to_see: "Standard keys"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Switch to Test mode toggle in the sidebar"
+    est_seconds: 30
+  - id: reveal_secret
+    title: Reveal secret key
+    url: "https://dashboard.stripe.com/test/apikeys"
+    ui_locator: "button:has-text('Reveal')"
+    expect_to_see: "sk_test_"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Click Reveal next to Secret key"
+    est_seconds: 20
+  - id: paste_publishable
+    title: Paste publishable key into Company OS
+    url: "https://dashboard.stripe.com/test/apikeys"
+    ui_locator: "code:has-text('pk_test_')"
+    expect_to_see: "pk_test_"
+    copy_this: "pk_test_"
+    paste_target: "vault:stripe_publishable"
+    if_stuck: "Copy the Publishable key starting with pk_test_"
+    est_seconds: 40
+  - id: paste_secret
+    title: Paste secret key into Company OS vault
+    url: "https://dashboard.stripe.com/test/apikeys"
+    ui_locator: "code:has-text('sk_test_')"
+    expect_to_see: "sk_test_"
+    copy_this: "sk_test_"
+    paste_target: "vault:stripe_secret"
+    if_stuck: "Never paste sk_live_ keys"
+    est_seconds: 40

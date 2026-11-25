@@ -1,0 +1,14 @@
+id: vercel_setup
+title: Set up vercel
+verified_on: "2026-06-01"
+prerequisites: []
+steps:
+  - id: open
+    title: Open vercel settings
+    url: "https://vercel.com/account/tokens"
+    ui_locator: "text=Create"
+    expect_to_see: "Create Token"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Refresh and ensure you are logged in"
+    est_seconds: 60

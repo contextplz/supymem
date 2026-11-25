@@ -1,0 +1,11 @@
+.feed { min-width: 0; overflow-wrap: anywhere; }
+.feed summary { cursor: pointer; padding-block: 8px; }
+.list { list-style: none; padding: 0; max-height: 420px; overflow-y: auto; }
+.card { min-width: 0; padding-block: 12px; border-bottom: 1px solid var(--border); }
+.card h3 { margin-block: 8px; }
+.card p { margin-block: 8px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.choices { display: flex; flex-wrap: wrap; gap: 12px; list-style: none; padding: 0; }
+.choices > li { flex: 1 1 180px; }
+.feed button:focus-visible, .feed summary:focus-visible, .feed [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .list { scroll-behavior: auto; } }

@@ -1,0 +1,48 @@
+{
+  "id": "restaurant_booking",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Manage table reservations and guest bookings.",
+    "customer": "Independent restaurants"
+  },
+  "direct": [
+    {
+      "name": "OpenTable",
+      "domain": "opentable.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.opentable.com/",
+          "fact": "Restaurant discovery and reservation booking.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "Resy",
+      "domain": "resy.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://resy.com/join/",
+          "fact": "Restaurant reservation and guest management platform.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [],
+  "oss": [],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status.",
+    "No inactive or dead direct attempt has been independently verified for this case; dead recall is not applicable."
+  ]
+}

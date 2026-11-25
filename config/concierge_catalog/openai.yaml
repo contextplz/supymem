@@ -1,0 +1,14 @@
+id: openai_setup
+title: Set up openai
+verified_on: "2026-06-01"
+prerequisites: []
+steps:
+  - id: open
+    title: Open openai settings
+    url: "https://platform.openai.com/api-keys"
+    ui_locator: "text=Create new secret key"
+    expect_to_see: "API keys"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Refresh and ensure you are logged in"
+    est_seconds: 60

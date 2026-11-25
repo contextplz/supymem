@@ -1,0 +1,146 @@
+# Fitness registry — every AgentSpec.fitness_metric must resolve here (12 §3).
+metrics:
+  stage_velocity_days:
+    direction: lower_is_better
+    window: 7d
+    min_sample: 3
+    regression_threshold: 1.5
+    hardness: hard
+  gate_pass_rate_first_try:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 5
+    regression_threshold: 0.15
+    hardness: hard
+  wo_throughput_per_day:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 3
+    regression_threshold: 0.3
+    hardness: hard
+  rework_rate:
+    direction: lower_is_better
+    window: 7d
+    min_sample: 5
+    regression_threshold: 0.2
+    hardness: hard
+  defect_escape_rate:
+    direction: lower_is_better
+    window: 14d
+    min_sample: 5
+    regression_threshold: 0.1
+    hardness: hard
+  escaped_bug_count:
+    direction: lower_is_better
+    window: 14d
+    min_sample: 1
+    regression_threshold: 2
+    hardness: hard
+  ui_gate_pass_rate:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 3
+    regression_threshold: 0.2
+    hardness: soft
+  landing_conversion_rate:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 50
+    regression_threshold: 0.2
+    hardness: soft
+  qualified_signups_per_usd:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 10
+    regression_threshold: 0.25
+    hardness: hard
+  engagement_rate:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 20
+    regression_threshold: 0.2
+    hardness: soft
+  first_response_minutes:
+    direction: lower_is_better
+    window: 1d
+    min_sample: 5
+    regression_threshold: 0.3
+    hardness: soft
+  csat_proxy:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 10
+    regression_threshold: 0.15
+    hardness: soft
+  metric_freshness_minutes:
+    direction: lower_is_better
+    window: 1d
+    min_sample: 1
+    regression_threshold: 2.0
+    hardness: hard
+  payment_success_rate:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 20
+    regression_threshold: 0.05
+    hardness: hard
+  compliance_gate_pass:
+    direction: higher_is_better
+    window: 30d
+    min_sample: 1
+    regression_threshold: 0.01
+    hardness: hard
+  integration_uptime:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 24
+    regression_threshold: 0.05
+    hardness: hard
+  uptime_pct:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 24
+    regression_threshold: 0.02
+    hardness: hard
+  error_rate:
+    direction: lower_is_better
+    window: 1d
+    min_sample: 100
+    regression_threshold: 0.5
+    hardness: hard
+  arpu:
+    direction: higher_is_better
+    window: 30d
+    min_sample: 20
+    regression_threshold: 0.15
+    hardness: soft
+  sourced_claim_ratio:
+    direction: higher_is_better
+    window: 1d
+    min_sample: 3
+    regression_threshold: 0.2
+    hardness: soft
+  signals_per_day_icp_precision:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 5
+    regression_threshold: 0.25
+    hardness: hard
+  dossier_acceptance_rate:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 5
+    regression_threshold: 0.2
+    hardness: hard
+  positive_reply_rate:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 10
+    regression_threshold: 0.2
+    hardness: hard
+  attribution_coverage:
+    direction: higher_is_better
+    window: 7d
+    min_sample: 5
+    regression_threshold: 0.2
+    hardness: hard

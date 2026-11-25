@@ -1,0 +1,38 @@
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: var(--s-4);
+}
+
+.title {
+  margin: 0;
+  font: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.value {
+  margin: var(--s-2) 0 0;
+  font: var(--t-display);
+  color: var(--fg-0);
+  letter-spacing: -0.02em;
+}
+
+.skeleton {
+  margin-top: var(--s-2);
+  height: 28px;
+  border-radius: var(--r-1);
+  background: var(--bg-2);
+}
+
+.subtitle {
+  margin: var(--s-1) 0 0;
+  font: var(--t-meta);
+  color: var(--fg-2);
+}
+
+.up { color: var(--ok); }
+.down { color: var(--danger); }
+.neutral { color: var(--fg-2); }

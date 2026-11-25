@@ -1,0 +1,114 @@
+# Data boundary policy (43 §3 and §5).
+#
+# The class table is data, not code, so a reader can audit "what may reach a
+# model" without reading Python. `may_reach_model: false` is enforced
+# structurally in app/boundary/filter.py — a prompt template cannot opt in.
+
+version: 1
+
+classes:
+  public:
+    may_reach_model: true
+    description: Our own docs, prompt templates, OSS dependency names.
+  workspace_meta:
+    may_reach_model: true
+    description: File paths, stack names, counts, cadences.
+  workspace_code:
+    may_reach_model: true
+    description: Source from granted repositories, redacted.
+  workspace_business:
+    may_reach_model: true
+    description: Charter, strategy, their own internal documents.
+  third_party_pii:
+    may_reach_model: false
+    description: Customer names, emails, addresses, order rows.
+  secret:
+    may_reach_model: false
+    description: Keys, tokens, passwords, private keys, .env contents.
+  unknown:
+    may_reach_model: false
+    description: Anything we could not classify. Refused, not truncated.
+
+thresholds:
+  # A forbidden-class finding at or above this confidence blocks the call. Below
+  # it, the matched value is replaced with a placeholder instead: a false
+  # positive then costs one placeholder rather than a refused prompt.
+  block_confidence: 0.8
+  # Shannon entropy above which a base64/hex run in a value position is treated
+  # as a credential (43 §5.3).
+  entropy_bits: 4.0
+  entropy_min_run: 32
+  # Runs longer than this are blobs (images, embeddings), not credentials.
+  entropy_max_run: 200
+  # Uniform record rows above this count make a payload data, not code.
+  structural_min_rows: 20
+  # Distinct third-party PII values above this count make the payload a record
+  # dump rather than an incidental mention, and it is blocked outright.
+  pii_bulk_threshold: 5
+  # Fraction of control characters that makes a payload undecidable.
+  binary_ratio: 0.02
+
+# Path rules (43 §5.1). Case-insensitive fnmatch against the POSIX path.
+paths:
+  secret:
+    - ".env"
+    - ".env.*"
+    - "*.env"
+    - "*.pem"
+    - "*.key"
+    - "*.p12"
+    - "*.pfx"
+    - "*.jks"
+    - "*.keystore"
+    - "id_rsa*"
+    - "id_dsa*"
+    - "id_ecdsa*"
+    - "id_ed25519*"
+    - "credentials*"
+    - "*credentials.json"
+    - "secrets.y*ml"
+    - ".npmrc"
+    - ".pypirc"
+    - ".netrc"
+    - "*.kdbx"
+    - "service-account*.json"
+  third_party_pii:
+    - "*.csv"
+    - "*.tsv"
+    - "*.sql"
+    - "*.sqlite"
+    - "*.sqlite3"
+    - "*.db"
+    - "*.mbox"
+    - "*.vcf"
+    - "*.ldif"
+  # Gitignored and workspace-denylisted paths are refused as `unknown`: we do not
+  # know what is in them, which is exactly why they are not sent.
+  unknown:
+    - "*.pyc"
+    - "*.so"
+    - "*.dylib"
+    - "*.o"
+    - "*.a"
+    - "*.wasm"
+
+# Values that look like credentials but are obviously stand-ins. Narrow on
+# purpose: a real key is never one of these, so exempting them costs no recall.
+placeholder_values:
+  - changeme
+  - change-me
+  - replaceme
+  - replace-me
+  - yourkeyhere
+  - your-key-here
+  - your_api_key
+  - yourapikey
+  - todo
+  - tbd
+  - none
+  - null
+  - redacted
+  - placeholder
+  - dummy
+  - xxxxxxxxxxxxxxxx
+  - "0000000000000000"

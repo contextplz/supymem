@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name={{name}}
+Exec={{exec}}-launch %U
+Icon={{icon}}
+StartupWMClass={{exec}}
+Terminal=false
+Categories=Office;
+{{#if mime_type}}
+MimeType={{mime_type}};
+{{/if}}

@@ -1,0 +1,48 @@
+{
+  "id": "pet_sitting",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Book trusted pet sitters and dog walkers.",
+    "customer": "Pet owners arranging care"
+  },
+  "direct": [
+    {
+      "name": "Rover",
+      "domain": "rover.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.rover.com/",
+          "fact": "Marketplace for pet sitting, boarding and dog walking.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "Pawshake",
+      "domain": "pawshake.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.pawshake.com/",
+          "fact": "Marketplace for local pet sitters.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [],
+  "oss": [],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status.",
+    "No inactive or dead direct attempt has been independently verified for this case; dead recall is not applicable."
+  ]
+}

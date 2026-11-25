@@ -1,0 +1,12 @@
+GStack (https://github.com/garrytan/gstack)
+Copyright (c) 2026 Garry Tan. MIT License, see LICENSE in this directory.
+GStack is Garry Tan's open-source founder toolkit; Garry Tan is the CEO of Y Combinator.
+This is not an official Y Combinator product and is not endorsed by Y Combinator.
+
+Vendored unmodified at commit d078622b73539fc1a7a27e709861e9b6b058ae98 (the same pin
+as vendor/skills/MANIFEST.yaml; recorded in PINNED_SHA):
+  openclaw/skills/gstack-openclaw-office-hours/SKILL.md
+  openclaw/skills/gstack-openclaw-ceo-review/SKILL.md
+
+app/gstack/methodology.py loads the forcing questions and review directives from
+these files at import time. Do not edit them; to bump the pin, re-copy from upstream.

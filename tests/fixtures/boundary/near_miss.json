@@ -1,0 +1,10 @@
+[
+  {"id": "password_word", "text": "Please reset the password on the demo account."},
+  {"id": "key_metaphor", "text": "The key insight is that managers want a cut."},
+  {"id": "secret_sauce", "text": "Our secret sauce is the four-hour booking window."},
+  {"id": "token_board", "text": "Put a token on the board for each signed building."},
+  {"id": "public_url", "text": "See https://example.com/pricing for the $8 plan."},
+  {"id": "code_sample", "path": "app.py", "text": "def book_slot(unit_id: str) -> None:\n    return None"},
+  {"id": "readme", "path": "README.md", "text": "# LobbyLock\nBorrow a drill from the mailroom."},
+  {"id": "short_sk", "text": "Use the sk demo value in the docs, not a live key."}
+]

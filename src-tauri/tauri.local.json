@@ -1,0 +1,36 @@
+{
+  "productName": "Supymem Local",
+  "version": "1.0.0-rc.2",
+  "identifier": "com.supymem.local",
+  "build": {
+    "features": ["local-stack", "tauri/custom-protocol"],
+    "beforeBuildCommand": "node scripts/desktop/prepare_local_stack.cjs"
+  },
+  "bundle": {
+    "targets": ["appimage", "app", "dmg", "nsis"],
+    "createUpdaterArtifacts": false,
+    "externalBin": [],
+    "resources": {
+      "resources/console/": "console/",
+      "resources/local/": "local/"
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0", "libayatana-appindicator3-1", "librsvg2-2"],
+        "recommends": ["libsecret-1-0", "libdbus-1-3"],
+        "desktopTemplate": "../scripts/desktop/linux/desktop.template",
+        "files": {
+          "/usr/bin/company-os-desktop-launch": "../scripts/desktop/linux/launch.sh",
+          "/usr/share/mime/packages/local-desktop-appimage.xml": "../scripts/desktop/linux/appimage.xml",
+          "/usr/share/icons/hicolor/128x128/mimetypes/application-vnd.appimage.png": "icons/128x128.png"
+        }
+      },
+      "appimage": {
+        "files": { "/usr/bin/company-os-desktop-launch": "../scripts/desktop/linux/launch.sh" }
+      }
+    },
+    "macOS": { "files": null, "infoPlist": "Info.local.plist", "signingIdentity": null, "hardenedRuntime": true },
+    "windows": { "webviewInstallMode": { "type": "offlineInstaller" } }
+  },
+  "plugins": { "updater": { "endpoints": [] } }
+}

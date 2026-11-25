@@ -1,0 +1,24 @@
+version: 1
+meters:
+  llm_tokens: {unit: "1k tokens", source: llm_pricing.yaml, markup: 1}
+  research_call: {unit: call, micro: 20000}
+  build_seconds: {unit: second, micro: 12}
+  compute_seconds: {unit: "vCPU-second", micro: 9}
+  db_gb_hours: {unit: GB-hour, micro: 25}
+  storage_gb_hours: {unit: GB-hour, micro: 4}
+  egress_gb: {unit: GB, micro: 120000}
+  requests: {unit: "10k requests", micro: 1500}
+  # At-cost event rates. Override USD/unit for the actual deployed vendor plan
+  # with SUPYMEM_METER_<NAME>_USD_PER_UNIT. No beta markup.
+  firecrawl_credit: {unit: "vendor credit", micro: 5000, basis: "Hobby pay-as-you-go; search uses 2 credits per 10 results", source: "https://www.firecrawl.dev/pricing", verified_on: "2026-10-08"}
+  firecrawl_search: {unit: "up to 10 results", micro: 10000, source: "https://www.firecrawl.dev/pricing", verified_on: "2026-10-08"}
+  firecrawl_scrape: {unit: page, micro: 5000, source: "https://www.firecrawl.dev/pricing", verified_on: "2026-10-08"}
+  exa_search: {unit: "Auto search, up to 10 results", micro: 7000, source: "https://exa.ai/pricing", verified_on: "2026-10-08"}
+  tavily_search: {unit: "basic search", micro: 8000, basis: "pay-as-you-go", source: "https://docs.tavily.com/documentation/api-credits", verified_on: "2026-10-08"}
+  tts_input_token: {unit: token, micro: "0.6", source: "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts", verified_on: "2026-10-08"}
+  tts_output_audio_token: {unit: "audio token", micro: 12, source: "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts", verified_on: "2026-10-08"}
+  # Character rows are estimates only. Mini TTS settles its SSE token receipt.
+  tts_character: {unit: character, micro: 15, basis: "tts-1 only; not mini TTS settlement", source: "https://developers.openai.com/api/docs/models/tts-1", verified_on: "2026-10-08"}
+  email_send: {unit: recipient, micro: 900, basis: "Resend paid-plan marginal overage", source: "https://resend.com/pricing", verified_on: "2026-10-08"}
+  sms_send: {unit: sms, micro: 8000}
+minimum_reservation_micro: 100

@@ -1,0 +1,20 @@
+# Per-surface guardrail actions (docs/supymem/08 §4).
+# GUARDRAILS_MODE=deterministic_only (local/CI) skips ONNX classifiers.
+# GUARDRAILS_MODE=full loads packaged models in worker/ai-proxy images.
+
+surfaces:
+  agents:
+    injection: flag
+    pii: redact
+    secrets: block
+    toxicity: flag
+  ai_proxy:
+    injection: flag
+    pii: flag
+    secrets: block
+    toxicity: block
+  chat:
+    injection: flag
+    pii: redact
+    secrets: block
+    toxicity: flag

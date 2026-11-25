@@ -1,0 +1,10 @@
+packages:
+  - .
+
+allowBuilds:
+  sharp: true
+overrides:
+  'sharp': '-'
+  'postcss@8': '^8.5.23'
+  'nanoid@3': '^3.3.18'
+  'source-map-js': '^1.2.2'

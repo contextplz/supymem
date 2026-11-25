@@ -1,0 +1,229 @@
+{#
+  Shared skeleton for every first-look template (45 §3.2).
+
+  The section budget is fixed and not model-selectable: hero, three points,
+  how-it-works (optional), interest capture, honest footer. Templates that extend
+  this one reorder and relabel those sections; none may add one.
+
+  Everything is inline. No stylesheet link, no webfont CDN, no fabricated social
+  proof (LD-60), no analytics — page must render offline. Motion is CSS-only and
+  disabled under prefers-reduced-motion.
+#}<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="generator" content="Company OS first look">
+<title>{{ copy.headline }} — {{ brand.wordmark }}</title>
+<style>
+:root {
+  --page: {{ brand.colors.page }};
+  --surface: {{ brand.colors.surface }};
+  --border: {{ brand.colors.border }};
+  --ink: {{ brand.colors.ink }};
+  --muted: {{ brand.colors.muted }};
+  --accent: {{ brand.colors.accent }};
+  --accent-ink: {{ brand.colors.accent_ink }};
+  --display: {{ brand.type_pair.display }};
+  --body: {{ brand.type_pair.body }};
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(900px 480px at 12% -8%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
+    radial-gradient(700px 420px at 92% 8%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%),
+    var(--page);
+  color: var(--ink);
+  font-family: var(--body);
+  line-height: {{ brand.type_pair.body_leading }};
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 58rem; margin: 0 auto; padding: 0 1.5rem; }
+h1, .subhead, .card p, .card h3 { overflow-wrap: anywhere; word-break: break-word; }
+header { padding: 2rem 0 0; }
+.mark { display: inline-flex; align-items: center; gap: 0.6rem; }
+.logo {
+  width: 2.25rem; height: 2.25rem; border-radius: 0.65rem;
+  object-fit: cover; display: block;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.mono {
+  width: 2.25rem; height: 2.25rem; border-radius: 0.65rem;
+  background: var(--accent); color: var(--accent-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: {{ brand.type_pair.display_weight }};
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.wordmark {
+  font-family: var(--display); font-weight: {{ brand.type_pair.display_weight }};
+  letter-spacing: {{ brand.type_pair.display_tracking }}; font-size: 1.05rem;
+}
+.hero { padding: 3.5rem 0 2.5rem; }
+.eyebrow {
+  margin: 0 0 0.75rem; color: var(--muted); font-size: 0.8rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+h1 {
+  font-family: var(--display); font-weight: {{ brand.type_pair.display_weight }};
+  letter-spacing: {{ brand.type_pair.display_tracking }};
+  font-size: clamp(2rem, 6vw, 3.1rem); line-height: 1.12; margin: 0 0 1rem;
+}
+.subhead { font-size: 1.15rem; color: var(--muted); margin: 0 0 2rem; max-width: 34rem; }
+.cta {
+  display: inline-block; background: var(--accent); color: var(--accent-ink);
+  text-decoration: none; padding: 0.8rem 1.5rem; border-radius: 0.65rem;
+  font-weight: 600;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 28%, transparent);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.cta:hover { transform: translateY(-2px); box-shadow: 0 14px 32px color-mix(in srgb, var(--accent) 36%, transparent); }
+h2 {
+  font-family: var(--display); font-weight: {{ brand.type_pair.display_weight }};
+  font-size: 1.35rem; margin: 0 0 1.25rem;
+}
+section { padding: 2rem 0; border-top: 1px solid var(--border); }
+.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.card {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--border); border-radius: 0.9rem; padding: 1.15rem;
+  backdrop-filter: blur(8px);
+  transition: transform 220ms ease, border-color 220ms ease;
+}
+.card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
+.card h3 { font-family: var(--display); font-size: 1rem; margin: 0 0 0.4rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+ol.steps { margin: 0; padding-left: 1.2rem; }
+ol.steps li { margin-bottom: 0.6rem; }
+form { display: grid; gap: 0.6rem; max-width: 26rem; }
+label { font-size: 0.85rem; color: var(--muted); }
+input, textarea, button {
+  font: inherit; padding: 0.7rem 0.85rem; border-radius: 0.55rem;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+}
+textarea { min-height: 4.5rem; resize: vertical; }
+button { background: var(--accent); color: var(--accent-ink); border: 0; font-weight: 600; cursor: pointer; }
+.privacy { font-size: 0.8rem; color: var(--muted); margin: 0; }
+footer { padding: 2rem 0 3rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }
+footer p { margin: 0 0 0.5rem; }
+.verbatim { font-style: italic; }
+
+/* Motion — reveal on load / scroll; gated by reduced-motion */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 28%, transparent); }
+  50% { box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 42%, transparent); }
+}
+.anim-rise { animation: rise 560ms ease both; }
+.anim-rise-2 { animation: rise 560ms ease 120ms both; }
+.anim-rise-3 { animation: rise 560ms ease 220ms both; }
+.cta-live { animation: pulse-soft 2.8s ease-in-out infinite; }
+.reveal { opacity: 0; transform: translateY(12px); transition: opacity 500ms ease, transform 500ms ease; }
+.reveal.is-in { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-rise-2, .anim-rise-3, .cta-live { animation: none !important; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .cta:hover, .card:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="anim-rise">
+  <span class="mark">
+    {% if logo_src %}
+    <img class="logo" src="{{ logo_src }}" alt="{{ brand.wordmark }} logo" width="36" height="36"/>
+    {% else %}
+    <span class="mono" aria-hidden="true">{{ brand.monogram }}</span>
+    {% endif %}
+    <span class="wordmark">{{ brand.wordmark }}</span>
+  </span>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow anim-rise">{% block eyebrow %}First look{% endblock %}</p>
+    <h1 class="anim-rise-2">{{ copy.headline }}</h1>
+    <p class="subhead anim-rise-3">{{ copy.subhead }}</p>
+    <a class="cta cta-live anim-rise-3" href="#interest">{{ copy.cta.label }}</a>
+  </section>
+
+{% block sections %}
+{% with points_heading = "What this is" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "How it works" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+  <section id="interest" class="reveal">
+    <h2>{% block capture_heading %}Interested?{% endblock %}</h2>
+    <p>{% block capture_blurb %}Leave your email and I'll say when there is more to see.{% endblock %}</p>
+    <form id="interest-form" method="post" action="{{ interest_action }}">
+      <input type="hidden" name="site_version" value="{{ version }}">
+      <input type="hidden" name="source" value="direct">
+      <label for="email">Your email</label>
+      <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <label for="note">Anything you want to add (optional)</label>
+      <textarea id="note" name="note"></textarea>
+      <p class="privacy">{{ privacy_line }}</p>
+      <button type="submit">{{ copy.cta.label }}</button>
+    </form>
+    <p id="interest-thanks" hidden>Thanks — that's recorded.</p>
+  </section>
+</main>
+
+<footer class="reveal">
+  <p>{{ stage_label }}</p>
+  {% if copy.assumptions %}
+  <p>I assumed: {{ copy.assumptions | join('; ') }}.</p>
+  {% endif %}
+  <p class="verbatim">Your words: “{{ idea_text }}”</p>
+  {% if local_only %}<p>{{ local_note }}</p>{% endif %}
+  <p>Version {{ version }} · built {{ generated_on }}</p>
+</footer>
+</div>
+<script>
+(function () {
+  var form = document.getElementById('interest-form');
+  var thanks = document.getElementById('interest-thanks');
+  if (form && thanks) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var button = form.querySelector('button');
+      button.disabled = true;
+      fetch(form.action, { method: 'POST', body: new FormData(form) })
+        .then(function (response) {
+          if (!response.ok) { throw new Error('rejected'); }
+          form.hidden = true;
+          thanks.hidden = false;
+        })
+        .catch(function () {
+          button.disabled = false;
+          form.submit();
+        });
+    });
+  }
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-in'); });
+    return;
+  }
+  var nodes = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    nodes.forEach(function (el) { el.classList.add('is-in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  nodes.forEach(function (el) { io.observe(el); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+version: 1
+capabilities:
+  - id: cap.sense.research
+    label: Market research
+    tools: [web.search, web.fetch]
+    skill_categories: [analytics, foundation, competitors, office-hours, gstack]
+    fitness: research_source_count
+    default_autonomy: auto
+  - id: cap.sense.audience
+    label: Audience research
+    tools: [web.search, social.search]
+    skill_categories: [customer-research, prospecting]
+    fitness: icp_precision
+    default_autonomy: auto
+  - id: cap.build.software
+    label: Write and ship software
+    tools: [repo.write, ci.run, deploy.push]
+    skill_categories: [engineering, superpowers, gstack, review, investigate]
+    fitness: gate_pass_rate_first_try
+    default_autonomy: auto
+  - id: cap.build.site
+    label: Build landing pages
+    tools: [repo.write, deploy.push]
+    skill_categories: [landing-pages, cro, copywriting, gstack, design-consultation]
+    fitness: signup_conversion_rate
+    default_autonomy: auto
+  - id: cap.build.document
+    label: Produce documents
+    tools: [doc.render]
+    skill_categories: [document]
+    fitness: artifact_accept_rate
+    default_autonomy: auto
+  - id: cap.reach.email
+    label: Send email
+    tools: [email.send]
+    skill_categories: [outbound, cold-email, sequencing-tools]
+    fitness: qualified_replies_per_100_sent
+    default_autonomy: needs_approval_until_trusted
+  - id: cap.reach.social_organic
+    label: Publish organic social
+    tools: [social.post, social.reply]
+    skill_categories: [social, creative, content-distribution]
+    fitness: engagement_rate
+    default_autonomy: needs_approval_until_trusted
+  - id: cap.reach.seo
+    label: Grow search presence
+    tools: [repo.write, deploy.push, web.search]
+    skill_categories: [content-seo, ai-seo, schema]
+    fitness: organic_sessions
+    default_autonomy: auto
+  - id: cap.reach.community
+    label: Engage communities
+    tools: [social.post, social.reply]
+    skill_categories: [community-marketing, growth]
+    fitness: referral_sessions
+    default_autonomy: needs_approval_until_trusted
+  - id: cap.convert.cro
+    label: Optimize conversion
+    tools: [repo.write, analytics.query]
+    skill_categories: [cro, ab-testing, signup]
+    fitness: signup_conversion_rate
+    default_autonomy: auto
+  - id: cap.convert.pricing
+    label: Manage pricing
+    tools: [payments.price_write, analytics.query]
+    skill_categories: [pricing, paywalls, offers]
+    fitness: arpu
+    default_autonomy: needs_approval
+  - id: cap.money.checkout
+    label: Take payments
+    tools: [payments.read]
+    skill_categories: [pricing, revops]
+    fitness: paid_conversion_rate
+    default_autonomy: needs_approval
+  - id: cap.operate.support
+    label: Support customers
+    tools: [email.send, ticket.write]
+    skill_categories: [customer-success, inbound]
+    fitness: first_response_minutes
+    default_autonomy: auto
+  - id: cap.operate.sales
+    label: Run sales follow-up
+    tools: [email.send, crm.write, calendar.book]
+    skill_categories: [sales-plays, qualification, crm]
+    fitness: meetings_booked
+    default_autonomy: needs_approval_until_trusted
+  - id: cap.learn.signals
+    label: Interpret market feedback
+    tools: [analytics.query, email.read]
+    skill_categories: [analytics, customer-research, attribution]
+    fitness: insight_precision
+    default_autonomy: auto
+version: 1
+capabilities:
+  - id: cap.build.software
+    matches: [software, web, dashboard, api, app, workflow, automation, database, core]
+    tools: [tool.code_generation]
+    live: true
+  - id: cap.build.site
+    matches: [landing page, website, site, frontend, checkout]
+    tools: [tool.code_generation]
+    live: true
+  - id: cap.content
+    matches: [content, copy, brand, email, documentation]
+    tools: [tool.content_generation]
+    live: true
+  - id: cap.gtm
+    matches: [go-to-market, marketing, seo, outreach, sales]
+    tools: [tool.research]
+    live: true
+  - id: cap.payments
+    matches: [payment collection, checkout, billing]
+    tools: [tool.code_generation]
+    live: true

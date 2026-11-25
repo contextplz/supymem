@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Set up this Mac</title>
+    <style>
+      :root {
+        --bg-0: #f6f8fc;
+        --bg-1: #ffffff;
+        --bg-2: #eef2f8;
+        --line: rgba(32, 24, 18, 0.1);
+        --line-subtle: rgba(32, 24, 18, 0.06);
+        --fg-0: #111827;
+        --fg-1: #475569;
+        --fg-2: #5b6475;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --accent-dim: rgba(37, 99, 235, 0.1);
+        --ok: #15803d;
+        --ok-dim: rgba(31, 138, 76, 0.12);
+        --warn: #b45309;
+        --warn-dim: rgba(197, 106, 8, 0.12);
+        --danger: #b42318;
+        --sidebar: #0b1220;
+        --sidebar-deep: #111c2e;
+        --sidebar-text: rgba(255, 255, 255, 0.78);
+        --font-sans: "DM Sans", ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+        --font-logo: "Newsreader", Georgia, serif;
+        --r: 14px;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: var(--bg-0); color: var(--fg-0); font: 400 13.5px/1.55 var(--font-sans); }
+      .shell { display: grid; grid-template-columns: 168px minmax(0, 1fr); min-height: 100%; }
+      .rail {
+        background: linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-deep) 100%);
+        color: var(--sidebar-text);
+        padding: 18px 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .mark {
+        width: 36px; height: 36px; border-radius: 10px; background: #fff; padding: 4px;
+        object-fit: contain;
+      }
+      .brand { font: 600 20px/1.2 var(--font-logo); color: #fff; margin: 8px 0 0; }
+      .rail p { margin: 0; font-size: 12px; line-height: 1.45; color: var(--sidebar-text); }
+      .workspace { display: flex; flex-direction: column; min-width: 0; }
+      .top {
+        min-height: 56px; display: flex; align-items: center; padding: 8px 24px;
+        border-bottom: 1px solid var(--line-subtle); background: var(--bg-1);
+      }
+      .top h1 { margin: 0; font: 600 15px/1.35 var(--font-sans); }
+      main { padding: 20px 24px 24px; overflow: auto; }
+      .lede { color: var(--fg-1); margin: 0 0 16px; }
+      .card {
+        background: var(--bg-1); border: 1px solid var(--line-subtle); border-radius: var(--r);
+        padding: 16px; box-shadow: 0 1px 2px rgba(28, 25, 23, 0.06); margin-bottom: 12px;
+      }
+      .card h2 { margin: 0 0 6px; font: 600 15px/1.35 var(--font-sans); }
+      .card .hint { margin: 0 0 12px; color: var(--fg-2); font-size: 12.5px; }
+      .row { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 0; }
+      .row + .row { border-top: 1px solid var(--line-subtle); }
+      .name { font-weight: 600; }
+      button {
+        font: 500 13px/1 var(--font-sans); border: 1px solid transparent; border-radius: 10px;
+        padding: 10px 14px; cursor: pointer; background: var(--bg-2); color: var(--fg-0);
+      }
+      button.primary {
+        background: var(--accent); color: #fff; box-shadow: 0 1px 3px rgba(37, 99, 235, 0.22);
+      }
+      button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+      button.ghost { background: transparent; color: var(--fg-1); }
+      button.ghost:hover:not(:disabled) { background: var(--bg-2); color: var(--fg-0); }
+      button:disabled { opacity: 0.45; cursor: default; }
+      .big { width: 100%; padding: 14px 16px; font-weight: 650; margin-top: 4px; }
+      .pill { display: inline-block; border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+      .ok { color: var(--ok); background: var(--ok-dim); }
+      .miss { color: var(--warn); background: var(--warn-dim); }
+      .err { color: var(--danger); margin: 8px 0 0; }
+      .foot { display: flex; justify-content: flex-end; margin-top: 8px; }
+      .bar { height: 4px; background: var(--bg-2); border-radius: 2px; overflow: hidden; margin: 10px 0 4px; }
+      .bar > i { display: block; height: 100%; width: 40%; background: var(--accent); animation: slide 1.2s ease-in-out infinite; }
+      @keyframes slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(280%)} }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="rail">
+        <div>
+          <img class="mark" src="logo.png" alt="" width="36" height="36" />
+          <h2 class="brand">Supymem</h2>
+        </div>
+        <p>Choose optional tools for this Mac. Access and permissions are checked when a supported workflow requests their use. You can skip this setup.</p>
+      </aside>
+      <section class="workspace">
+        <header class="top"><h1>Set up this Mac</h1></header>
+        <main>
+          <p class="lede">Check which optional tools are installed on this Mac. Installing a tool does not enable a build or grant Supymem permission to use it.</p>
+
+          <div class="card">
+            <h2>Docker</h2>
+            <p id="docker-status" class="hint">Checking…</p>
+            <div class="bar" id="docker-bar" hidden><i></i></div>
+            <button class="primary big" id="install-docker" type="button" hidden>Install Docker Desktop</button>
+            <button class="primary big" id="start-docker" type="button" hidden>Start Docker</button>
+          </div>
+
+          <div class="card">
+            <h2>Supymem Computer Use</h2>
+            <p id="hermes-status" class="hint">Checking…</p>
+            <div class="bar" id="install-bar" hidden><i></i></div>
+            <button class="primary big" id="install-hermes" type="button">Install Supymem Computer Use</button>
+            <button class="big" id="remove-hermes" type="button" hidden>Remove Supymem Computer Use</button>
+          </div>
+
+          <div class="card">
+            <h2>Your tools</h2>
+            <p class="hint">Review detected apps and command-line tools. Connect only the tools you want Supymem to use.</p>
+            <div id="tools"></div>
+          </div>
+
+          <p class="err" id="err" hidden></p>
+          <div class="foot">
+            <button class="ghost" id="done" type="button">Skip for now</button>
+          </div>
+        </main>
+      </section>
+    </div>
+    <script>
+      const invoke = (cmd, args) => {
+        const fn = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+        if (!fn) return Promise.reject(new Error("This window needs the Supymem Mac app."));
+        return fn(cmd, args || {});
+      };
+      const listen = (event, handler) => {
+        const fn = window.__TAURI__?.event?.listen;
+        if (!fn) return Promise.resolve(() => {});
+        return fn(event, (ev) => handler(ev.payload));
+      };
+      const errEl = document.getElementById("err");
+      const bar = document.getElementById("install-bar");
+      const dockerBar = document.getElementById("docker-bar");
+      let closing = false;
+      let installingHermes = false;
+      function showErr(msg) {
+        errEl.hidden = !msg;
+        errEl.textContent = msg || "";
+      }
+      function toolBits(t) {
+        const bits = [];
+        if (t.app_path) bits.push("app");
+        if (t.cli_path) bits.push("CLI");
+        return bits.length ? " · " + bits.join(" · ") : "";
+      }
+      function setupSelectionsComplete(tools, docker) {
+        if (!docker?.engine_running) return false;
+        const hermes = tools.find((t) => t.name === "hermes");
+        if (!hermes?.installed) return false;
+        return tools.filter((t) => t.name !== "hermes" && t.installed).every((t) => t.connected);
+      }
+      async function finish() {
+        if (closing) return;
+        closing = true;
+        const done = document.getElementById("done");
+        done.disabled = true;
+        showErr("");
+        try {
+          await invoke("close_setup_window");
+        } catch (_) {
+          showErr("Setup could not close. Try again, or use the window's close button.");
+        } finally {
+          // Native setup is hidden and reused. Do not retain a permanently
+          // closing state when the founder opens this same window again.
+          closing = false;
+          done.disabled = false;
+        }
+      }
+      function render(tools) {
+        const hermes = tools.find((t) => t.name === "hermes");
+        const hs = document.getElementById("hermes-status");
+        const btn = document.getElementById("install-hermes");
+        const rm = document.getElementById("remove-hermes");
+        if (installingHermes) return;
+        if (hermes?.installed) {
+          hs.textContent = "Installed on this Mac. Execution availability and permissions are checked separately.";
+          btn.hidden = true;
+          rm.hidden = false;
+          rm.disabled = false;
+        } else {
+          hs.textContent = "Install the optional local builder when a supported workflow needs it.";
+          btn.hidden = false;
+          btn.disabled = false;
+          btn.textContent = "Install Supymem Computer Use";
+          rm.hidden = true;
+        }
+        const box = document.getElementById("tools");
+        box.innerHTML = "";
+        for (const t of tools.filter((x) => x.name !== "hermes")) {
+          const row = document.createElement("div");
+          row.className = "row";
+          const left = document.createElement("div");
+          const st = t.installed ? (t.connected ? "Selected for use" : "Found on this Mac") : "Not on this Mac";
+          left.innerHTML =
+            "<div class='name'>" + t.label + "</div>" +
+            "<span class='pill " + (t.installed ? "ok" : "miss") + "'>" + st + toolBits(t) + "</span>";
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = t.installed && !t.connected ? "primary" : "";
+          b.textContent = t.connected ? "Open" : "Connect";
+          b.disabled = !t.installed;
+          b.hidden = t.connected;
+          b.addEventListener("click", async () => {
+            showErr("");
+            try {
+              await invoke("connect_local_tool", { name: t.name });
+              await reload();
+            } catch (e) {
+              const msg = e?.message || String(e);
+              showErr(msg);
+              if (t.name === "cursor" && /Accessibility|Automation|System Settings/i.test(msg)) {
+                try { await invoke("show_permission_coach", { tool: t.name }); } catch (_) {}
+              }
+            }
+          });
+          row.append(left, b);
+          box.append(row);
+        }
+      }
+      function renderDocker(d) {
+        const hs = document.getElementById("docker-status");
+        const install = document.getElementById("install-docker");
+        const start = document.getElementById("start-docker");
+        if (!d) {
+          hs.textContent = "Could not check Docker on this Mac.";
+          return;
+        }
+        hs.textContent = d.message || "";
+        install.hidden = d.installed;
+        install.disabled = false;
+        start.hidden = !d.installed || d.engine_running;
+        start.disabled = false;
+      }
+      async function reloadDocker() {
+        try {
+          const d = await invoke("docker_status");
+          renderDocker(d);
+        } catch (e) {
+          renderDocker(null);
+          showErr(e?.message || String(e));
+        }
+      }
+      async function reload() {
+        const listed = await invoke("list_local_tools");
+        const tools = Array.isArray(listed) ? listed : [];
+        let docker = null;
+        try { docker = await invoke("docker_status"); } catch (_) {}
+        render(tools);
+        renderDocker(docker);
+        // Installation/selection is not execution or permission evidence.
+        // Keep the screen open so the founder can inspect the detected tools.
+        document.getElementById("done").textContent = setupSelectionsComplete(tools, docker) ? "Done" : "Skip for now";
+      }
+      document.getElementById("remove-hermes").addEventListener("click", async () => {
+        const rm = document.getElementById("remove-hermes");
+        const hs = document.getElementById("hermes-status");
+        showErr("");
+        rm.disabled = true;
+        hs.textContent = "Removing…";
+        try {
+          await invoke("uninstall_local_builder");
+          await reload();
+        } catch (e) {
+          rm.disabled = false;
+          showErr(e?.message || String(e) || "Remove failed.");
+        }
+      });
+      document.getElementById("install-hermes").addEventListener("click", async () => {
+        const btn = document.getElementById("install-hermes");
+        const hs = document.getElementById("hermes-status");
+        showErr("");
+        installingHermes = true;
+        btn.disabled = true;
+        btn.textContent = "Installing…";
+        bar.hidden = false;
+        hs.textContent = "Starting install…";
+        try {
+          await invoke("install_local_builder");
+          bar.hidden = true;
+          installingHermes = false;
+          btn.textContent = "Install Supymem Computer Use";
+          await reload();
+        } catch (e) {
+          installingHermes = false;
+          bar.hidden = true;
+          btn.hidden = false;
+          btn.disabled = false;
+          btn.textContent = "Install Supymem Computer Use";
+          const msg = e?.message || String(e) || "Install failed.";
+          hs.textContent = "Install didn’t finish. The button is ready when you want to try again.";
+          showErr(msg);
+        }
+      });
+      document.getElementById("done").addEventListener("click", () => void finish());
+      document.getElementById("install-docker").addEventListener("click", async () => {
+        const btn = document.getElementById("install-docker");
+        const hs = document.getElementById("docker-status");
+        showErr("");
+        btn.disabled = true;
+        dockerBar.hidden = false;
+        hs.textContent = "Starting Docker install…";
+        try {
+          const result = await invoke("install_docker");
+          dockerBar.hidden = true;
+          hs.textContent = result?.message || "Docker Desktop is installing.";
+          await reloadDocker();
+          try { await invoke("show_permission_coach", { tool: "docker" }); } catch (_) {}
+        } catch (e) {
+          dockerBar.hidden = true;
+          btn.disabled = false;
+          showErr(e?.message || String(e) || "Docker install failed. You can skip and use Cursor / Claude / Codex.");
+          await reloadDocker();
+        }
+      });
+      document.getElementById("start-docker").addEventListener("click", async () => {
+        const btn = document.getElementById("start-docker");
+        const hs = document.getElementById("docker-status");
+        showErr("");
+        btn.disabled = true;
+        hs.textContent = "Starting Docker Desktop…";
+        try {
+          const result = await invoke("start_docker");
+          hs.textContent = result?.message || "Docker Desktop is starting.";
+          await reloadDocker();
+          try { await invoke("show_permission_coach", { tool: "docker" }); } catch (_) {}
+        } catch (e) {
+          btn.disabled = false;
+          showErr(e?.message || String(e) || "Couldn’t start Docker.");
+        }
+      });
+      listen("install-progress", (msg) => {
+        if (typeof msg !== "string" || !msg) return;
+        if (/docker/i.test(msg)) {
+          document.getElementById("docker-status").textContent = msg;
+        } else if (installingHermes) {
+          document.getElementById("hermes-status").textContent = msg;
+        }
+      }).catch(() => {});
+      reload().catch((e) => showErr(e?.message || String(e)));
+    </script>
+  </body>
+</html>

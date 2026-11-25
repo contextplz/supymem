@@ -1,0 +1,76 @@
+{
+  "id": "invoice_chasing",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Send invoice reminders and chase overdue payments.",
+    "customer": "Freelancers and small B2B service businesses"
+  },
+  "direct": [
+    {
+      "name": "Chaser",
+      "domain": "chaserhq.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.chaserhq.com/",
+          "fact": "Accounts receivable automation with payment reminders.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "Invoice Ninja",
+      "domain": "invoiceninja.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://invoiceninja.com/invoicing/",
+          "fact": "Invoicing application with automated payment reminders.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [
+    {
+      "name": "Paid",
+      "domain": "paidlabs.com",
+      "status": "inactive",
+      "cause": null,
+      "evidence": [
+        {
+          "url": "https://www.ycombinator.com/companies/paid",
+          "fact": "YC lists this company as Inactive. This does not establish a shutdown date or cause.",
+          "verified_at": "2026-10-08",
+          "source_kind": "yc_directory"
+        },
+        {
+          "url": "https://yc-oss.github.io/api/companies/all.json",
+          "source_kind": "yc_oss_mirror",
+          "verified_at": "2026-10-08",
+          "record": {
+            "id": 712,
+            "name": "Paid",
+            "slug": "paid",
+            "website": "http://paidlabs.com",
+            "status": "Inactive",
+            "one_liner": "Autopilot for Accounts Receivable"
+          },
+          "mirror_snapshot_sha256": "4b47b55a099deba0aa3045703c32fb962bb472d66aefdd8b41b04b1082d19d64"
+        }
+      ]
+    }
+  ],
+  "oss": [],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status."
+  ]
+}

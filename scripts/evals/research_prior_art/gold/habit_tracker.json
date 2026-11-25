@@ -1,0 +1,90 @@
+{
+  "id": "habit_tracker",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Track daily habits and receive reminders to maintain routines.",
+    "customer": "People building personal habits"
+  },
+  "direct": [
+    {
+      "name": "Habitica",
+      "domain": "habitica.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://github.com/HabitRPG/habitica",
+          "fact": "Habit building application using role-playing game mechanics.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "Loop Habit Tracker",
+      "domain": "loophabits.org",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://loophabits.org/",
+          "fact": "Free, open-source mobile habit tracker with reminders and charts.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [
+    {
+      "name": "Habit Labs",
+      "domain": "habitlabs.com",
+      "status": "inactive",
+      "cause": null,
+      "evidence": [
+        {
+          "url": "https://www.ycombinator.com/companies/habit-labs",
+          "fact": "YC lists this company as Inactive. This does not establish a shutdown date or cause.",
+          "verified_at": "2026-10-08",
+          "source_kind": "yc_directory"
+        },
+        {
+          "url": "https://yc-oss.github.io/api/companies/all.json",
+          "source_kind": "yc_oss_mirror",
+          "verified_at": "2026-10-08",
+          "record": {
+            "id": 185,
+            "name": "Habit Labs",
+            "slug": "habit-labs",
+            "website": "http://habitlabs.com",
+            "status": "Inactive",
+            "one_liner": "Friends motivate one another: I'll do x if you do y."
+          },
+          "mirror_snapshot_sha256": "4b47b55a099deba0aa3045703c32fb962bb472d66aefdd8b41b04b1082d19d64"
+        }
+      ]
+    }
+  ],
+  "oss": [
+    {
+      "name": "Loop Habit Tracker",
+      "key": "github.com/isoron/uhabits",
+      "repo": "https://github.com/isoron/uhabits",
+      "evidence": [
+        {
+          "url": "https://github.com/isoron/uhabits",
+          "fact": "Mobile app to build and maintain long-term habits.",
+          "verified_at": "2026-10-08",
+          "source_kind": "maintainer_repository"
+        }
+      ]
+    }
+  ],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status."
+  ]
+}

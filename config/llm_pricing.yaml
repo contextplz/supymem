@@ -1,0 +1,105 @@
+# Pinned headline rates (USD per 1M tokens). Estimates only — not a provider invoice.
+# Snapshot: 2026-08-03 provider list prices (Sonnet 5 intro through 2026-08-31).
+# Reservations use uncached rates. Confirmed cache subsets and long-context
+# tiers are exposed for the shared meter; Azure subscription rates need approval.
+
+as_of: "2026-08-03"
+
+aliases:
+  # Exact deployment binding from Root's Azure HTTP200 safe receipt b9de5dcb (2026-10-08).
+  supymem-gpt-6-1-sol: gpt-6.1-sol
+  # Exact Azure catalog binding verified by MODEL_READINESS_RESULT on 2026-10-08.
+  gpt-6.1-sol-2026-09-29: gpt-6.1-sol
+  DeepSeek-V4-Flash: deepseek-v4-flash
+  deepseek-v4-pro: DeepSeek-V4-Pro
+  gpt-5.6-terra: terra
+  gpt-5.6-luna: luna
+  claude-sonnet-4-5: claude-sonnet-5
+  llama3.2: local
+  qwen2.5: local
+  openrouter/auto: default
+
+models:
+  # Exact OpenAI Standard/nonregional text rates verified 2026-10-04:
+  # https://developers.openai.com/api/docs/models/gpt-6-sol
+  # Browser CUAI reserves at the cache-write upper rate; no discount or Fast tier.
+  gpt-6-sol:
+    input_per_mtok: 2.00
+    output_per_mtok: 10.00
+    cache_write_per_mtok: 2.50
+  # Official OpenAI rates 2026-10-04 (cached input 0.10 / 0.01 is not applied: estimates charge the uncached rate).
+  # gpt-6.1-sol input doubles above 272K tokens (applied in device_browser_ai.cost_micro).
+  gpt-6.1-sol:
+    input_per_mtok: 2.00
+    cached_input_per_mtok: 0.10
+    output_per_mtok: 10.00
+    cache_write_per_mtok: 2.50
+    long_context_threshold: 272000
+    long_input_per_mtok: 4.00
+    long_cached_input_per_mtok: 0.20
+    long_output_per_mtok: 15.00
+    long_cache_write_per_mtok: 5.00
+  # Landing-page artwork (Image API). Official rates 2026-10-07:
+  # https://developers.openai.com/api/docs/models/gpt-image-2.5-flare
+  # Text input $5, image output $30 per 1M; output is image tokens (high 1536x1024 ~1.4K).
+  gpt-image-2.5-flare:
+    input_per_mtok: 5.00
+    output_per_mtok: 30.00
+  gpt-6-luna:
+    input_per_mtok: 0.10
+    output_per_mtok: 0.50
+    cache_write_per_mtok: 0.125
+  azure/gpt-6-luna:
+    input_per_mtok: 0.10
+    output_per_mtok: 0.50
+    cache_write_per_mtok: 0.125
+  # Exact key for browser CUAI profiles (same rates as the luna alias row below; exact keys only qualify).
+  gpt-5.6-luna:
+    input_per_mtok: 0.20
+    output_per_mtok: 1.20
+  # TypeSafe direct catalog verified 2026-09-20: https://docs.typesafe.ai/models
+  jev-1.13.0:
+    input_per_mtok: 0.042
+    output_per_mtok: 0.00
+  deepseek-v4-flash:
+    input_per_mtok: 0.14
+    output_per_mtok: 0.28
+  deepseek-chat:
+    input_per_mtok: 0.28
+    output_per_mtok: 0.42
+  DeepSeek-V4-Pro:
+    input_per_mtok: 0.435
+    output_per_mtok: 0.87
+  gemini-3.6-flash:
+    input_per_mtok: 1.50
+    output_per_mtok: 7.50
+  gemini-3.1-pro:
+    input_per_mtok: 2.00
+    output_per_mtok: 12.00
+  claude-opus-5:
+    input_per_mtok: 5.00
+    output_per_mtok: 25.00
+  claude-sonnet-5:
+    input_per_mtok: 2.00
+    output_per_mtok: 10.00
+  claude-haiku-4-5:
+    input_per_mtok: 1.00
+    output_per_mtok: 5.00
+  gpt-5.6-sol:
+    input_per_mtok: 5.00
+    output_per_mtok: 30.00
+  terra:
+    input_per_mtok: 2.00
+    output_per_mtok: 12.00
+  luna:
+    input_per_mtok: 0.20
+    output_per_mtok: 1.20
+  grok-4.5:
+    input_per_mtok: 2.00
+    output_per_mtok: 6.00
+  local:
+    input_per_mtok: 0.00
+    output_per_mtok: 0.00
+  default:
+    input_per_mtok: 1.00
+    output_per_mtok: 3.00

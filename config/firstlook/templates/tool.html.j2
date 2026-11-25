@@ -1,0 +1,12 @@
+{# B2B tool: what it does, then who it is for, then the form. #}
+{% extends "_base.html.j2" %}
+
+{% block eyebrow %}A tool being built{% endblock %}
+
+{% block sections %}
+{% with points_heading = "What it does" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "How you'd use it" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+{% block capture_heading %}Want to try it?{% endblock %}
+{% block capture_blurb %}Leave your email and I'll get in touch when there is something to use.{% endblock %}

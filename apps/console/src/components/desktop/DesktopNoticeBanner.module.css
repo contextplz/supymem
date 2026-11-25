@@ -1,0 +1,63 @@
+.banner {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 8px 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--warn-dim);
+  /* Bounded so a long notice never pushes the page's composer out of a short window. */
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.copy {
+  min-width: 0;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.copy strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.copy p,
+.copy ol,
+.copy details {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.copy ol { padding-left: 1.5em; }
+.copy li + li { margin-top: var(--s-2); }
+.copy summary { cursor: pointer; }
+
+.compact p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.actions :is(button, a) { border-radius: var(--r-control); white-space: normal; }
+
+.other { display: flex; gap: 12px; justify-content: flex-end; align-items: center; min-height: 24px; margin: 0 24px; font-size: 0.8rem; }
+.other button { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; white-space: nowrap; }
+
+.railOther { justify-content: flex-start; flex-wrap: wrap; gap: 4px; min-height: 0; margin: 4px 8px; color: #8e8e93; font: 400 12px/1.4 var(--font-sans); }
+.railOther button { white-space: normal; text-align: left; }

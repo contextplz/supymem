@@ -1,0 +1,12 @@
+{# Content / media: topic, cadence, subscribe. #}
+{% extends "_base.html.j2" %}
+
+{% block eyebrow %}Something being written{% endblock %}
+
+{% block sections %}
+{% with points_heading = "What it covers" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "What turning up looks like" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+{% block capture_heading %}Subscribe{% endblock %}
+{% block capture_blurb %}Leave your email and you'll get it when it goes out.{% endblock %}

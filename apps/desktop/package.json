@@ -1,0 +1,19 @@
+{
+  "name": "desktop",
+  "version": "1.0.0-rc.2",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tauri": "../../start",
+    "dev": "../../start",
+    "build": "../../start --build",
+    "test": "cargo test --manifest-path ../../src-tauri/Cargo.toml --lib"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

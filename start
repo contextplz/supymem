@@ -1,0 +1,350 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+for tool in dirname uname; do
+  command -v "$tool" >/dev/null || { printf 'Restore %s with your OS base tools, then rerun ./start in Bash.\n' "$tool" >&2; exit 1; }
+done
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+mode=desktop
+check=0
+yes=0
+for option in "$@"; do
+  case "$option" in
+    --yes) yes=1 ;;
+    --check) check=1 ;;
+    --build|--web)
+      [[ "$mode" == desktop ]] || { printf '%s\n' 'Choose --build or --web, then rerun ./start.' >&2; exit 1; }
+      mode=${option#--} ;;
+    *) printf '%s\n' 'Run ./start for your desktop, --build for an installer or --web for your browser. Add --check to inspect prerequisites or --yes to install without a prompt.' >&2; exit 1 ;;
+  esac
+done
+
+export PATH="${HOME:-}/.local/bin:${HOME:-}/.cargo/bin:$PATH"
+system=$(uname -s)
+case "$system" in
+  Darwin)
+    for directory in /opt/homebrew/bin /usr/local/bin; do
+      [[ ! -x "$directory/brew" ]] || export PATH="$directory:$PATH"
+    done
+    node_platform=darwin ;;
+  Linux) node_platform=linux ;;
+  MINGW*|MSYS*|CYGWIN*)
+    command -v powershell.exe >/dev/null 2>&1 || { printf '%s\n' 'Open Windows PowerShell in your checkout and run .\start.ps1. Your Git Bash terminal could not find powershell.exe.' >&2; exit 1; }
+    launcher="$PWD/start.ps1"
+    if command -v cygpath >/dev/null 2>&1; then launcher=$(cygpath -w "$launcher"); fi
+    exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$launcher" "$@" ;;
+  *)
+    printf '%s\n' 'On Windows, open PowerShell in your checkout and run: .\start.ps1. On Mac or Linux, run ./start in your terminal.' >&2
+    exit 1 ;;
+esac
+next=./start
+[[ "$mode" == desktop ]] || next+=" --$mode"
+base_tools=(bash cat cksum date ln mkdir mv ps sh)
+[[ "$mode" == web ]] || base_tools+=(awk)
+for tool in "${base_tools[@]}"; do
+  if ! command -v "$tool" >/dev/null; then
+    printf 'Restore %s with %s, then rerun %s.\n' "$tool" \
+      "$(if [[ "$system" == Darwin ]]; then echo 'your macOS base tools'; else echo 'your Linux base packages (bash, awk, coreutils and procps/procps-ng)'; fi)" "$next" >&2
+    exit 1
+  fi
+done
+if [[ "$system" == Linux && "$mode" == desktop && "$check" == 0 && -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
+  printf '%s\n' 'No desktop session was found. Run ./start --web on this computer, or run ./start from your Linux desktop terminal.' >&2
+  exit 1
+fi
+if [[ "$check" == 0 && ( ! -w . || ! -w "${HOME:-}" ) ]]; then
+  printf 'Use a checkout and home directory you can write to, then rerun %s as your user.\n' "$next" >&2
+  exit 1
+fi
+case "$(uname -m)" in
+  arm64|aarch64) architecture=arm64 ;;
+  x86_64|amd64) architecture=x64 ;;
+  *) printf '%s\n' 'Use an arm64 or x64 Mac or Linux computer, then run ./start again.' >&2; exit 1 ;;
+esac
+node_version=22.23.4
+node_cache="${HOME:-}/.local/share/node-v${node_version}-${node_platform}-${architecture}"
+detected_node=$(node --version 2>/dev/null || true)
+if { [[ ! "$detected_node" =~ ^v([0-9]+)\.[0-9]+\.[0-9]+$ ]] || (( BASH_REMATCH[1] < 22 )); } && [[ -x "$node_cache/bin/node" ]]; then
+  export PATH="$node_cache/bin:$PATH"
+fi
+
+python_command=''
+python_ready() { "$1" -c 'import sys, venv, ensurepip; raise SystemExit(sys.version_info[:2] != (3, 12) or not ensurepip.version())' >/dev/null 2>&1; }
+find_python() {
+  for candidate in python3.12 python3 "${HOME:-}/.local/bin/python3.12"; do
+    if command -v "$candidate" >/dev/null 2>&1 && python_ready "$candidate"; then
+      python_command=$candidate
+      return
+    fi
+  done
+  if [[ "$system" == Darwin ]] && command -v brew >/dev/null 2>&1; then
+    candidate=$(brew --prefix python@3.12 2>/dev/null) || return 1
+    candidate="$candidate/bin/python3.12"
+    if [[ -x "$candidate" ]] && python_ready "$candidate"; then
+      python_command=$candidate
+      return
+    fi
+  fi
+  return 1
+}
+find_python || true
+if [[ "$mode" != web ]]; then
+  tauri_version=$(awk '/^name = "tauri"$/ {found=1; next} found && /^version = / {gsub(/"/, "", $3); print $3; exit}' src-tauri/Cargo.lock 2>/dev/null || true)
+  [[ "$tauri_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { printf '%s\n' 'Restore src-tauri/Cargo.lock from your source release, then rerun ./start.' >&2; exit 1; }
+fi
+
+need() {
+  labels+=("$1")
+  actions+=("$2")
+  commands+=("$3")
+  missing=$((missing + 1))
+}
+install_homebrew() {
+  local installer
+  installer=$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+  sudo -v
+  NONINTERACTIVE=1 /bin/bash -c "$installer"
+  for directory in /opt/homebrew/bin /usr/local/bin; do
+    [[ ! -x "$directory/brew" ]] || export PATH="$directory:$PATH"
+  done
+}
+install_xcode() {
+  xcode-select --install
+  printf '%s\n' 'Finish the Apple tools installer. Your setup continues when it completes; this can take 5 to 15 minutes.'
+  until xcrun --find clang >/dev/null 2>&1; do sleep 3; done
+}
+install_libraries() { /bin/bash -c "$libraries_install"; }
+install_python() {
+  if [[ "$system" == Darwin ]]; then
+    brew install python@3.12
+    export PATH="$(brew --prefix python@3.12)/bin:$PATH"
+  else
+    if ! command -v uv >/dev/null 2>&1; then
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+    uv python install 3.12 --default
+  fi
+  find_python
+}
+install_node() {
+  printf '%s\n' 'Preparing your standalone Node runtime (about 1 minute on first run).'
+  "$python_command" - "$node_cache" "$node_version" "$node_platform" "$architecture" <<'NODE_RUNTIME'
+import hashlib
+import shutil
+import sys
+import tarfile
+import tempfile
+import urllib.request
+from pathlib import Path
+
+destination = Path(sys.argv[1])
+version, platform, architecture = sys.argv[2:]
+archive = f"node-v{version}-{platform}-{architecture}.tar.gz"
+base = f"https://nodejs.org/dist/v{version}/"
+destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+with tempfile.TemporaryDirectory(dir=destination.parent) as temporary:
+    download = Path(temporary) / archive
+    with urllib.request.urlopen(base + "SHASUMS256.txt", timeout=120) as response:
+        expected = next(line.split()[0] for line in response.read().decode().splitlines()
+                        if line.split()[1] == archive)
+    with urllib.request.urlopen(base + archive, timeout=120) as response, download.open("wb") as output:
+        shutil.copyfileobj(response, output)
+    with download.open("rb") as source:
+        if hashlib.file_digest(source, "sha256").hexdigest() != expected:
+            raise SystemExit("Your Node download failed verification. Rerun ./start to download it again.")
+    with tarfile.open(download) as source:
+        source.extractall(temporary, filter="data")
+    shutil.move(str(Path(temporary) / archive.removesuffix(".tar.gz")), destination)
+NODE_RUNTIME
+  export PATH="$node_cache/bin:$PATH"
+}
+install_pnpm() {
+  mkdir -p "$HOME/.local/bin"
+  if ! corepack --version >/dev/null 2>&1; then
+    npm install --prefix "$HOME/.local" corepack
+  fi
+  corepack enable --install-directory "$HOME/.local/bin"
+  corepack prepare pnpm@10.11.0 --activate
+}
+install_rust() {
+  if command -v rustup >/dev/null; then
+    rustup update stable
+    rustup default stable
+  else
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    . "$HOME/.cargo/env"
+  fi
+}
+install_tauri() { cargo install tauri-cli --version "$tauri_version" --locked; }
+
+# shortcut: Cargo.lock has no MSRV metadata; update this notify-rust floor when the locked dependencies raise it.
+rust_min_minor=89
+rust_ready() {
+  local version
+  version=$("$1" --version 2>/dev/null) && [[ "$version" =~ ^$1\ ([0-9]+)\.([0-9]+)\.[0-9]+ ]] &&
+    (( BASH_REMATCH[1] > 1 || (BASH_REMATCH[1] == 1 && BASH_REMATCH[2] >= rust_min_minor) ))
+}
+
+check_prerequisites() {
+  missing=0
+  labels=()
+  actions=()
+  commands=()
+  if [[ "$system" == Darwin ]]; then
+    if { [[ "$mode" != web ]] || { [[ -z "$python_command" ]] && ! command -v brew >/dev/null 2>&1; }; } &&
+        { ! xcrun --find clang >/dev/null 2>&1 || { [[ "$mode" != web ]] &&
+          { ! command -v otool >/dev/null || ! xcrun --find otool >/dev/null 2>&1; }; }; }; then
+      need 'Xcode command-line tools (clang and otool for desktop)' install_xcode 'xcode-select --install (or select your existing tools with sudo xcode-select --switch /Library/Developer/CommandLineTools)'
+    fi
+    if [[ -z "$python_command" ]] && ! command -v brew >/dev/null 2>&1; then
+      need 'Homebrew' install_homebrew 'sudo -v; NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" (Homebrew needs your Mac administrator password)'
+    fi
+  else
+    native_missing=0
+    download_missing=0
+    packaging_missing=0
+    ldd_missing=0
+    for tool in curl tar gzip; do
+      command -v "$tool" >/dev/null || download_missing=1
+    done
+    for ca_setting in SSL_CERT_FILE CURL_CA_BUNDLE; do
+      if [[ -n "${!ca_setting:-}" && ! -s "${!ca_setting}" ]]; then
+        printf 'Set %s to a readable CA certificate bundle or unset it to use your system trust store, then rerun %s.\n' "$ca_setting" "$next" >&2
+        exit 1
+      fi
+    done
+    if [[ ! -s "${SSL_CERT_FILE:-/etc/ssl/certs/ca-certificates.crt}" && ! -s /etc/pki/tls/certs/ca-bundle.crt &&
+          ! -s /etc/ssl/cert.pem && ! -d "${SSL_CERT_DIR:-}" ]]; then
+      download_missing=1
+    fi
+    SUPYMEM_LINUX_BUNDLES=appimage
+    if command -v dnf >/dev/null; then manager=dnf
+    elif command -v pacman >/dev/null; then manager=pacman
+    elif command -v apt-get >/dev/null; then manager=apt-get
+    else manager=; fi
+    if [[ "$mode" == build && "$manager" == apt-get ]]; then
+      SUPYMEM_LINUX_BUNDLES=deb,appimage
+      for tool in dpkg dpkg-deb; do
+        command -v "$tool" >/dev/null || packaging_missing=1
+      done
+    fi
+    export SUPYMEM_LINUX_BUNDLES
+    if [[ "$mode" != web ]]; then
+      command -v ldd >/dev/null || ldd_missing=1
+      for tool in cc make pkg-config patchelf xdg-open; do
+        command -v "$tool" >/dev/null 2>&1 || native_missing=1
+      done
+      pkg-config --exists webkit2gtk-4.1 gtk+-3.0 openssl librsvg-2.0 >/dev/null 2>&1 || native_missing=1
+      if ! pkg-config --exists appindicator3-0.1 >/dev/null 2>&1 && ! pkg-config --exists ayatana-appindicator3-0.1 >/dev/null 2>&1; then
+        native_missing=1
+      fi
+    fi
+    if (( native_missing || download_missing || packaging_missing || ldd_missing )); then
+      privilege=''
+      [[ "$EUID" == 0 ]] || privilege='sudo '
+      if [[ "$manager" == dnf ]]; then
+        libraries_install="${privilege}dnf install -y curl ca-certificates tar gzip"
+        [[ "$native_missing" == 0 ]] || libraries_install+=' gcc gcc-c++ make pkgconf-pkg-config webkit2gtk4.1-devel libappindicator-gtk3-devel librsvg2-devel patchelf xdg-utils openssl-devel'
+        [[ "$ldd_missing" == 0 ]] || libraries_install+=' glibc-common'
+      elif [[ "$manager" == pacman ]]; then
+        libraries_install="${privilege}pacman -S --needed --noconfirm curl ca-certificates tar gzip"
+        [[ "$native_missing" == 0 ]] || libraries_install+=' base-devel pkgconf webkit2gtk-4.1 libappindicator-gtk3 librsvg patchelf xdg-utils openssl'
+        [[ "$ldd_missing" == 0 ]] || libraries_install+=' glibc'
+      elif [[ "$manager" == apt-get ]]; then
+        libraries_install="${privilege}apt-get update && ${privilege}apt-get install -y curl ca-certificates tar gzip"
+        [[ "$native_missing" == 0 ]] || libraries_install+=' build-essential pkg-config libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils libssl-dev'
+        [[ "$ldd_missing" == 0 ]] || libraries_install+=' libc-bin'
+        [[ "$packaging_missing" == 0 ]] || libraries_install+=' dpkg'
+      else
+        printf 'Install curl, CA certificates, tar and gzip using your package manager. For desktop also install ldd and the Tauri WebKitGTK 4.1 build libraries. Then rerun %s. Automatic setup supports Ubuntu, Debian, Fedora and Arch.\n' "$next" >&2
+        exit 1
+      fi
+      need 'your missing Linux packages' install_libraries "$libraries_install"
+      if [[ -n "$privilege" ]] && ! command -v sudo >/dev/null; then
+        printf 'Ask your administrator to run this package command as root, then rerun %s as your user: %s\n' "$next" "${libraries_install//sudo /}"
+        [[ "$check" == 1 ]] || exit 1
+      fi
+    fi
+  fi
+  if [[ -z "$python_command" ]]; then
+    if [[ "$system" == Darwin ]]; then
+      need 'Python 3.12 with venv and ensurepip' install_python 'brew install python@3.12 (use brew reinstall python@3.12 if its modules are missing)'
+    else
+      need 'Python 3.12 with venv and ensurepip' install_python 'curl -LsSf https://astral.sh/uv/install.sh | sh; export PATH="$HOME/.local/bin:$PATH"; uv python install 3.12 --default'
+    fi
+  fi
+  detected_node=$(node --version 2>/dev/null || true)
+  node_missing=0
+  if [[ ! "$detected_node" =~ ^v([0-9]+)\.[0-9]+\.[0-9]+$ ]] || (( BASH_REMATCH[1] < 22 )); then
+    node_missing=1
+    need 'Node 22 or newer' install_node "Download Node $node_version from nodejs.org, verify its SHA-256, and install it in $node_cache (no sudo)"
+  fi
+  if [[ "$(COREPACK_ENABLE_NETWORK=0 COREPACK_ENABLE_AUTO_PIN=0 pnpm --version 2>/dev/null || true)" != 10.11.0 &&
+        "$(COREPACK_ENABLE_NETWORK=0 COREPACK_ENABLE_AUTO_PIN=0 corepack pnpm --version 2>/dev/null || true)" != 10.11.0 ]]; then
+    if [[ "$node_missing" == 0 ]] && ! corepack --version >/dev/null 2>&1 && ! npm --version >/dev/null 2>&1; then
+      printf 'Your Node installation needs working npm or Corepack to set up pnpm. Install Node %s with npm from nodejs.org, then rerun %s.\n' "$node_version" "$next" >&2
+      exit 1
+    fi
+    need 'pnpm 10.11.0 via Corepack' install_pnpm 'npm install --prefix "$HOME/.local" corepack (only if missing); corepack enable --install-directory "$HOME/.local/bin"; corepack prepare pnpm@10.11.0 --activate'
+  fi
+  if [[ "$mode" != web ]]; then
+    if ! rust_ready cargo || ! rust_ready rustc; then
+      rust_install='curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+      if command -v rustup >/dev/null; then rust_install='rustup update stable && rustup default stable'; fi
+      need "Rust and Cargo 1.$rust_min_minor or newer" install_rust "$rust_install"
+    fi
+    if [[ "$(cargo tauri --version 2>/dev/null || true)" != "tauri-cli $tauri_version" ]]; then
+      need "Tauri CLI $tauri_version" install_tauri "cargo install tauri-cli --version $tauri_version --locked"
+    fi
+  fi
+}
+check_prerequisites
+
+if (( missing )); then
+  printf '%s\n' 'Your setup is missing the following prerequisites:'
+  for ((index=0; index<missing; index++)); do
+    printf '  %s: %s\n' "${labels[$index]}" "${commands[$index]}"
+  done
+  [[ "$check" == 0 ]] || { printf 'Run %s to install the listed prerequisites. No app was built.\n' "$next"; exit 1; }
+  answer=''
+  if [[ "$yes" == 1 ]] || { [[ ! -t 0 ]] && [[ "${SUPYMEM_START_YES:-}" == 1 ]]; }; then
+    answer=y
+  else
+    printf '%s' 'Install these now? [Y/n] '
+    if ! read -r answer; then answer=n; fi
+  fi
+  case "$answer" in
+    ''|y|Y|yes|YES) ;;
+    *) printf 'Nothing was installed. Run %s when you are ready, or add --yes to accept the listed installs.\n' "$next"; exit 1 ;;
+  esac
+  trap 'printf "Your prerequisite install stopped. Check the error above, your network or proxy, trusted CA certificates and write permissions, then rerun %s.\n" "$next" >&2' ERR
+  for ((index=0; index<missing; index++)); do
+    printf 'Installing %s (first setup can take 2 to 10 minutes).\n' "${labels[$index]}"
+    "${actions[$index]}"
+  done
+  trap - ERR
+  check_prerequisites
+  if (( missing )); then
+    for ((index=0; index<missing; index++)); do
+      printf 'Your %s is still missing. Run: %s\n' "${labels[$index]}" "${commands[$index]}" >&2
+    done
+    printf 'Complete the command above, then rerun %s.\n' "$next" >&2
+    exit 1
+  fi
+fi
+if [[ "$check" == 1 ]]; then
+  printf 'Your %s prerequisites are ready. No app was built. Run %s to continue.\n' "$mode" "$next"
+  exit 0
+fi
+if [[ "$mode" == build ]]; then
+  if [[ ! -x "$node_cache/bin/node" ]]; then
+    trap 'printf "%s\n" "Your bundled Node setup stopped. Check your connection and free disk space, then rerun ./start --build." >&2' ERR
+    install_node
+    trap - ERR
+  else
+    export PATH="$node_cache/bin:$PATH"
+  fi
+fi
+printf '%s\n' 'Preparing your local app (first run: 5 to 15 minutes; unchanged installs are skipped).'
+export SUPYMEM_PYTHON="$python_command"
+exec bash scripts/run_local.sh "--$mode"

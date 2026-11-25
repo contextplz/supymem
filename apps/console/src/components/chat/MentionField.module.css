@@ -1,0 +1,62 @@
+.wrap {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+.menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-card);
+  box-shadow: var(--sh-2);
+  max-height: 220px;
+  overflow: auto;
+}
+
+.option,
+.optionActive {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-0);
+  text-align: left;
+}
+
+.optionActive,
+.option:hover {
+  background: var(--accent-dim);
+}
+
+.option strong,
+.optionActive strong {
+  display: block;
+  font: var(--t-body-md);
+}
+
+.option em,
+.optionActive em {
+  display: block;
+  color: var(--fg-2);
+  font: var(--t-meta);
+  font-style: normal;
+}
+
+.wrap textarea,
+.wrap input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}

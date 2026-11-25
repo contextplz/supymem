@@ -1,0 +1,28 @@
+# Bring-your-own-company activity lines (38, 27 §3).
+# Every text ≤ 72 chars, second person, no jargon.
+
+byoc.orient:
+  running: "Saying plainly what I will and will not do."
+  done: "I start by watching. Writes are earned, not assumed."
+byoc.connect:
+  running: "Waiting on one read-only connection from you."
+  done: "Connected {count} system(s), read-only for now."
+  done_partial: "No systems connected yet — that is fine."
+byoc.discover:
+  running: "Reading what you granted. Nothing leaves as raw data."
+  done: "Scanned {count} connection(s) into a local inventory."
+  done_partial: "Scan finished with gaps I will ask about."
+byoc.map:
+  running: "Turning observations into a map you can correct."
+  done: "Company map v{version} is ready for your eyes."
+byoc.propose:
+  running: "Picking a few small, boring wins to prove myself."
+  done: "Here are {count} proposals, smallest first."
+byoc.prove:
+  running: "Ready to prove one change in a sandbox branch."
+  done: "Sandbox only until you accept a proof."
+
+byoc.observe_bumped:
+  done: "Observe level is now {level}."
+byoc.connection_added:
+  done: "Linked {provider} as {account} (simulated)."

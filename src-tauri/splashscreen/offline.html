@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Supymem connection</title>
+<style>body{margin:0;background:#101519;color:#f4efe6;font:16px -apple-system,BlinkMacSystemFont,sans-serif}main{max-width:510px;margin:18vh auto;padding:32px}img{width:60px;border-radius:14px;background:white;padding:8px}h1{font-size:29px;line-height:1.2}p{line-height:1.6;color:#bac0c5}button{font:inherit;border:0;border-radius:9px;padding:12px 22px;background:#e1b58b;color:#17191c;cursor:pointer}button:disabled{opacity:.55}#status{min-height:48px;font-size:14px}</style></head>
+<body><main><img src="logo.png" alt="Supymem"><h1>Supymem can’t connect right now</h1><p>The hosted app is temporarily unavailable, or this Mac is offline. Your saved sign-in and local work have not been removed.</p><p>Supymem will make up to three automatic connection checks, then pause. You can retry manually after the service or network recovers.</p><button id="retry">Retry connection</button><p id="status" role="status"></p></main>
+<script src="connection.js"></script><script>
+const connection = SupymemConnection.mount({
+  button: document.getElementById('retry'), status: document.getElementById('status'), document,
+  invoke: (...args) => {
+    const invoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+    if (!invoke) return Promise.reject(new Error('Native connection unavailable'));
+    return invoke(...args);
+  },
+});
+window.addEventListener('pagehide', () => connection.dispose());
+</script></body></html>

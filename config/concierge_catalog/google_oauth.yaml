@@ -1,0 +1,14 @@
+id: google_oauth_setup
+title: Set up google_oauth
+verified_on: "2026-06-01"
+prerequisites: []
+steps:
+  - id: open
+    title: Open google_oauth settings
+    url: "https://console.cloud.google.com/apis/credentials"
+    ui_locator: "text=Create Credentials"
+    expect_to_see: "OAuth 2.0 Client IDs"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Refresh and ensure you are logged in"
+    est_seconds: 60

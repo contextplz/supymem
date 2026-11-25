@@ -1,0 +1,42 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 2px var(--s-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  font: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.live {
+  background: var(--ok-dim);
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.simulated {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--warn-dim),
+    var(--warn-dim) 3px,
+    var(--bg-1) 3px,
+    var(--bg-1) 6px
+  );
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.projected {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.no_data {
+  background: transparent;
+  border-style: dashed;
+  color: var(--fg-2);
+}

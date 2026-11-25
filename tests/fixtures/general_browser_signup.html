@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Supymem G1 signup fixture</title>
+</head>
+<body>
+  <h1>Create your fixture account</h1>
+  <a href="/">Home</a>
+  <form id="signup" action="/submit" method="post">
+    <label>Full name <input id="name" name="name" type="text" autocomplete="name" /></label>
+    <label>Work email <input id="email" name="email" type="email" autocomplete="email" /></label>
+    <label>Password <input id="password" name="password" type="password" autocomplete="new-password" /></label>
+    <label><input id="terms" name="terms" type="checkbox" /> I agree to the Terms of Service</label>
+    <button id="submit" type="submit">Create account</button>
+  </form>
+  <p id="status">waiting</p>
+  <script>
+    document.getElementById("signup").addEventListener("submit", function (event) {
+      event.preventDefault();
+      document.getElementById("status").textContent = "submitted";
+    });
+  </script>
+</body>
+</html>

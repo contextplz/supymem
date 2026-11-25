@@ -1,0 +1,5 @@
+# Reproducible workbook imports remain reviewable on demand without obscuring code.
+data/knowledge/startup-pmf-2026-09-19/*.json linguist-generated=true
+data/knowledge/startup-pmf-2026-09-19/*.jsonl linguist-generated=true
+services/company_os/app/knowledge/*.json.gz linguist-generated=true
+docker/entrypoint.sh text eol=lf

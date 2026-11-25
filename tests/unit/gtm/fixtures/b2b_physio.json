@@ -1,0 +1,40 @@
+{
+  "context": {
+    "mode": "B2B",
+    "audience": "independent physiotherapy clinics in the UK",
+    "problem": "patients miss ~1 in 10 appointments and clinics cannot refill late-cancelled slots",
+    "offer": "appointment reminder and late-cancellation refill software",
+    "competitors": ["SlotPilot"]
+  },
+  "need": "We run an independent physiotherapy clinic and cannot refill late-cancelled appointment slots.",
+  "sites": [
+    {
+      "name": "Willow Physiotherapy",
+      "url": "https://willowphysio.example/",
+      "html": "<nav>Home Services Contact</nav><main><h1>Willow Physiotherapy</h1><p>We are an independent physiotherapy clinic in Bristol, UK.</p><p>We offer physiotherapy, sports injury rehabilitation, back pain treatment and massage for patients.</p><a href='/appointments'>Book an appointment</a><p>14 Willow Road, Bristol, BS1 4AA, United Kingdom</p><p>Phone: +44 117 496 0123</p><a href='mailto:hello@willowphysio.example'>hello@willowphysio.example</a></main><footer>Privacy policy</footer>",
+      "role": {"role_in_market": "buyer", "icp_fit": 0.96, "anti_icp": false, "homepage_quote": "We are an independent physiotherapy clinic in Bristol, UK."},
+      "keep": true
+    },
+    {
+      "name": "ClinicBookings",
+      "url": "https://clinicbookings.example/",
+      "html": "<main><h1>ClinicBookings</h1><p>Our booking software helps independent physiotherapy clinics reduce missed appointments and refill cancellations.</p><p>Book a demo of our platform.</p><a href='mailto:sales@clinicbookings.example'>sales@clinicbookings.example</a></main>",
+      "role": {"role_in_market": "vendor/competitor", "icp_fit": 0.0, "anti_icp": true, "homepage_quote": "Our booking software helps independent physiotherapy clinics reduce missed appointments and refill cancellations."},
+      "keep": false
+    },
+    {
+      "name": "UK Physio Finder",
+      "url": "https://ukphysiofinder.example/",
+      "html": "<main><h1>UK Physio Finder</h1><p>Browse our directory of independent physiotherapy clinics in the UK and compare local providers.</p><a href='mailto:info@ukphysiofinder.example'>info@ukphysiofinder.example</a></main>",
+      "role": {"role_in_market": "directory/listing", "icp_fit": 0.0, "anti_icp": true, "homepage_quote": "Browse our directory of independent physiotherapy clinics in the UK and compare local providers."},
+      "keep": false
+    },
+    {
+      "name": "SlotPilot",
+      "url": "https://slotpilot.example/",
+      "html": "<main><h1>SlotPilot</h1><p>Booking workflow support for clinics.</p><a href='mailto:hello@slotpilot.example'>hello@slotpilot.example</a></main>",
+      "role": {"role_in_market": "buyer", "icp_fit": 0.96, "anti_icp": false, "homepage_quote": "Booking workflow support for clinics."},
+      "keep": false
+    }
+  ]
+}

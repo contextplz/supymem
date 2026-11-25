@@ -1,0 +1,171 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+# setuptools/webpack output dirs. Do not swallow the Company OS build pipeline
+# package (`services/company_os/app/build/`) — a prior `build/` rule deleted it
+# from git without anyone noticing.
+build/
+!services/company_os/app/build/
+!services/company_os/app/build/**
+# The ** re-include would otherwise override the global bytecode ignores.
+services/company_os/app/build/**/__pycache__/
+services/company_os/app/build/**/*.py[cod]
+.venv/
+/.venv-old-*/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.sqlite3
+*.db
+
+# Node / Next.js
+node_modules
+.pnpm-store/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Runtime / generated
+data/runtime/
+data/raw/
+data/ventures/
+data/workspaces/
+data/engagements/
+data/artifacts/
+data/*.db
+data/*.db-*
+data/*.db.bak*
+data/working_memory.sqlite3
+data/institutional_memory.sqlite3
+data/*.sqlite3
+data/*.sqlite3-*
+data/vault/
+data/.env
+data/secrets.env
+data/secret_slot_requests.json
+data/llm_usage.json
+data/openleads/
+data/content_visuals/
+data/marketing_media/
+.qm-dev.pids
+*.pid
+artifacts/
+.artifacts/
+*.log
+.DS_Store
+
+# Seed images are small deterministic placeholders and are committed under data/images/
+# (regenerate anytime via scripts/ingest_amazon_reviews.py)
+
+# Vendored upstream clones — reproduced via scripts/sync_vendors.sh
+# and `make skills-fetch`. Pinned by git sha, so the clones are cache, not source.
+vendor/agent-reach/
+vendor/gpt-researcher/
+vendor/open_deep_research/
+vendor/openworker/
+vendor/hermes-agent/
+vendor/openclaw/
+data/content_verify/
+vendor/picoclaw/
+vendor/huginn/
+vendor/opencode/
+vendor/gbrain/
+vendor/openhands-sdk/
+vendor/postiz/
+vendor/recordly/
+vendor/paperclip/
+vendor/munder-difflin/
+vendor/deepseek-harness/
+vendor/research/
+vendor/skills/*/
+!vendor/skills/MANIFEST.yaml
+!vendor/README.md
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Docker volumes
+.docker-data/
+
+# Tauri / Rust
+src-tauri/target/
+target-desktop/
+src-tauri/gen/
+src-tauri/tauri.release.json
+src-tauri/tauri.local-review.json
+src-tauri/binaries/companyos-runtime-*
+src-tauri/binaries/peekaboo-*
+src-tauri/binaries/libswiftCompatibilitySpan.dylib
+!src-tauri/binaries/README.md
+src-tauri/resources/console/**
+!src-tauri/resources/console/.gitkeep
+
+# Updater private keys (pubkey lives in src-tauri/tauri.conf.json only)
+.tauri/
+*.key
+
+# Terraform (keep *.tf and .terraform.lock.hcl)
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+# Apple Developer ID exports — never git. GitHub secret is base64 of the .p12.
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+
+# Auto-created Composio DISCORDBOT auth config id (local)
+data/composio_discordbot_auth_config_id
+
+# Playwright browsers downloaded for marketing verify (huge binaries)
+.agents/verify_marketing/pw-browsers/
+
+# Local Composio auth config ids (not secrets-as-keys, but environment-specific — keep local)
+data/composio_gmail_auth_config_id
+data/composio_linkedin_auth_config_id
+data/composio_reddit_auth_config_id
+services/data/
+
+# Local verification artifacts and runtime notices are not product source.
+.agents/verify_marketing/
+data/desktop_notices.jsonl
+
+# Local QA screenshots and first-look scratch output.
+.qa-shots/
+.email-previews/
+tmp-firstlook/
+
+# Only the compact YC runtime and its reproduction metadata belong in git.
+data/knowledge/yc-video-advice-1dfdaf90/*
+!data/knowledge/yc-video-advice-1dfdaf90/README.md
+!data/knowledge/yc-video-advice-1dfdaf90/manifest.json
+!data/knowledge/yc-video-advice-1dfdaf90/UPSTREAM_PIN.json
+config/deployment.private.json
+/src-tauri/resources/local/
+/.desktop-python/
+/.desktop-python-*/
+/.desktop-intel/
+
+# local backups and runtime databases never belong in git
+data-backups/
+data/*.sqlite
+data/*.sqlite3
+!data/seed/
+.tmp/

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your app is getting ready</title>
+  <style>
+    body { max-width: 42rem; margin: 4rem auto; padding: 1.5rem; font-family: system-ui, sans-serif; color: #222; background: #fff; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 1rem; background: #f3f3f3; }
+    .mascot { width: 96px; height: 96px; border-radius: 20px; background: #1e3b54; }
+    progress { width: 100%; accent-color: #d97732; }
+    button { font: inherit; padding: .7rem 1.2rem; border-radius: .5rem; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: wait; }
+  </style>
+  <script src="local-error.js" defer></script>
+</head>
+<body>
+  <main>
+    <div class="mascot" role="img" aria-label="Charlie"></div>
+    <h1 id="heading">Charlie is getting your app ready</h1>
+    <p id="status" role="status" aria-live="polite">You can keep this window open while your saved work gets ready.</p>
+    <pre id="failure-details" aria-label="Why your app could not start" hidden></pre>
+    <progress id="progress" value="0" max="3" aria-label="Your app startup progress"></progress>
+    <button id="retry" type="button" hidden>Retry</button>
+    <section id="failure-help" hidden>
+      <p>Open your log at this path to check what happened:</p>
+      <pre id="log-path" aria-label="Your log path"></pre>
+      <p>Your saved work is retained. If Retry does not help, quit and reopen your app.</p>
+      <p>If the log is missing, check that you can write to your app's data folder, then retry.</p>
+    </section>
+  </main>
+</body>
+</html>

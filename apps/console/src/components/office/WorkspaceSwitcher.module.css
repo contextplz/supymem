@@ -1,0 +1,157 @@
+.switcherRoot {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+
+.switcherRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.switcherRename {
+  flex: 0 0 auto;
+  border: 0;
+  background: none;
+  color: var(--fg-2);
+  font: 600 10px/1 var(--font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.switcherRename:hover {
+  color: var(--fg-0);
+}
+
+.switcherNameInput {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 4px;
+  background: var(--bg-2);
+  color: var(--fg-0);
+  font: 600 13px/1.3 var(--font-sans);
+}
+
+.switcher {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--fg-0);
+  text-align: left;
+}
+
+.switcher:hover:not(:disabled) {
+  background: var(--bg-2);
+  border-color: var(--line);
+}
+
+.switcher:focus-visible {
+  outline: 2px solid var(--sidebar-active);
+  outline-offset: 2px;
+}
+
+.switcherMark {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--bg-3);
+  color: var(--fg-0);
+  font: 700 13px/1 var(--font-logo);
+}
+
+.switcherCopy {
+  min-width: 0;
+  flex: 1;
+}
+
+.switcherEyebrow {
+  display: block;
+  color: var(--fg-2);
+  font: 600 9px/1.2 var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.switcherName {
+  display: block;
+  overflow: hidden;
+  font: 600 13px/1.3 var(--font-sans);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.switcherChevron {
+  color: var(--fg-2);
+  font-size: 11px;
+}
+
+:global(.home-shell .sidebar) .switcher { flex-direction: column; gap: 6px; padding: 8px 0; }
+:global(.home-shell .sidebar) .switcherCopy { text-align: center; }
+:global(.home-shell .sidebar) .switcherName { font-size: 10px; }
+:global(.home-shell .sidebar) .switcherChevron { display: none; }
+
+
+.switcherMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 10px;
+  right: 10px;
+  z-index: 30;
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: var(--sh-2);
+}
+
+.switcherItem,
+.switcherCreate {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-0);
+  font: var(--t-body-md);
+  text-align: left;
+}
+
+.switcherItem:hover,
+.switcherCreate:hover {
+  background: var(--accent-dim);
+  border-color: transparent;
+  color: var(--fg-0);
+}
+
+.switcherItemActive {
+  background: var(--accent-dim);
+}
+
+.switcherMeta {
+  display: block;
+  margin-top: 2px;
+  color: var(--fg-2);
+  font: var(--t-meta);
+}
+
+.switcherCreate {
+  color: var(--accent);
+}

@@ -1,0 +1,22 @@
+.tray { position: relative; display: flex; flex-direction: column; width: max-content; max-width: 100%; max-height: 320px; margin: 0 0 0 auto; border: 1px solid #dedee3; border-radius: 16px; background: #fff; color: #27272a; box-shadow: 0 2px 8px #00000008; z-index: 7; pointer-events: auto; overflow: hidden; font: 12px/1.4 var(--font-sans); }
+.summary { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 8px; max-width: 100%; min-height: 28px; padding: 4px 10px; border: 0; border-radius: 16px; background: #fff; color: inherit; cursor: pointer; white-space: nowrap; font: inherit; }
+.summaryText { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.items { width: min(340px, 100%); min-height: 0; max-height: 280px; overflow-y: auto; overscroll-behavior: contain; padding: 0 6px 6px; }
+.tray:has(.items) { width: min(340px, 100%); }
+.agent { border-radius: 8px; background: #f5f5f7; margin-top: 4px; }
+.chip { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: transparent; text-align: left; color: inherit; cursor: pointer; font: inherit; }
+.copy { display: grid; flex: 1; min-width: 0; gap: 2px; }
+.copy > span { color: #62626b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip time { color: #71717a; font-variant-numeric: tabular-nums; }
+.spinner { flex: none; width: 12px; height: 12px; border: 2px solid #d4d4d8; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+.done { background: #edf8f0; color: #166534; }
+.failed { background: #fff1f1; color: #b91c1c; }
+.details { padding: 0 10px 10px; overflow-wrap: anywhere; }
+.details ol { margin: 6px 0; padding-left: 20px; }
+.details p { margin: 6px 0; }
+.details button, .retry { border: 1px solid currentColor; border-radius: 6px; background: #fff; padding: 3px 8px; font: inherit; color: inherit; cursor: pointer; }
+.retry { margin: 0 8px 8px; }
+.error { margin: 6px 4px; color: #b91c1c; }
+.summary:focus-visible, .items:focus-visible, .chip:focus-visible, .details button:focus-visible, .retry:focus-visible { outline: 2px solid #2563eb; outline-offset: -2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }

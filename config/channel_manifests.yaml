@@ -1,0 +1,45 @@
+channels:
+  landing:
+    version: "2026-01-01"
+    cost_per_action_usd: 0.0
+    quota_per_day: 1000
+    prerequisites: []
+    approval_lead_days: 0
+    capabilities: [publish_page, collect_email]
+  email:
+    version: "2026-09-03"
+    cost_per_action_usd: 0.001
+    quota_per_day: 40
+    warmup_days: 21
+    prerequisites: [domain_verify, spf, dkim, dmarc, mailbox_connected]
+    approval_lead_days: 1
+    capabilities: [send_transactional, send_campaign, sequence, read_inbox]
+  x:
+    version: "2026-04-01"
+    cost_per_action_usd: 0.015
+    cost_with_link_usd: 0.20   # 13x
+    quota_per_day: 50
+    prerequisites: [developer_account]
+    approval_lead_days: 3
+    capabilities: [post, reply]
+  linkedin:
+    version: "2026-01-01"
+    cost_per_action_usd: 0.05
+    quota_per_day: 20
+    prerequisites: [company_page]
+    approval_lead_days: 7
+    capabilities: [post]
+  reddit:
+    version: "2026-01-01"
+    cost_per_action_usd: 0.0
+    quota_per_day: 10
+    prerequisites: [account_age_30d]
+    approval_lead_days: 0
+    capabilities: [post, comment]
+  instagram:
+    version: "2026-01-01"
+    cost_per_action_usd: 0.02
+    quota_per_day: 25
+    prerequisites: [meta_business, app_review]
+    approval_lead_days: 21
+    capabilities: [post_image, story]

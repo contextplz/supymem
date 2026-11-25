@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "company-os"
+license = { text = "Apache-2.0" }
+version = "1.0.0-rc.2"
+description = "Company OS core service"
+requires-python = ">=3.12"
+dependencies = [
+  "redis>=5.0.0",
+  "company-os-core",
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "sqlalchemy[asyncio]>=2.0.36",
+  "aiosqlite>=0.20.0",
+  "psycopg[binary]>=3.2",
+  "alembic>=1.14.0",
+  "pydantic>=2.9.0",
+  "pydantic-settings>=2.6.0",
+  "httpx>=0.27.0",
+  "boto3>=1.43.90,<2",
+  # CloudFront KeyValueStore signs data-plane requests with SigV4A. Botocore
+  # delegates that signer to AWS CRT, so the production image must carry it.
+  "awscrt>=0.20.0,<1",
+  "cryptography>=43.0.0",
+  "argon2-cffi>=23.1.0",
+  # First-look pages are rendered from templates, never by a coding agent (45 §3).
+  "jinja2>=3.1.4",
+  # Parse CSS resource references when freezing first-look asset versions.
+  "tinycss2==1.4.0",
+  "python-multipart>=0.0.9",
+  # OpenWorker keyless web search (vendor/openworker DuckDuckGo provider).
+  "ddgs>=9",
+  # Agent-Reach RSS + GitHub channel imports (vendor/agent-reach).
+  "feedparser>=6.0",
+  "pyyaml>=6.0",
+  # Research dossier PDF export.
+  "fpdf2>=2.8.0",
+  # Branded content cards (template → PNG, no image model).
+  "pillow>=10.4.0",
+  # Free MX lookups for guessed business emails (no SMTP probing).
+  "dnspython>=2.8.0,<3",
+  "pypdf>=6.19.0,<7",
+  # Bundled ffmpeg binary for 15–30s Ken Burns clips when the host has none.
+  "imageio-ffmpeg>=0.5.1",
+  # Composio SDK — FileUploadable staging for LinkedIn image posts.
+  "composio>=0.21.0",
+  # AI GTM Scrapy contact crawler (vendor/research/scrapy is reference clone).
+  "scrapy>=2.11",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "pytest-asyncio>=0.24.0",
+  "ruff>=0.6.0",
+  "mypy>=1.11.0",
+]
+ads = [
+  "google-ads>=25.0.0",
+  "facebook-business>=21.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+"app.knowledge" = ["*.json.gz"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+mypy_path = "../../packages/core"

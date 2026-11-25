@@ -1,0 +1,9 @@
+[
+  {"id": "stripe", "text": "STRIPE_KEY=sk\u005flive_abcdefghijklmnopqrstuvwx"},
+  {"id": "openai", "text": "OPENAI_API_KEY=sk-proj-abcdefghijklmnopqrstuv"},
+  {"id": "github_pat", "text": "token=ghp_abcdefghijklmnopqrstuvwxyz0123456789ABCD"},
+  {"id": "aws", "text": "AWS_ACCESS_KEY_ID=AKIABCDEFGHIJKLMNOPQ"},
+  {"id": "pem", "text": "-----BEGIN PRIVATE KEY-----\nMIIB\n-----END PRIVATE KEY-----"},
+  {"id": "env", "path": ".env", "text": "DATABASE_URL=postgres://user:hunter2@localhost/db"},
+  {"id": "slack", "text": "xox\u0062-1234567890-123456789012-abcdefghijklmnopqrstuvwx"}
+]

@@ -1,0 +1,54 @@
+Supymem
+Copyright 2026 Supymem contributors.
+
+This product includes software developed by the Supymem contributors.
+Supymem is licensed under the Apache License, Version 2.0. See LICENSE.
+
+Third-party software, data and assets retain their own terms. This notice
+does not grant rights to third-party material. See
+docs/self-hosting/THIRD_PARTY.md and retain the accompanying upstream
+license and notice files when redistributing those components.
+
+Included third-party software attributions:
+- GStack: Copyright (c) 2026 Garry Tan. MIT License.
+- OpenWorker web modules: Copyright (c) 2024 Andrew Ng. MIT License.
+- Huginn: Copyright (c) 2013, Andrew Cantino (Iteration Labs, LLC) and
+  Huginn contributors. MIT License.
+- QM: Copyright (c) 2026 QM contributors. MIT License.
+- taste-skill: Copyright (c) 2026 Leonxlnx. MIT License.
+- Paperclip: Copyright (c) 2025 Paperclip AI. MIT License.
+- Munder Difflin: Copyright (c) 2026 Chaitanya Giri. MIT License.
+- CUA: Copyright (c) 2025 Cua AI, Inc. MIT License.
+- Peekaboo: Copyright (c) 2025 Peter Steinberger. MIT License.
+- mac-usernotifications 0.3.1 by Hendrik Sollich and contributors: Supymem
+  redistributes the modified crate under Apache-2.0, one of the upstream
+  license options. Supymem changed foreground presentation, blocking
+  delivery and delegate installation. The full Apache-2.0 text accompanies
+  this notice. See src-tauri/patches/mac-usernotifications/PATCH.md in the
+  source distribution for the file-by-file changes.
+
+MIT license notice for the derived algorithms in
+services/company_os/app/paperclip/ and services/company_os/app/munder/:
+
+Paperclip: Copyright (c) 2025 Paperclip AI.
+Munder Difflin: Copyright (c) 2026 Chaitanya Giri.
+
+The following terms apply separately to each upstream's derived code:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

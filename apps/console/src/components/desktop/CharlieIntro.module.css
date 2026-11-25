@@ -1,0 +1,24 @@
+.root { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; }
+.backdrop { position: absolute; inset: 0; background: var(--bg-0); transition: opacity 700ms ease 150ms; }
+.root[data-leaving="true"] .backdrop { opacity: 0; }
+.root[data-reduced="true"] { opacity: 0; transition: opacity 300ms ease; }
+.root[data-reduced="true"] .backdrop { transition: none; }
+.skip {
+  position: absolute; top: 16px; right: 16px; z-index: 1; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg-card); color: var(--fg-1); font: inherit; cursor: pointer;
+}
+.root[data-leaving="true"] .skip { opacity: 0; }
+.stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.mascot { will-change: transform; transition: transform 90ms linear; }
+.renderer { position: relative; width: 100%; height: 100%; }
+.renderer img, .renderer canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.renderer img:not([data-loaded]), .renderer img[data-loaded] + .fallback,
+.renderer[data-mascot-ready="true"] :is(img, .fallback) { visibility: hidden; }
+.fallback { position: absolute; inset: 0; margin: auto; width: 120px; height: 120px; display: grid;
+  place-items: center; border-radius: 50%; background: #edf2f8; color: #162033; font-size: 48px; font-weight: 600; }
+.caption { max-width: 480px; min-height: 72px; padding: 0 24px; text-align: center; color: var(--fg-1); font-size: 16px; line-height: 1.5; }
+.tap {
+  padding: 10px 22px; border-radius: 999px; border: 0; cursor: pointer; font: inherit;
+  background: var(--fg-0); color: var(--bg-1);
+}
+@media (prefers-reduced-motion: reduce) { .mascot { transition: none; } }

@@ -1,0 +1,81 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: var(--s-3);
+}
+
+.name {
+  margin: 0;
+  font: var(--t-body-md);
+  color: var(--fg-0);
+}
+
+.badge {
+  display: inline-block;
+  margin-top: var(--s-1);
+  padding: 1px var(--s-2);
+  border-radius: var(--r-1);
+  font: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  background: var(--neutral-dim);
+  color: var(--fg-1);
+}
+
+.completed {
+  background: var(--ok-dim);
+  color: var(--ok);
+}
+
+.running {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.failed {
+  background: var(--danger-dim);
+  color: var(--danger);
+}
+
+.meta {
+  margin: var(--s-1) 0 0;
+  font: var(--t-meta);
+  color: var(--fg-2);
+}
+
+.skeleton {
+  height: 80px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-3);
+}
+
+.empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: var(--s-4);
+  font: var(--t-meta);
+  color: var(--fg-2);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

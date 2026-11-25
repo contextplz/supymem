@@ -1,0 +1,12 @@
+{# Two-sided: both sides of the value prop first, then the three steps. #}
+{% extends "_base.html.j2" %}
+
+{% block eyebrow %}A marketplace, in progress{% endblock %}
+
+{% block sections %}
+{% with points_heading = "What each side gets" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "How a match happens" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+{% block capture_heading %}Want in early?{% endblock %}
+{% block capture_blurb %}Tell me which side you are on and I'll come back to you first.{% endblock %}

@@ -1,0 +1,7 @@
+# OvenFleet
+Sector: Bakery software
+Founded: 2016
+Ended: 2020
+Cash burned: $4 million
+OvenFleet scheduled industrial oven maintenance for large bakery factories.
+Failure: Enterprise contracts did not cover hardware support costs.

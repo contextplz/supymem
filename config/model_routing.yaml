@@ -1,0 +1,160 @@
+# Purpose → tier. Unrouted purpose = hard error (17 §3, docs/supymem/08 §2).
+default_tier: flash
+
+concurrency:
+  pro: 8
+  flash: 32
+  embed: 16
+  local: 64
+  passthrough: 16
+
+routes:
+  inbox.triage: flash
+  idea.clarify_turn: pro
+  idea.validate: pro
+  idea.board: pro
+  research.deep: pro
+  research.prior_art.plan: pro
+  build.model: pro
+  content.writer: pro
+  simulation.rehearse: pro
+  validation.dossier: pro
+  engagement.triage: flash
+  gbrain.think: flash
+  venture.chat.assistant: flash
+  venture.chat.route: flash
+  # ---- FLASH ----
+  intake.classify: flash
+  intake.suggest_name: flash
+  intake.normalize_other: flash
+  intake.research_summarize: flash
+  clarify.parse_other: flash
+  feedback.classify: flash
+  feedback.sentiment: flash
+  gtm.draft_post: flash
+  outreach.targets: flash
+  gtm.summarize_engagement: flash
+  concierge.render_step: flash
+  worldmodel.estimate_param: flash
+  agent.support_draft: flash
+  build.summarize_diff: flash
+  digest.render: flash
+  idealab.copy: flash
+  firstlook.copy: flash
+  harness.turn: flash
+  content.draft: flash
+
+  # ---- PRO ----
+  charter.synthesize: pro
+  org.compose_personalize: pro
+  clarify.generate_questions: pro
+  build.draft_adr: pro
+  build.plan_work_orders: pro
+  build.peer_review: pro
+  evolution.diagnose: pro
+  evolution.generate_proposal: pro
+  evolution.peer_review: pro
+  gtm.positioning: pro
+  outreach.draft_batch: pro
+  pmf.hypothesis: pro
+  gtm.market_thesis: pro
+  gtm.god_diagnose: pro
+  gtm.god_research: flash
+  gtm.discovery.plan: pro
+  gtm.discovery.judge: pro
+  gtm.discovery.draft: pro
+  gtm.reply_draft: flash
+  gtm.call_brief: flash
+  gtm.call_learnings: flash
+  coding.inhouse_agent: pro
+  idealab.compose: pro
+  clarify.plan_turn: pro
+  clarify.summarize_revision: flash
+  research.classify: flash
+  research.evaluate_license: flash
+  research.synthesize: pro
+  experiment.beliefs: flash
+  experiment.exploration: flash
+  experiment.reviews: flash
+  experiment.anti_pitch: flash
+  experiment.approach_review: flash
+  scope.classify: pro
+  plan.compile: pro
+  task.plan: pro
+  task.verify: pro
+  task.draft: pro
+  task.reflect: flash
+  estimate.explain: flash
+  build.qa_triage: pro
+  debug.diagnose: pro
+  iterate.interpret: pro
+  import.analyze: pro
+  app.proxy: passthrough
+  guard.injection: local
+  memory.embed: embed
+  content.topics: pro
+  # Independent review prompt; both execution slots use the configured Pro model.
+  content.critic: pro
+  # Reviewed dynamic pagebuilder operations. Unknown suffixes fail before dispatch.
+  pagebuilder.brief_direction_plan: pro
+  pagebuilder.plan_repair_1: pro
+  pagebuilder.plan_repair_2: pro
+  pagebuilder.plan_repair_3: pro
+  pagebuilder.plan_repair_4: pro
+  pagebuilder.capability_review_1: pro
+  pagebuilder.capability_review_2: pro
+  pagebuilder.capability_review_3: pro
+  pagebuilder.capability_review_4: pro
+  pagebuilder.capability_review_5: pro
+  pagebuilder.capability_review_6: pro
+  pagebuilder.code: pro
+  pagebuilder.repair_1: pro
+  pagebuilder.repair_2: pro
+  device.ai_step.plan: pro
+  device.ai_step.verify: pro
+  device.ai_step.step: pro
+  device.vision: pro
+  device.browser_ai.plan: pro
+  device.browser_ai.actor: pro
+  device.browser_ai.verify: pro
+  task.plan: pro
+  task.verify: pro
+  task.draft: pro
+  task.reflect: flash
+  memory.extract: flash
+  # Compatibility facades; product callers use their specific identities.
+  env_chat_completion: pro
+  byok_chat_completion: pro
+
+model_route_aliases:
+  gtm.discovery.plan: research.deep
+  gtm.discovery.judge: research.deep
+  gtm.discovery.draft: research.deep
+
+overrides:
+  escalate_on_schema_failure: true
+  allow_downgrade_on_budget: false
+
+prompt_budgets:
+  intake.classify: 2000
+  clarify.generate_questions: 6000
+  charter.synthesize: 8000
+  build.draft_adr: 12000
+  build.peer_review: 16000
+  evolution.diagnose: 10000
+  evolution.generate_proposal: 12000
+  gtm.market_thesis: 8000
+  gtm.god_diagnose: 8000
+  gtm.god_research: 4000
+  gtm.discovery.plan: 1024
+  gtm.discovery.judge: 6000
+  gtm.discovery.draft: 6000
+  agent.default: 6000
+  coding.inhouse_agent: 32000
+  idealab.compose: 6000
+  idealab.copy: 2000
+  firstlook.copy: 1500
+  harness.turn: 12000
+  content.topics: 8000
+  content.draft: 6000
+  content.critic: 6000

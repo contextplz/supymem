@@ -1,0 +1,3 @@
+# Money values use integer minor units. PRE_KYC funds remain held in escrow.
+default_currency: INR
+pre_kyc_balance_cap_minor: 100000

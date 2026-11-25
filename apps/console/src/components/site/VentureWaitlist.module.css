@@ -1,0 +1,7 @@
+.panel { padding: 24px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg-card); margin-block: 24px; overflow-wrap: anywhere; }
+.panel h2 { margin-top: 0; }
+.panel p { line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.panel button { padding: 10px 16px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg-card); color: inherit; cursor: pointer; }
+.panel button:disabled { opacity: .6; cursor: wait; }
+.panel summary { cursor: pointer; padding-block: 14px; }

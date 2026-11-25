@@ -1,0 +1,21 @@
+provider: linear
+auth:
+  url: https://linear.app/settings/api
+  instructions_key: connectors.linear.api_key
+scopes:
+  teams:read:
+    reason: Name the teams we can see.
+    allows: Team names
+    excludes: Issue bodies
+  issues:read:
+    reason: Read issues when a task needs them.
+    allows: Titles and descriptions
+    excludes: Private customer fields we have not asked for
+  issues:write:
+    reason: Open an issue you asked us to file.
+    allows: Create an issue on a granted team
+    excludes: Delete or archive issues
+  comments:write:
+    reason: Leave a comment on an issue we already read.
+    allows: Add a comment
+    excludes: Edit other people's comments

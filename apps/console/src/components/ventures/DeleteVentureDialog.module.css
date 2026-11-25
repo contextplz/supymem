@@ -1,0 +1,142 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--s-4);
+  background: color-mix(in srgb, var(--fg-0) 42%, transparent);
+  opacity: 1;
+  transition: opacity var(--d-base) var(--e-out);
+}
+
+.dialog {
+  width: min(440px, 100%);
+  max-height: min(90vh, 640px);
+  overflow: auto;
+  padding: var(--s-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-1);
+  box-shadow: var(--sh-2);
+  color: var(--fg-0);
+  transform: scale(1);
+  transform-origin: var(--dialog-source-x, 50%) var(--dialog-source-y, 50%);
+  transition: transform var(--d-base) var(--e-out), opacity var(--d-base) var(--e-out);
+}
+
+@starting-style {
+  .overlay { opacity: 0; }
+  .dialog { opacity: 0; transform: scale(0.98); }
+}
+
+.overlay[data-closing="true"] { opacity: 0; }
+.overlay[data-closing="true"] .dialog { opacity: 0; transform: scale(0.98); }
+
+.dialog:focus {
+  outline: none;
+}
+
+.dialog:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}
+
+.step {
+  margin: 0 0 var(--s-3);
+  color: var(--fg-2);
+  font: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.dialog h2 {
+  margin: 0 0 var(--s-3);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font: var(--t-display);
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  margin: 0 0 var(--s-4);
+  color: var(--fg-1);
+  font: var(--t-body);
+}
+
+.loss {
+  margin: 0 0 var(--s-4);
+  padding-left: var(--s-5);
+  color: var(--fg-1);
+  font: var(--t-body);
+}
+
+.loss li + li {
+  margin-top: var(--s-1);
+}
+
+.retain {
+  margin: 0 0 var(--s-5);
+  color: var(--fg-0);
+  font: var(--t-body-md);
+}
+
+.quote {
+  display: block;
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-2);
+  color: var(--fg-0);
+  font: var(--t-mono);
+  user-select: all;
+  white-space: pre-wrap;
+}
+
+.field {
+  display: grid;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+}
+
+.fieldLabel {
+  color: var(--fg-2);
+  font: var(--t-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.mismatch {
+  margin: calc(var(--s-3) * -1) 0 var(--s-4);
+  color: var(--danger);
+  font: var(--t-meta);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+
+.deleteSubmit {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.deleteSubmit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 88%, var(--fg-0));
+  border-color: transparent;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    transition: opacity 80ms var(--e-out);
+  }
+  @starting-style { .dialog { transform: none; } }
+  .overlay[data-closing="true"] .dialog { transform: none; }
+}

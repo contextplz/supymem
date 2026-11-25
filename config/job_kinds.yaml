@@ -1,0 +1,135 @@
+version: 1
+# Canonical catalogue (docs/supymem/09 §3). Every registered handler must appear here.
+# stage2: true means this worker image can run the kind for real (local adapters included).
+kinds:
+  inbox.briefing.tick: {trigger: 5m, doc: "inbox_briefing", stage2: true, local_capability: background_work}
+  inbox.cos_brief.tick: {trigger: 5m, doc: "inbox_briefing", stage2: true, local_capability: background_work}
+  chat.respond: {trigger: founder_message, doc: "10"}
+  chat.recovery: {trigger: founder_action, doc: "10", stage2: true}
+  chat.reminder: {trigger: founder_message, doc: "10", stage2: true}
+  routines.fire: {trigger: founder_schedule, doc: "W9", stage2: true, local_capability: routines}
+  routines.report: {trigger: founder_schedule, doc: "W9", stage2: true, local_capability: routines}
+  memory.extract: {trigger: founder_message, doc: "00_NEXT_PHASE_PLAN", stage2: true}
+  idea.recon: {trigger: session_open, doc: "10,11", stage2: true}
+  idea.clarify_turn: {trigger: founder_answer, doc: "10", stage2: true}
+  idea.generate_candidates: {trigger: case_b_framing, doc: "10", stage2: true}
+  idea.validate: {trigger: case_b_request, doc: "10", stage2: true}
+  idea.page_refresh: {trigger: venture_state_change, doc: "idea_page", stage2: true}
+  research.deep: {trigger: plan_confirmed, doc: "11", stage2: true}
+  browse.web:
+    trigger: founder_message
+    doc: "W2b"
+    stage2: true
+    limits: {max_pages: 20, max_depth: 2, max_seconds: 300, max_usd: "2", founder_concurrency: 2}
+  knowledge.loot_drop_refresh: {trigger: weekly, doc: "11", stage2: true, local_capability: background_work}
+  pagebuilder.build: {trigger: founder_reviewed_quote, doc: "pagebuilder", stage2: true}
+  pagebuilder.publish: {trigger: founder_publish_preview, doc: "pagebuilder", stage2: true}
+  simulation.rehearse: {trigger: founder_reviewed_quote, doc: "simulation", stage2: true}
+  gtm.god.run: {trigger: founder_reviewed_quote, doc: "119", stage2: true}
+  gtm.journey.prepare: {trigger: gtm_entry, doc: "GTM_PLAN", stage2: true}
+  gtm.linkedin.search: {trigger: linkedin_request_or_poll, doc: "GTM_PLAN", stage2: true}
+  gtm.journey.maintain: {trigger: 5m, doc: "GTM_PLAN", stage2: true, local_capability: send_email}
+  gtm.gmail.read: {trigger: on_demand, local_trigger: 5m, doc: "GTM_PLAN", stage2: true, local_capability: read_replies}
+  gtm.outreach.retry: {trigger: on_demand, doc: "GTM_PLAN", stage2: true, local_capability: send_email}
+  content.topics: {trigger: founder_reviewed_quote, doc: "119", stage2: true}
+  content.draft: {trigger: founder_reviewed_quote, doc: "119", stage2: true}
+  tasks.verify: {trigger: task_artifact_saved, doc: "T03", stage2: true}
+  tasks.execute: {trigger: founder_task_or_schedule, doc: "T03", stage2: true}
+  task.run: {trigger: founder_run_click, doc: "12", stage2: true}
+  plan.compile: {trigger: dossier_done, doc: "12", stage2: true}
+  scope.classify: {trigger: request, doc: "12", stage2: true}
+  estimate.compute: {trigger: plan_version, doc: "07", stage2: true}
+  build.run: {trigger: plan_approved, doc: "13", stage2: true}
+  build.watch: {trigger: run_started, doc: "13", stage2: true}
+  qa.run: {trigger: build_succeeded, doc: "13", stage2: true}
+  qa.triage: {trigger: qa_failed, doc: "13"}
+  deploy.run: {trigger: qa_passed, doc: "14,15", stage2: true}
+  deploy.unpublish: {trigger: founder_confirmed, doc: "14,15", stage2: true}
+  deploy.rollback: {trigger: health_fail, doc: "15"}
+  app.debug: {trigger: incident_opened, doc: "13", stage2: true}
+  app.iterate: {trigger: nl_change, doc: "13", stage2: true}
+  import.cleanup: {trigger: import_retention, doc: "13", stage2: true}
+  import.analyze: {trigger: repo_import, doc: "13", stage2: true}
+  infra.provision: {trigger: app_created, doc: "15", stage2: true}
+  infra.meter: {trigger: hourly, doc: "07"}
+  infra.scale_check: {trigger: hourly, doc: "07,15"}
+  infra.sleep_idle: {trigger: 30m, doc: "15", stage2: true}
+  credits.sweep: {trigger: 5m, doc: "07", stage2: true}
+  autopilot.tick: {trigger: 5m, doc: "09", stage2: true, local_capability: run_for_me_experiments}
+  suggestions.generate: {trigger: hourly, doc: "09", stage2: true, local_capability: background_work}
+  analytics.rollup: {trigger: hourly, doc: "16,17", stage2: true}
+  analytics.ingest_batch: {trigger: events_buffer, doc: "16", stage2: true}
+  ops.signal_sweep: {trigger: 15m, doc: "09", stage2: true}
+  ops.slate: {trigger: daily, doc: "09", stage2: true}
+  ops.brain_cycle: {trigger: 6h, doc: "09", stage2: true}
+  ops.channel_post: {trigger: approval_consumed, doc: "09"}
+  retention.purge: {trigger: daily, doc: "21", stage2: true}
+  lead_library.sweep: {trigger: daily, doc: "gtm", stage2: true}
+  workspace.purge: {trigger: delete_grace, doc: "17"}
+  experiment.evaluate: {trigger: daily, doc: "17", stage2: true, local_capability: run_for_me_experiments}
+  experiment.run: {trigger: founder_confirmed, doc: "17", stage2: true}
+  experiment.beliefs.tick: {trigger: 5m, doc: "17", stage2: true, local_capability: run_for_me_experiments}
+  experiment.exploration.prepare: {trigger: founder_confirmed, doc: "17", stage2: true}
+  infra.reconcile: {trigger: daily, doc: "15,22", stage2: true}
+  infra.forecast: {trigger: daily, doc: "15,07"}
+  app.backup: {trigger: daily, doc: "15"}
+  app.health_probe: {trigger: 5m, doc: "15,16"}
+  learning.cycle: {trigger: weekly, doc: "17", stage2: true}
+  status.page: {trigger: 5m, doc: "21"}
+  # Activate only in an image containing S04's callable stage evidence ABI.
+  milestone.reassess: {trigger: milestone_event, doc: "12", stage2: true}
+  founder.digest: {trigger: daily, doc: "18"}
+  email.send: {trigger: many, doc: "09", stage2: true}
+  email.schedule: {trigger: hourly, doc: "09", stage2: true}
+  notify.desktop: {trigger: many, doc: "18"}
+
+default_worker_kinds:
+  - "inbox.briefing.tick"
+  - "inbox.cos_brief.tick"
+  - "chat.recovery"
+  - "chat.reminder"
+  - "routines.fire"
+  - "routines.report"
+  - "memory.extract"
+  - "ops.*"
+  - "credits.sweep"
+  - "autopilot.tick"
+  - "suggestions.generate"
+  - "analytics.rollup"
+  - "retention.purge"
+  - "lead_library.sweep"
+  - "idea.*"
+  - "research.deep"
+  - "browse.web"
+  - "knowledge.loot_drop_refresh"
+  - "pagebuilder.build"
+  - "pagebuilder.publish"
+  - "simulation.rehearse"
+  - "plan.compile"
+  - "task.run"
+  - "tasks.execute"
+  - "tasks.verify"
+  - "content.*"
+  - "gtm.god.run"
+  - "gtm.gmail.read"
+  - "gtm.outreach.retry"
+  - "gtm.journey.*"
+  - "gtm.linkedin.search"
+  - "scope.classify"
+  - "estimate.compute"
+  - "build.*"
+  - "qa.*"
+  - "deploy.*"
+  - "infra.*"
+  - "app.debug"
+  - "app.iterate"
+  - "import.analyze"
+  - "import.cleanup"
+  - "analytics.ingest_batch"
+  - "experiment.evaluate"
+  - "experiment.run"
+  - "experiment.beliefs.tick"
+  - "experiment.exploration.prepare"
+  - "learning.cycle"
+  - "milestone.reassess"
+  - "email.*"

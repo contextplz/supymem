@@ -1,0 +1,27 @@
+.toast {
+  position: fixed;
+  right: var(--s-5);
+  bottom: var(--s-5);
+  z-index: var(--z-toast);
+  width: min(360px, calc(100vw - 2 * var(--s-5)));
+  padding: var(--s-4);
+  border-radius: var(--r-3);
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: var(--fg-0);
+  box-shadow: var(--sh-2);
+  display: block;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: bottom right;
+  transition: transform var(--d-base) var(--e-out), opacity var(--d-base) var(--e-out), display var(--d-base) allow-discrete;
+}
+.toast[hidden] { display: none; opacity: 0; transform: translateY(8px) scale(0.98); }
+@starting-style { .toast { opacity: 0; transform: translateY(8px) scale(0.98); } }
+.toast p { margin: var(--s-2) 0 var(--s-3); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; }
+@media (prefers-reduced-motion: reduce) {
+  .toast, .toast[hidden] { transform: none; }
+  .toast { transition-property: opacity, display !important; }
+  @starting-style { .toast { transform: none; } }
+}

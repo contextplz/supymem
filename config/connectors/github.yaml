@@ -1,0 +1,13 @@
+provider: github
+auth:
+  url: https://github.com/settings/tokens
+  instructions_key: connectors.github.pat
+scopes:
+  metadata:read:
+    reason: Name the repositories we can see.
+    allows: Repository names and visibility
+    excludes: File contents
+  contents:read:
+    reason: Read files when a task needs them.
+    allows: File trees and contents
+    excludes: Secrets in .env — those are blocked by the data boundary

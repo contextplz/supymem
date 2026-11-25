@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleURLTypes</key>
+  <array><dict>
+    <key>CFBundleURLName</key><string>com.supymem.device-auth</string>
+    <key>CFBundleURLSchemes</key><array><string>supymem-staging</string></array>
+  </dict></array>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Supymem uses the microphone when you choose to talk to it instead of typing.</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>Supymem transcribes your speech on this Mac when you choose Dictate.</string>
+  <key>NSAppleEventsUsageDescription</key>
+  <string>Supymem opens Cursor on your venture folder and presses Send in that window when you start a local build.</string>
+</dict>
+</plist>

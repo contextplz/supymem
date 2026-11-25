@@ -1,0 +1,4 @@
+# Run `docker compose up --build` for your local API, worker, and console.
+# Requires Docker Compose 2.20 or newer. The existing developer stack is unchanged.
+include:
+  - docker-compose.local.yml

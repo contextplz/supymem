@@ -1,0 +1,183 @@
+.page {
+  width: min(var(--w-content-max), 40rem);
+  margin: 0 auto;
+  padding: var(--s-5) var(--s-5) var(--s-8);
+  display: grid;
+  gap: var(--s-3);
+}
+
+.guidePage {
+  width: min(52rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: var(--s-5) var(--s-5) var(--s-8);
+  display: grid;
+  gap: var(--s-3);
+}
+
+.callout {
+  margin: 0;
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font: var(--t-body);
+}
+
+.callout code {
+  font: var(--t-mono, inherit);
+}
+
+.question {
+  margin: 0;
+  font: var(--t-display);
+  letter-spacing: -0.03em;
+}
+
+.lede {
+  margin: 0;
+  color: var(--fg-1);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger, #b42318);
+}
+
+.ok {
+  margin: 0;
+  color: var(--ok, #067647);
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s-2);
+}
+
+.steps li {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-card);
+}
+
+.links,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.form {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--fg-1);
+  font: var(--t-meta);
+}
+
+.field input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-1);
+  color: var(--fg-0);
+  font: var(--t-body-md);
+}
+
+.walk {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s-3);
+}
+
+.walkCard {
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-card);
+  display: grid;
+  gap: var(--s-3);
+}
+
+.walkHead {
+  display: flex;
+  gap: var(--s-3);
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.walkTitle {
+  margin: 0 0 6px;
+  font: var(--t-body-md);
+  font-weight: 650;
+}
+
+.walkSummary {
+  margin: 0;
+  color: var(--fg-1);
+}
+
+.walkBtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  flex-shrink: 0;
+}
+
+.detail {
+  display: grid;
+  gap: var(--s-3);
+  padding-top: var(--s-2);
+  border-top: 1px solid var(--line);
+}
+
+.detail h3 {
+  margin: 0 0 6px;
+  font: var(--t-meta);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+}
+
+.detail p,
+.detail ul {
+  margin: 0;
+}
+
+.detail ul {
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 4px;
+}
+
+.hints {
+  display: grid;
+  gap: 8px;
+}
+
+.hintLabel {
+  margin: 0;
+  color: var(--fg-2);
+  font: var(--t-meta);
+}
+
+.hintRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}

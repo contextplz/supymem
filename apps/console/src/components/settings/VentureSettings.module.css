@@ -1,0 +1,131 @@
+.settings {
+  min-width: 0;
+}
+
+.settings button {
+  border-radius: 999px;
+}
+
+.settings button:active:not(:disabled) {
+  transform: none;
+  opacity: 1;
+}
+
+.settings :global(.chat-inner) {
+  display: grid;
+  gap: 12px;
+}
+
+.settings :global(.settings-group) {
+  min-width: 0;
+}
+
+.settings :global(.settings-row) {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  min-height: 52px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eeeef2;
+}
+
+.settings :global(.settings-row form),
+.settings :global(.settings-actions) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.settings :global(.settings-row form) { flex-wrap: nowrap; }
+.settings :global(.settings-actions) { flex-wrap: wrap; }
+
+.settings :global(.settings-row input),
+.settings :global(.settings-row select) {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: 280px;
+  margin: 0;
+}
+
+.settings :global(.settings-link) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #e6e6ea;
+  border-radius: 999px;
+  background: #fff;
+  color: #1c1c1e;
+  font: 600 13px/1 var(--font-sans, sans-serif);
+  text-decoration: none;
+}
+
+.settings :global(.settings-danger) {
+  margin-top: 28px;
+  padding-top: 8px;
+}
+
+.settings :global(.settings-danger summary) {
+  width: fit-content;
+  color: #b42318;
+  font: 600 13px/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.settings :global(.settings-danger .panel-card) {
+  margin-top: 12px;
+  border-color: #f0d0cc;
+  background: #fff;
+}
+
+.settings :global(.settings-danger input),
+.settings :global(.panel-card > input),
+.settings :global(.panel-card > select) {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.settings :global(.panel-card > label) {
+  display: block;
+  margin-top: 12px;
+}
+
+.settings :global(.panel-card > .settings-actions) {
+  margin-top: 12px;
+}
+
+.explanation {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.explanation summary { cursor: pointer; }
+
+.credits > section { margin: 0 !important; }
+
+.credits:not(:has(> details[open])) > section > :global(.muted) {
+  display: none;
+}
+
+.credits > details {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.credits > details > summary { cursor: pointer; }
+
+.credits > section > p {
+  margin: 8px 0;
+  font-size: 12px;
+}
+
+.credits > section > small {
+  display: block;
+  font-size: 11px;
+}

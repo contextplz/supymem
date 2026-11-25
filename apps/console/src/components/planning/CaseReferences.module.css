@@ -1,0 +1,31 @@
+.section { border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-block: 20px; }
+.section h2, .card h3 { margin-top: 0; }
+.search { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-block: 18px; }
+.search label { display: grid; gap: 6px; flex: 1 1 220px; }
+.search input, .search select { min-width: 0; width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); color: inherit; }
+.search button { padding: 10px 16px; cursor: pointer; }
+.reviewButton { padding: 10px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); color: inherit; cursor: pointer; }
+.reviewButton:disabled { opacity: .6; cursor: wait; }
+.card { border-top: 1px solid var(--border); padding-block: 18px; overflow-wrap: anywhere; }
+.card p { line-height: 1.6; }
+.card a { display: inline-block; margin: 0 16px 12px 0; }
+.card summary { cursor: pointer; padding-block: 8px; }
+.card dt { font-weight: 600; margin-top: 14px; }
+.card dd { margin: 5px 0 0; white-space: pre-wrap; line-height: 1.5; }
+.meta { font-size: .85rem; opacity: .8; }
+.coaching { width: 100%; max-width: 880px; margin-inline: auto; padding: 20px; font-size: .9rem; }
+.coaching h2 { font-size: 1rem; margin-bottom: 8px; }
+.coaching .card { padding-block: 10px; }
+.coaching .card p { margin-block: 8px; line-height: 1.45; }
+.coachingHeading { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.coachingHeading h3 { margin: 0; font-size: 1.1rem; }
+.caseStudy { padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--fg-1); font-size: .75rem; }
+.coachingRows { display: grid; gap: 16px; margin-block: 20px; }
+.coachingRows > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; }
+.coaching .coachingRows dt { margin: 0; }
+.coaching .coachingRows dd { margin: 0; font-weight: 400; }
+.coachingQuote { margin: 20px 0; padding: 4px 16px; border-left: 3px solid var(--accent); background: var(--bg-2); }
+.coachingQuote cite { font-style: normal; font-size: .85rem; }
+.coachingSources { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 16px; }
+.coaching .coachingSources a { margin: 0; }
+@media (max-width: 600px) { .coachingRows > div { grid-template-columns: minmax(0, 1fr); gap: 4px; } }

@@ -1,0 +1,6 @@
+{
+  "fake_coding_tool": true,
+  "idea": "A private household cash-flow planner for people with irregular income, with manual entry and no bank connection or financial advice",
+  "answers": ["Freelancers and hourly workers planning bill payments between variable paydays. They use notes and spreadsheets and want a private way to see their upcoming cash-flow gaps. The first test is an interview about planning habits."],
+  "results": "For this disposable acceptance scenario, I interviewed six people with variable income; three agreed to try a manually entered cash-flow calendar. These are supplied test inputs, not verified market evidence."
+}

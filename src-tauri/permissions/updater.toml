@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-update-commands"
+description = "The bundled updater window can check and confirm native updates"
+commands.allow = ["check_for_update", "install_update", "defer_update", "app_version"]

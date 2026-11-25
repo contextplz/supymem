@@ -1,0 +1,42 @@
+# Engagement activity lines (36, 27 §3). Merged into the deck by load_deck.
+# Every text ≤ 72 chars, second person, no jargon.
+
+engagement.orient.restate:
+  running: "Restating what you asked for."
+  done: "Treating this as: {title}."
+engagement.triage.size:
+  running: "Sizing the work."
+  done: "Sized as a {demand}."
+  detail_hint: "Shows the done-definition and what is out of scope."
+engagement.triage.resized:
+  done: "Grew this to a {size} — {reason}."
+engagement.triage.escalate:
+  done: "This looks like a whole product. Say if you want a venture instead."
+engagement.plan.steps:
+  running: "Writing a short plan."
+  done: "Plan is {count} steps."
+engagement.plan.brief:
+  running: "Writing the brief for your go-ahead."
+  done: "Brief ready — approve before I spend more."
+engagement.work.execute:
+  running: "Doing the work."
+  done: "Did the work in {count} step(s)."
+  done_simulated: "Did the work locally in {count} step(s). (simulated)"
+engagement.work.blocked:
+  blocked: "Stopped: {reason}."
+engagement.review.self:
+  running: "Checking the result."
+  done: "Checks: {gate_pass}/{gate_total} passed."
+  done_partial: "Checks incomplete — {gate_pass}/{gate_total} passed."
+engagement.deliver.hand_over:
+  running: "Packing up what changed."
+  done: "Handed over. Cost {cost} of {cap}."
+engagement.deliver.blocked:
+  blocked: "Can't hand over yet: {reason}."
+engagement.recurrence.propose:
+  done: "Third time on '{title}'. Want this every week?"
+engagement.delivery.labels:
+  asked: "What you asked for"
+  changed: "What changed"
+  check: "How to check"
+  not_doing: "What I did not do"

@@ -1,0 +1,45 @@
+# First-look type pairings (45 §3.1).
+#
+# System fonts only. A webfont request blocks first paint and can cost more than
+# the whole page budget, and the page must also open from file:// with no
+# network at all — so every stack below resolves locally or degrades to a
+# generic family.
+version: 1
+
+pairs:
+  - name: classic
+    display: "ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif"
+    body: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    display_weight: 600
+    display_tracking: "-0.02em"
+    body_leading: 1.6
+  - name: modern
+    display: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    body: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    display_weight: 700
+    display_tracking: "-0.03em"
+    body_leading: 1.6
+  - name: grotesk
+    display: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+    body: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    display_weight: 700
+    display_tracking: "-0.025em"
+    body_leading: 1.65
+  - name: editorial
+    display: "'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, ui-serif, serif"
+    body: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    display_weight: 600
+    display_tracking: "-0.01em"
+    body_leading: 1.7
+  - name: technical
+    display: "ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+    body: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    display_weight: 600
+    display_tracking: "-0.04em"
+    body_leading: 1.6
+  - name: humanist
+    display: "Optima, 'Gill Sans', 'Trebuchet MS', system-ui, sans-serif"
+    body: "Georgia, ui-serif, 'Times New Roman', serif"
+    display_weight: 600
+    display_tracking: "0em"
+    body_leading: 1.7

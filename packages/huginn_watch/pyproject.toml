@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "huginn-watch"
+version = "0.1.0"
+description = "Huginn event kernel + watch agents, in-process (MIT, ported from huginn/huginn)"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.0"]
+
+[tool.setuptools]
+packages = ["huginn_watch", "huginn_watch.agents"]
+
+[tool.setuptools.package-dir]
+"huginn_watch" = "."
+"huginn_watch.agents" = "agents"

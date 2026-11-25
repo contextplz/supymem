@@ -1,0 +1,73 @@
+{
+  "id": "coffee_inventory",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Forecast green coffee stock, record roasts and plan purchase orders.",
+    "customer": "Independent coffee roasters"
+  },
+  "direct": [
+    {
+      "name": "Cropster",
+      "domain": "cropster.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.cropster.com/",
+          "fact": "Coffee operations platform with inventory and production planning.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "RoastLog",
+      "domain": "roastlog.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://roastlog.com/",
+          "fact": "Coffee roasting software with inventory management and bean usage reports.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [],
+  "oss": [
+    {
+      "name": "Artisan",
+      "key": "github.com/artisan-roaster-scope/artisan",
+      "repo": "https://github.com/artisan-roaster-scope/artisan",
+      "evidence": [
+        {
+          "url": "https://github.com/artisan-roaster-scope/artisan",
+          "fact": "Roasting software maintained in this public repository.",
+          "verified_at": "2026-10-08",
+          "source_kind": "maintainer_repository"
+        }
+      ]
+    }
+  ],
+  "known_price_points": [
+    {
+      "domain": "cropster.com",
+      "plan": "Core",
+      "currency": "EUR",
+      "amount": 95,
+      "period": "month",
+      "qualifier": "starting_at",
+      "observed_at": "2026-10-08",
+      "url": "https://www.cropster.com/"
+    }
+  ],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status.",
+    "No inactive or dead direct attempt has been independently verified for this case; dead recall is not applicable."
+  ]
+}

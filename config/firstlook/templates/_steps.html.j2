@@ -1,0 +1,11 @@
+{# Optional section: omitted entirely when the copy has no steps. #}
+{% if copy.how_it_works %}
+  <section class="how reveal">
+    <h2>{{ steps_heading }}</h2>
+    <ol class="steps">
+      {% for step in copy.how_it_works %}
+      <li>{{ step.text }}</li>
+      {% endfor %}
+    </ol>
+  </section>
+{% endif %}

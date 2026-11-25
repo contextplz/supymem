@@ -1,0 +1,676 @@
+# Exact source checksum records qualified in ci-merge-queue-source-digest-findings.
+# Retain every built-in rule. Only these exact JSON key/value lines at exact paths
+# are nonsecret; a different value, key, path, or any other line remains scanned.
+title = "Public release boundary and qualified synthetic fixtures"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "public-aws-key"
+description = "AWS access key identifiers"
+regex = '''\b(?:AKIA|ASIA)[A-Z0-9]{16}\b'''
+
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Aapps/console/src/lib/uiDiagnostics\.test\.ts$''']
+regexes = ['''\A[A]KIA1234567890123456$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[A]KIABCDEFGHIJKLMNOPQ$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/guardrails/blockers\.jsonl$''']
+regexes = ['''\A[A]KIAIOSFODNN7EXAMPLE$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/security/test_usage_telemetry_boundary\.py$''']
+regexes = ['''\A[A]KIA1234567890123456$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A[A]KIAIOSFODNN7EXAMPLE$''']
+[[rules]]
+id = "public-openai-key"
+description = "OpenAI keys, including project and service account keys"
+regex = '''\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}'''
+
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[s]k\-proj\-abcdefghijklmnopqrstuv$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/integration/test_postgres_entry_scope\.py$''']
+regexes = ['''\A[s]k\-test\-entry\-private\-credential\-value$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/security/test_research_boundary\.py$''']
+regexes = ['''\A[s]k\-live\-AbCdEfGhIjKlMnOpQrStUvWxYz123456$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/security/test_voice_session\.py$''']
+regexes = ['''\A[s]k\-test\-realtime\-key\-DO\-NOT\-LEAK$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/security/test_voice_telemetry\.py$''']
+regexes = ['''\A[s]k\-test\-voice\-no\-real\-network$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/credits/test_app_proxy_receipts\.py$''']
+regexes = ['''\A[s]k\-proj\-do\-not\-persist\-query\-credential$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/credits/test_provider_receipts\.py$''']
+regexes = ['''\A[s]k\-proj\-syntheticCredential12345$''', '''\A[s]k\-proj\-syntheticcredential12345$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/experiments/test_founder_failures\.py$''']
+regexes = ['''\A[s]k\-fixture\-private\-policy$''', '''\A[s]k\-fixture\-secret\-token$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/firstlook/test_generation_admission\.py$''']
+regexes = ['''\A[s]k\-synthetic\-secret\-value\-that\-must\-not\-persist$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/gtm/test_founder_facts\.py$''']
+regexes = ['''\A[s]k\-abcdefghijklmnopqrstuvwx$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/idea/test_question_choices_fit\.py$''']
+regexes = ['''\A[s]k\-abcdefghijklmnopqrstuvwx$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/munder/test_munder_process\.py$''']
+regexes = ['''\A[s]k\-ant\-abcdefghijklmnopqrstuvwxyz$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/planning/test_resources\.py$''']
+regexes = ['''\A[s]k\-live\-test\-value\-1234567890$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/research/test_page_verification\.py$''']
+regexes = ['''\A[s]k\-live\-AbCdEfGhIjKlMnOpQrStUvWxYz123456$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/secrets/test_secret_slots\.py$''']
+regexes = ['''\A[s]k\-proj\-THISMUSTNEVERBELONGEDINCHAT999$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/tasks/test_native_usage\.py$''']
+regexes = ['''\A[s]k\-proj\-synthetic\-secret\-must\-never\-be\-persisted$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/tasks/test_natural_chat\.py$''']
+regexes = ['''\A[s]k\-proj\-synthetic\-not\-a\-real\-key$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_cu_ai_loop\.py$''']
+regexes = ['''\A[s]k\-abcdefghijklmnopqrstuv$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_founder_control\.py$''']
+regexes = ['''\A[s]k\-test0123456789abcdefghijkl$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A[s]k\-abcdefghijklmnopqrstuvwxyz0123456789$''']
+[[rules]]
+id = "public-private-key"
+description = "Private key blocks and incomplete private key headers"
+regex = '''(?s)-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----.*?-----END (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----|-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----'''
+
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A\-\-\-\-\-[B]EGIN\ PRIVATE\ KEY\-\-\-\-\-\\nMIIB\\n\-\-\-\-\-END\ PRIVATE\ KEY\-\-\-\-\-$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/guardrails/blockers\.jsonl$''']
+regexes = ['''\A\-\-\-\-\-[B]EGIN\ PRIVATE\ KEY\-\-\-\-\-\\\\nMIIB\\\\n\-\-\-\-\-END\ PRIVATE\ KEY\-\-\-\-\-$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/planning/test_resources\.py$''']
+regexes = ['''\A\-\-\-\-\-[B]EGIN\ PRIVATE\ KEY\-\-\-\-\-$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A\-\-\-\-\-[B]EGIN\ RSA\ PRIVATE\ KEY\-\-\-\-\-\\nMIIEowIBAAKCAQEA0Z3VS5JJcds3xfn/ygWyF6PZGBw=\\n\-\-\-\-\-END\ RSA\ PRIVATE\ KEY\-\-\-\-\-$''']
+[[rules.allowlists]]
+description = "Exact synthetic multiline PEM fixture; a different key remains a finding"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A\-\-\-\-\-[B]EGIN\ RSA\ PRIVATE\ KEY\-\-\-\-\-\nMIIEowIBAAKCAQEA0Z3VS5JJcds3xfn/ygWyF6PZGBw=\n\-\-\-\-\-[E]ND\ RSA\ PRIVATE\ KEY\-\-\-\-\-$''']
+
+[[rules]]
+id = "public-token"
+description = "GitHub, Slack and JWT credentials"
+regex = '''(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{15,}|eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,})'''
+
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Aapps/console/src/lib/gtmDiagnosisApi\.test\.ts$''']
+regexes = ['''\A[x]oxb\-private\-founder\-prompt$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Aapps/console/src/lib/uiDiagnostics\.test\.ts$''']
+regexes = ['''\A[x]oxb\-123456789012\-abcdef$''', '''\A[x]oxb\-123456789012\-secret$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Adata/fixtures/connectors/github/account\.json$''']
+regexes = ['''\A[g]hp_fixturesimulatedtoken000000000001$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Aservices/qm/cli/test/docker\-secrets\.test\.ts$''']
+regexes = ['''\A[x]oxb\-dual\-role\-supersecret$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Aservices/qm/test/memory\-bench/conversations/secrets\-exclusion\.json$''']
+regexes = ['''\A[g]hp_Q2hhbmdlTWVOb3dQbGVhc2U0Mg$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[g]hp_abcdefghijklmnopqrstuvwxyz0123456789ABCD$''', '''\A[x]oxb\-1234567890\-123456789012\-abcdefghijklmnopqrstuvwx$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/guardrails/blockers\.jsonl$''']
+regexes = ['''\A[e]yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzdWIiOiIxMjM0In0\.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$''', '''\A[g]hp_abcdefghijklmnopqrstuvwxyzABCDEF1234$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/integration/test_connections_api\.py$''']
+regexes = ['''\A[g]hp_fixturesimulatedtoken$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/planning/test_resources\.py$''']
+regexes = ['''\A[g]hp_1234567890abcdefghij$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A[g]hp_abcdefghijklmnopqrstuvwxyz0123456789AB$''', '''\A[x]oxb\-1234567890\-abcdefghij$''']
+[[rules]]
+id = "public-personal-email"
+description = "Personal mailboxes and private operator identities"
+regex = '''(?i)\b[A-Za-z0-9._%+-]{1,64}@(?:gmail|outlook|hotmail|yahoo|icloud)\.com\b|\b(?:sai|asmit)@supymem\.com\b'''
+
+
+[[rules.allowlists]]
+description = "Exact synthetic free-mail fixture; new addresses remain findings"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Aservices/qm/plugins/portal/test/oidc\.test\.ts$''']
+regexes = ['''\Aa@gmail\.com$''']
+
+[[rules.allowlists]]
+description = "Exact synthetic free-mail fixture; new addresses remain findings"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/lead_library/test_taxonomy\.py$''']
+regexes = ['''\Acleo@gmail\.com$''']
+
+[[rules.allowlists]]
+description = "Exact synthetic free-mail fixture; new addresses remain findings"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/autopilot/test_outreach\.py$''']
+regexes = ['''\Asomeone@gmail\.com$''']
+
+[[rules.allowlists]]
+description = "Exact synthetic free-mail fixture; new addresses remain findings"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_crm_survey_evidence\.py$''']
+regexes = ['''\Aunrelated@gmail\.com$''', '''\Ayour\.customer@gmail\.com$''']
+
+[[rules.allowlists]]
+description = "Exact synthetic free-mail fixture; new addresses remain findings"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/gtm/test_email_reachability\.py$''']
+regexes = ['''\Aunrelated@gmail\.com$''']
+
+[[rules.allowlists]]
+description = "Exact synthetic free-mail fixture; new addresses remain findings"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_boundary_classify\.py$''']
+regexes = ['''\Ajane\.doe@gmail\.com$''']
+[[rules]]
+id = "public-infrastructure"
+description = "Private deployment identifiers, cloud resources and VM addresses"
+regex = '''(?i)\b10497623165[4]\b|\bsupymem(?:-os)?-(?:prod|production|staging)(?:[_.\/-][A-Za-z0-9_./-]*)?\b|\bsaivishwas[A-Za-z0-9_./-]*|\b(?:52\.73\.57\.100|168\.62\.182\.243|44\.218\.169\.84|18\.235\.158\.76|3\.93\.41\.212)\b'''
+
+[[rules.allowlists]]
+description = "The scanner's pattern definitions, not deployment configuration"
+paths = ['''^\.gitleaks\.toml$''']
+
+[[rules.allowlists]]
+description = "Exact public native channel protocol required for Mac 0.1.108 compatibility"
+condition = "AND"
+regexTarget = "match"
+paths = ['''^(?:apps/console/src/lib/(?:desktopVentureLink(?:\.test)?\.ts|signInReturn\.test\.ts)|apps/console/src/components/desktop/DesktopAccountConnectionExpiry\.test\.cjs|src-tauri/(?:Info\.staging\.plist|src/(?:channel|supervisor|venture_link)\.rs)|tests/browser/test_device_approval_browser\.py)$''']
+regexes = ['''(?i)\Asupymem-staging$''']
+
+[[rules]]
+id = "public-google-key"
+description = "Google API keys"
+regex = '''\bAIza[0-9A-Za-z_-]{35}'''
+
+[[rules]]
+id = "public-stripe-key"
+description = "Stripe live secret and restricted keys"
+regex = '''\b(?:sk|rk)_live_[0-9A-Za-z]{24,}\b'''
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic Stripe credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[s]k_live_abcdefghijklmnopqrstuvwx$''']
+
+[[rules.allowlists]]
+description = "Reviewed exact synthetic Stripe credential, only at its fixture path"
+condition = "AND"
+regexTarget = "match"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A[s]k_live_abcdefghijklmnopqrstuvwxyz012345$''']
+
+[[rules]]
+id = "public-package-token"
+description = "npm and PyPI publishing tokens"
+regex = '''\b(?:npm_[0-9A-Za-z]{36}|pypi-[0-9A-Za-z_-]{50,})\b'''
+
+[[rules]]
+id = "public-internal-document"
+description = "Private records must be removed from the public export and its history"
+regex = '''(?s)\A.'''
+path = '''^(?:docs/(?:[^/]+\.md$|archive/|supymem/|company-os/|incidents/|gtm-cofounder/)|data/(?:company|images|knowledge|seed|qa|evidence|exports|founder|production|leads|contacts)/|\.(?:agents|codex|aws)/|(?:\.env|\.env\.local|\.env\.production|\.env\.staging)$|config/deployment\.private\.json$|infra/terraform/envs/[^/]+/terraform\.tfvars$)'''
+
+[[rules.allowlists]]
+description = "Public maintainer runbook; content still receives credential scans"
+paths = ['''\Adocs/RELEASING\.md$''']
+
+[[rules.allowlists]]
+description = "Founder-approved PMF workbook extraction and YC transcript inventory; content still receives credential scans"
+paths = ['''\Adata/knowledge/startup-pmf-2026-09-19/(?:README\.md|audit\.json|cells\.jsonl|manifest\.json|original\.xlsx|records\.jsonl|references\.jsonl|sources\.json)$''', '''\Adata/knowledge/yc-video-advice-1dfdaf90/(?:README\.md|UPSTREAM_PIN\.json|manifest\.json)$''']
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/typed\-navigation\-core\-worker/summary\.json$''']
+regexes = ['''^\n?[ \t]*"services/company_os/app/api/device_orders_api\.py":[ \t]*"d07fa171b660ded6ec60698bbe7e256dbc3a118e6e50d70e59b5cddc3c73e107",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/typed\-reviewed\-navigation/marker\-peer\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"services/company_os/app/api/device_orders_api\.py":[ \t]*"d07fa171b660ded6ec60698bbe7e256dbc3a118e6e50d70e59b5cddc3c73e107",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/typed\-navigation\-core\-worker/peer\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"services/company_os/app/api/device_orders_api\.py":[ \t]*"d07fa171b660ded6ec60698bbe7e256dbc3a118e6e50d70e59b5cddc3c73e107",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/typed\-reviewed\-navigation/core\-peer\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"services/company_os/app/api/device_orders_api\.py":[ \t]*"d07fa171b660ded6ec60698bbe7e256dbc3a118e6e50d70e59b5cddc3c73e107",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/browser018\-private\-package/package\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"src\-tauri/patches/mac\-usernotifications/src/auth\.rs":[ \t]*"67c260b83b1dd79b76ba435a09077c79a22142d4f989f3ac954457d36347011e",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/browser018\-private\-package/package\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"src\-tauri/src/auth\.rs":[ \t]*"742f7739726e3be2cfe3dd829d8c675afc655edf2962209563fde0a4b4d0c11c",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/jev\-load\-private\-package/package\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"src\-tauri/patches/mac\-usernotifications/src/auth\.rs":[ \t]*"67c260b83b1dd79b76ba435a09077c79a22142d4f989f3ac954457d36347011e",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact independently recomputed source checksum record"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^docs/supymem/qa\-2026\-10/evidence/jev\-load\-private\-package/package\-proof\.json$''']
+regexes = ['''^\n?[ \t]*"src\-tauri/src/auth\.rs":[ \t]*"742f7739726e3be2cfe3dd829d8c675afc655edf2962209563fde0a4b4d0c11c",?[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Exact historical test-only Warden assertion fixture (never a credential; now built at runtime)"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^tests/security/test_warden_assertion_boundary\.py$''']
+regexes = ['''^\n?[ \t]*SECRET = "warden-assertion-secret-at-least-32-bytes-long"[ \t]*$''']
+
+[[rules.allowlists]]
+description = "Experiment catalog identifiers (E<number>_<snake_name>) are public recipe names, not secrets"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^services/company_os/app/experiments/autonomous\.py$''']
+regexes = ['''"catalog_key":\s*"E[0-9]{1,3}_[a-z_]+"''']
+
+[[rules.allowlists]]
+description = "Composio auth config ids are public identifiers (usable only with the API key, which lives in Secrets Manager)"
+condition = "AND"
+regexTarget = "line"
+paths = ['''^scripts/infra/deploy_core\.py$''']
+regexes = ['''^[ \t]*"COMPOSIO_[A-Z_]+_AUTH_CONFIG_ID":[ \t]*"ac_[A-Za-z0-9_\-]{8,20}",?[ \t]*$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aapps/console/src/lib/uiDiagnostics\.test\.ts$''']
+regexes = ['''\A[a]k_1234567890123456$''']
+
+# Environment variable label in a set, not a credential; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: environment variable label in a set, not a credential"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Ascripts/infra/bootstrap_staging\.py$''']
+regexes = ['''\A[J]WT_SIGNING_KEY_ES256$''']
+
+# Environment variable label in a set, not a credential; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: environment variable label in a set, not a credential"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Ascripts/infra/scale_staging_services\.py$''']
+regexes = ['''\A[J]WT_SIGNING_KEY_ES256$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/cli/test/fly\-sandbox\.test\.ts$''']
+regexes = ['''\A[F]lyV1\-scoped$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/cli/test/sandbox\-publish\.test\.ts$''']
+regexes = ['''\A[F]lyV1\-scoped$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/plugins/auth/test/helpers\.ts$''']
+regexes = ['''\A[0]123456789abcdef0123456789abcdef$''', '''\A[f]edcba9876543210fedcba9876543210$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/test/config\.test\.ts$''']
+regexes = ['''\A[s]kill\-signing\-secret\-0123456789abcdef$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/test/git\-http\-broker\.test\.ts$''']
+regexes = ['''\A[d]XNlcjp0b2tlbg==$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/test/service\-credential\-route\.test\.ts$''']
+regexes = ['''\A[d]XNlcjp0b2tlbg==$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/integration/test_postgres_qa_receipts\.py$''']
+regexes = ['''\A[q]a\-signed\-api\-secret\-at\-least32characters$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/unit/jobs/test_tick\.py$''']
+regexes = ['''\A[t]ick\-secret\-at\-least\-32\-bytes\-long$''']
+
+[[rules]]
+id = "aws-access-token"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[A]KIABCDEFGHIJKLMNOPQ$''']
+
+[[rules]]
+id = "curl-auth-header"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/test/exec\-process\-session\.test\.ts$''']
+regexes = ['''\A[g]hp_secretvalue12345$''']
+
+[[rules]]
+id = "curl-auth-user"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Aservices/qm/test/exec\-process\-session\.test\.ts$''']
+regexes = ['''\A[m]e:ghp_secretvalue12345$''']
+
+[[rules]]
+id = "jwt"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/fixtures/guardrails/blockers\.jsonl$''']
+regexes = ['''\A[e]yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzdWIiOiIxMjM0In0\.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/unit/munder/test_munder_process\.py$''']
+regexes = ['''\A[e]yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJzdWIiOiIxMjM0In0\.abcdeffedcba$''']
+
+[[rules]]
+id = "private-key"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/unit/test_redact\.py$''']
+regexes = ['''\A\-\-\-\-\-[B]EGIN\ RSA\ PRIVATE\ KEY\-\-\-\-\-\
+MIIEowIBAAKCAQEA0Z3VS5JJcds3xfn/ygWyF6PZGBw=\
+\-\-\-\-\-END\ RSA\ PRIVATE\ KEY\-\-\-\-\-$''']
+
+[[rules]]
+id = "slack-bot-token"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[x]oxb\-1234567890\-123456789012\-abcdefghijklmnopqrstuvwx$''']
+
+[[rules]]
+id = "stripe-access-token"
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/fixtures/boundary/positives\.json$''']
+regexes = ['''\A[s]k_live_abcdefghijklmnopqrstuvwx$''']
+
+# Synthetic test-only credential or redaction fixture; only these exact values at this exact path.
+[[rules.allowlists]]
+description = "Reviewed release-scan false positive: synthetic test-only credential or redaction fixture"
+condition = "AND"
+regexTarget = "secret"
+paths = ['''\Atests/integration/test_no_secret_egress\.py$''']
+regexes = ['''\A[s]k_live_SUPERSECRETVALUE99xyz$''']

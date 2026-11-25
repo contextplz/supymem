@@ -1,0 +1,16 @@
+version: 1
+task_kind_seconds:
+  default: 120
+  scaffold: 90
+  test: 60
+  deploy: 45
+  research: 30
+complexity:
+  trivial: 0.5
+  easy: 0.8
+  moderate: 1.0
+  hard: 1.6
+role_token_p50:
+  default: {input: 4000, output: 1200}
+  builder: {input: 8000, output: 2500}
+  researcher: {input: 6000, output: 1800}

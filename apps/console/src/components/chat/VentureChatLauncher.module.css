@@ -1,0 +1,138 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-card);
+  border-left: 1px solid var(--line);
+}
+
+.panel[hidden] { display: none; }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: none;
+  min-height: var(--h-topbar);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line-subtle);
+  color: var(--fg-0);
+  font: var(--t-title);
+}
+
+.intro { display: grid; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line-subtle); }
+.intro p { margin: 0; color: var(--fg-2); font: var(--t-meta); }
+.intro label { display: grid; gap: var(--s-1); }
+
+.content {
+  flex: 1;
+  min-height: 0;
+}
+
+.role { color: var(--fg-2); font-weight: 500; }
+
+.controls { display: flex; gap: 6px; margin-left: auto; flex: none; }
+.control {
+  padding: 4px 12px; border: 1px solid var(--line); border-radius: var(--r-control); background: var(--bg-1, transparent);
+  color: var(--fg-0); font: 500 0.75rem/1.4 var(--font-sans); cursor: pointer;
+}
+.control:hover:not(:disabled) { background: var(--bg-2); border-color: var(--accent); }
+.control:disabled { opacity: 0.5; cursor: default; }
+.history summary { cursor: pointer; color: var(--fg-1); font: var(--t-meta); }
+.history label { display: grid; margin-top: var(--s-1); }
+.homePanel {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  align-self: stretch;
+  height: auto;
+  background: #fff;
+  border: 0;
+  border-radius: 0;
+  box-shadow: -1px 0 0 rgba(0, 0, 0, 0.08);
+  animation: emerge var(--d-base) var(--e-out);
+  transform-origin: top right;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-sans);
+}
+
+.homePanel .header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  justify-items: center;
+  min-height: 0;
+  gap: 0;
+  padding: 8px 12px 4px;
+  border-bottom: 0;
+  background: #fff;
+  color: #000;
+  pointer-events: none;
+}
+
+.homePanel .content { display: flex; flex-direction: column; flex: 1 1 0; min-width: 0; overflow: hidden; }
+
+.who { display: grid; justify-items: center; gap: 2px; min-width: 0; max-width: calc(100% - 80px); text-align: center; overflow-wrap: anywhere; }
+.who > span { width: var(--im-profile, 64px); height: var(--im-profile, 64px); }
+.who strong { font: 600 var(--im-text, 16px)/1.15 -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-sans); color: #000; letter-spacing: -0.01em; }
+
+.titleHeading { margin: 0; font: inherit; }
+.titleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.titleBtn svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: #8e8e93;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.minimize {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #e9e9eb;
+  color: #3a3a3c;
+  font: 400 18px/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.minimize { position: absolute; top: 12px; right: 12px; }
+.minimize:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--focus-ring) 32%, transparent);
+  outline-offset: 2px;
+}
+
+@keyframes emerge {
+  from { opacity: 0; transform: translateX(26px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@media (max-width: 1023px) { .homePanel { grid-column: 2; grid-row: 3; } }
+@media (max-width: 600px) { .homePanel { grid-column: 1; grid-row: 3; } }
+@media (prefers-reduced-motion: reduce) { .homePanel { animation: none; } }
+
+.homePanel { position: relative; border-radius: 0; }
+.homePanel .header { position: absolute; inset: 0 0 auto; z-index: 6; padding: 36px 12px 8px; background: #fff; pointer-events: none; }
+.homePanel .content { --im-header-pad: 128px; }
+.homePanel .who { position: relative; z-index: 1; pointer-events: auto; }
+.minimize { pointer-events: auto; }

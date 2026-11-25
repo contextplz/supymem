@@ -1,0 +1,25 @@
+# First-look narration (45, 27 §3).
+#
+# Fragment, not an edit to narration.yaml: this feature owns its copy. Second
+# person, no adjectives about our own performance, ≤ 72 characters rendered. The
+# page URL travels as evidence on the line rather than inside the text, because a
+# local URL eats the whole character budget.
+firstlook.build_page:
+  running: "Turning your one sentence into a page."
+  done: "Built you a first look. Nothing on it is final."
+  done_partial: "Built a plain first look, in your own words only."
+  detail_hint: "Shows the template and the colours it picked."
+firstlook.plain_fallback:
+  done: "My draft copy made claims I can't stand behind, so I kept yours."
+firstlook.share:
+  done: "You can share the link, but it only opens on your machine."
+  done_simulated: "The link works here on your machine, nowhere else yet."
+firstlook.refine:
+  running: "Rebuilding the page from your plan."
+  done: "Rebuilt the page from your plan. Headline and audience match."
+firstlook.variant:
+  done: "Same words, different look. That one cost nothing."
+firstlook.copy_edited:
+  done: "Your headline, your words. I won't ask who it's for."
+firstlook.interest:
+  done: "Someone left their email. That's your first real signal."

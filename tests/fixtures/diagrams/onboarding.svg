@@ -1,0 +1,16 @@
+<svg width="100%" viewBox="0 0 680 392" role="img"><title>Customer onboarding</title><desc>A visitor becomes an active customer</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="node c-purple" onclick="sendPrompt('Tell me more about visit the product')"><rect x="40" y="40" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="170" y="58" text-anchor="middle" dominant-baseline="central">Visit the product</text><text class="ts" x="170" y="78" text-anchor="middle" dominant-baseline="central">Find the entry point</text></g>
+<g class="node c-purple" onclick="sendPrompt('Tell me more about create an account')"><rect x="360" y="40" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="490" y="58" text-anchor="middle" dominant-baseline="central">Create an account</text><text class="ts" x="490" y="78" text-anchor="middle" dominant-baseline="central">Save a profile</text></g>
+<g class="node c-purple" onclick="sendPrompt('Tell me more about confirm the goal')"><rect x="360" y="148" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="490" y="166" text-anchor="middle" dominant-baseline="central">Confirm the goal</text><text class="ts" x="490" y="186" text-anchor="middle" dominant-baseline="central">Choose a use case</text></g>
+<g class="node c-teal" onclick="sendPrompt('Tell me more about guided setup')"><rect x="40" y="148" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="170" y="166" text-anchor="middle" dominant-baseline="central">Guided setup</text><text class="ts" x="170" y="186" text-anchor="middle" dominant-baseline="central">Connect required data</text></g>
+<g class="node c-teal" onclick="sendPrompt('Tell me more about first useful result')"><rect x="40" y="256" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="170" y="274" text-anchor="middle" dominant-baseline="central">First useful result</text><text class="ts" x="170" y="294" text-anchor="middle" dominant-baseline="central">Complete one task</text></g>
+<g class="node c-teal" onclick="sendPrompt('Tell me more about return and expand')"><rect x="360" y="256" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="490" y="274" text-anchor="middle" dominant-baseline="central">Return and expand</text><text class="ts" x="490" y="294" text-anchor="middle" dominant-baseline="central">Repeat the workflow</text></g>
+<path class="arr" d="M304 68L356 68" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M490 100L490 144" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M356 176L304 176" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M170 208L170 252" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M304 284L356 284" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M624 284L640 284L640 120L490 120L490 100" fill="none" marker-end="url(#arrow)"/>
+<text class="ts" x="40" y="352">Purple: preparation · Teal: execution and learning</text>
+</svg>

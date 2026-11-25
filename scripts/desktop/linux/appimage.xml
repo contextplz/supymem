@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.appimage">
+    <comment>Portable desktop application</comment>
+    <glob pattern="*.AppImage"/>
+    <icon name="application-vnd.appimage"/>
+  </mime-type>
+</mime-info>

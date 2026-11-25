@@ -1,0 +1,67 @@
+# Model providers and their contractual position on training (43 §6).
+#
+# `no_train_asserted` is only true where we have read a published position and
+# recorded the link and the date we read it. Absence of a documented position is
+# not a promise: it is recorded as false and the trust panel says so plainly.
+# One overstatement here destroys the whole trust surface, so the honest default
+# for an unknown provider is false.
+
+version: 1
+
+# Applied when LLM_PROVIDER names a provider that is not listed below.
+unknown_provider:
+  label_prefix: unknown
+  no_train_asserted: false
+  retention: undocumented
+  source_url: null
+  date_checked: null
+  ui_string: >-
+    We have no published no-training position for this provider. Treat anything
+    sent to it as retained.
+
+providers:
+  azure_foundry:
+    label_prefix: foundry
+    display_name: Azure AI Foundry
+    no_train_asserted: true
+    retention: >-
+      Stateless inference. Abuse monitoring may sample prompts and completions
+      into a 30-day store unless modified abuse monitoring is approved.
+    source_url: https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/data-privacy
+    date_checked: "2026-07-28"
+    ui_string: >-
+      Microsoft states your prompts and completions are not used to train any
+      foundation model. Checked 28 Jul 2026.
+
+  openai_compatible:
+    label_prefix: openai_compatible
+    display_name: OpenAI-compatible endpoint
+    no_train_asserted: false
+    retention: undocumented
+    source_url: null
+    date_checked: null
+    ui_string: >-
+      This is a self-configured endpoint. We cannot verify what its operator
+      does with your data, so we assume it is retained.
+
+  deepseek_direct:
+    label_prefix: deepseek
+    display_name: DeepSeek platform API
+    no_train_asserted: false
+    retention: undocumented
+    source_url: null
+    date_checked: null
+    ui_string: >-
+      We have not recorded a checked no-training commitment for the DeepSeek
+      platform API. Assume what you send may be retained.
+
+  anthropic:
+    label_prefix: anthropic
+    display_name: Anthropic API
+    no_train_asserted: false
+    retention: undocumented
+    source_url: null
+    date_checked: null
+    ui_string: >-
+      We have not recorded a checked no-training position for this provider yet,
+      so we report it as unverified rather than guessing.

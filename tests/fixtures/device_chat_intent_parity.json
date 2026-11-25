@@ -1,0 +1,561 @@
+{
+  "notes": [
+    "Shared parity fixture for classify_device_chat_intent (Python) and reviewableDeviceRequest (Console).",
+    "client_reviewable must never be true when server_intent is null (client must not be broader).",
+    "Intentional narrowing: server uses substring checks for coding verbs (\"code\" in text also matches \"codex\"/\"coding\"); the client uses word boundaries, so bare provider mentions or \"coding\" without an exact verb stay on ordinary chat.",
+    "Bare named providers in commands classify as coding on the server so Settings/from-chat can refuse clearly; questions about providers stay in ordinary chat."
+  ],
+  "phrases": [
+    {
+      "text": "On my Mac, open https://en.wikipedia.org/wiki/Houseplant and give me the key points from the whole page, including the sections near the bottom",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Could you please use my Mac to read https://www.atlassian.com/software/jira and summarize every section?",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Read https://en.wikipedia.org/wiki/Houseplant on my Mac, including the bottom sections",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "On this Mac, open the website at https://www.atlassian.com/software/jira and compare its plans",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "can you use my Mac to open Chrome?",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Can you please use my Mac to open Chrome?",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Could you please use my Mac to open Chrome?",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Can you use my Mac?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Are you able to use my Mac?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Can you use my Mac to open https://example.com and report its title?",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Do not use my Mac to open https://example.com in my browser.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "The note says \"Use my Mac to open https://example.com in my browser\".",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Use my Mac to open Builds in Supymem. Do not modify data.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Use my Mac to open Analytics in Supymem. Do not modify data.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Use my Mac to open Settings in Supymem. Do not modify data.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Use my Mac to open https://example.com in your browser and report its page title. This is read-only: do not edit, submit forms, or send messages.",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Can Supymem use my Mac to open a browser automatically?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "How do you use my Mac to open a browser?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Should I use my Mac to open a browser?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Do not use my Mac to open https://example.com in your browser.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Please don't use my Mac to open https://example.com.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "The note says \"Use my Mac to open https://example.com in your browser\".",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "\"Use my Mac to open https://example.com in your browser\"",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open Builds in Supymem. Do not modify data.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open analytics in Supymem and tell me what the founder dashboard actually shows. Answer only; do not start work.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open LabHire Analytics in Supymem and report what the founder dashboard shows. Do not start a task.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Can you open Builds in Supymem?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open Builds in Supymem and click Delete",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit, if an Open dialog is visible, click Cancel and report which window remains. If no Open dialog is visible, only report what you see. Do not open, create, edit, save, or delete any document.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit's current Open dialog on this Mac, click Cancel and report which window remains.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Inside Notes\u2019 visible window, inspect the selection without changing it.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In the current Open dialog in TextEdit, click Cancel and report what remains.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit's current dialog, should I click Cancel?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "In TextEdit's current dialog, delete all documents.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "If TextEdit is showing an Open dialog, click Cancel and report which window remains. If not, only describe what you see. Do not open or edit a document.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "If TextEdit is showing an Open dialog, should I click Cancel?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "In Calculator, if a dialog is visible, then report what it says. Otherwise describe the current window.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit, if an Open dialog is visible, should I click Cancel?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open Builds in Supymem and report what build evidence is saved for LabHire. Do not start or modify any build.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "What was the outcome of the latest approved Supymem Mac task? Did it open Builds, was that verified, and how many credits were settled? Do not start another task.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "What is the latest LabHire application build run status, not a Mac task? Include the recorded failure reason and whether it will retry automatically. Do not start anything.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "What is the latest LabHire application build run status? I mean product build, not a Mac task. Include recorded failure reason and whether retries automatically. Do not start any task.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Show Settings in this app",
+      "server_intent": "app_navigation",
+      "client_reviewable": true
+    },
+    {
+      "text": "Inspect the workspace with Cursor, read-only; do not edit files.",
+      "server_intent": "inspection",
+      "client_reviewable": true
+    },
+    {
+      "text": "Check Cursor's workspace without edits.",
+      "server_intent": "inspection",
+      "client_reviewable": true
+    },
+    {
+      "text": "Check git status in the terminal for the venture workspace.",
+      "server_intent": "terminal",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open the browser and check the live site page and waitlist.",
+      "server_intent": "public_site",
+      "client_reviewable": true
+    },
+    {
+      "text": "What is the current conversion path on the published landing page, and can this venture edit it to link to its open managed waitlist? Answer only; do not create a Mac task.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "For this venture, the page sends visitors to an unconfigured pilot page. Can you update the published page to link to the open waitlist? Tell me what review is required.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Can you check the live site page and waitlist?",
+      "server_intent": "public_site",
+      "client_reviewable": true
+    },
+    {
+      "text": "Use Codex to implement the current approved build task",
+      "server_intent": "coding",
+      "client_reviewable": true
+    },
+    {
+      "text": "Use Cursor to implement the landing page",
+      "server_intent": "coding",
+      "client_reviewable": true
+    },
+    {
+      "text": "Use Cursor to edit the landing page",
+      "server_intent": "coding",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open https://www.reddit.com/r/cscareerquestions/ in the browser and verify its waitlist page",
+      "server_intent": "public_site",
+      "client_reviewable": true
+    },
+    {
+      "text": "What is next for this venture?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open Notes and type a reminder",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Type a mail to our first 5 prospects",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Remind me what we decided about pricing",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open the Slack connection page",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "How does computer use work?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Can Supymem run on my Mac while I sleep?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Launch the waitlist campaign on Slack",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Draft a Notion doc for the plan",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "What does Claude think of our ICP?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Should we try Cursor later?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Use Codex for the current approved coding task",
+      "server_intent": "coding",
+      "client_reviewable": false,
+      "intentional_difference": "Server substring \"code\" matches \"codex\"/\"coding\"; client requires a word-boundary coding verb."
+    },
+    {
+      "text": "Run npm install in the terminal",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Explain the Builds screen in Supymem",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "How many people are on our waitlist?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open Notes on this Mac and type a reminder",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit, click Cancel on the visible Open dialog and report what happened.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In Notes, please inspect the selected note without changing it.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit, what would happen if I clicked Cancel?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "In TextEdit, delete all documents.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open Calculator and tell me exactly what number is shown. Do not press any buttons.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open Calculator. Press its visible Clear control once, then report the display.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open Calculator. What does the Clear control do?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "On this Mac, use Calculator to clear its current display once and report the number shown. Do not press any other buttons.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "On this Mac, use Notes to select the first paragraph and copy it.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "On this Mac, use Calculator to press 4 and then press 2.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "What would happen if I pressed Clear in Calculator on this Mac?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open my browser, go to Google, and search for websites that sell pets",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open Google Chrome, go to Google, search for websites that sell pets, and give me the URLs of ten search results.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "On this Mac, use Safari to visit https://www.iana.org/domains/reserved and report the title.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Inspect Cursor, then edit the repo",
+      "server_intent": "coding",
+      "client_reviewable": true
+    },
+    {
+      "text": "Go to resend.com and sign up for an account using my work email",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Visit stripe.com and create an account",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Go to httpbin.org/forms/post in the Supymem-owned browser. Prepare the form using test@example.com as the email and stop before submitting anything.",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open httpbin.org and fill out the registration form, but do not send it",
+      "server_intent": "general_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "How should we prepare the application form for example.com?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Open resend.com",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Could you open Notes on this Mac?",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Can you please open my browser and visit https://example.org/?",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Would you open Notes and type a reminder?",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Could you explain how to open Notes on this Mac?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Prepare a Mac task: open TextEdit, create a new plain text document, type these three lines: \"Supymem test note\", \"Gyms lose members quietly\", \"Check-ins keep them\", then save it as supymem-note.txt in ~/Documents/SupymemCUTest.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Prepare a Mac task to explain how Notes works?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Prepare a Mac task: open TextEdit, create a plain text document containing Supymem test note. Save it as supymem-note.txt in ~/Documents/SupymemCUTest.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Open TextEdit. Create a plain text document containing Supymem test note.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "In TextEdit, save the current document as supymem-note.txt.",
+      "server_intent": "desktop",
+      "client_reviewable": true
+    },
+    {
+      "text": "Use my Mac for a read-only background browser task. Allowed sites are https://audit-qa.supymem.com and https://gateway.supymem.com. Open https://audit-qa.supymem.com, report its page title and main heading, follow Join the early-access waitlist to https://gateway.supymem.com/public/waitlists/ven_0sf17pcf8dt6, report its heading, then return to the landing page. Do not type, submit any forms, send messages, download or change anything.",
+      "server_intent": "readonly_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Use my Mac for a read-only browser task: open https://audit-qa.supymem.com in the background browser, read the page title and main heading, compare all three How it works steps, and report the exact early-access button label. Stay on this landing page. Do not type, submit forms, send messages, follow external links, download or change anything.",
+      "server_intent": "readonly_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Could you please use this Mac for a read only browser task: compare https://example.test and https://second.test?",
+      "server_intent": "readonly_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Prepare a Mac task: please use the Mac for a readonly background browser task. Do not change anything.",
+      "server_intent": "readonly_browser",
+      "client_reviewable": true
+    },
+    {
+      "text": "Did you use my Mac for a read-only browser task to open https://example.test?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "Do not use my Mac for a read-only browser task: open https://example.test.",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "The note says \"Use my Mac for a read-only browser task: open my browser and prepare the signup form at https://example.test\".",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "\"Use my Mac for a read-only background browser task\"",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "How can I use my Mac for a read-only browser task?",
+      "server_intent": null,
+      "client_reviewable": false
+    },
+    {
+      "text": "I prepared a read-only browser task yesterday. What happened?",
+      "server_intent": null,
+      "client_reviewable": false
+    }
+  ]
+}

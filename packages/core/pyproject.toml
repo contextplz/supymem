@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "company-os-core"
+license = { text = "Apache-2.0" }
+version = "0.1.0"
+description = "Shared primitives for Company OS (ids, enums, results, redact)"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "ruff>=0.6.0", "mypy>=1.11.0"]
+
+[tool.setuptools]
+packages = ["core", "core.research_web"]
+
+[tool.setuptools.package-dir]
+"core" = "."
+
+[tool.setuptools.package-data]
+"core.research_web" = ["LICENSE", "PROVENANCE.md"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"

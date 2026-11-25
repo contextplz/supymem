@@ -1,0 +1,36 @@
+id: gen_saas_b2b
+version: 1.0.0
+lineage: []
+archetype: saas_b2b
+agents:
+  - role: orchestrator
+    capability_ids: [cap.learn.signals]
+  - role: builder
+    capability_ids: [cap.build.software]
+  - role: growth
+    capability_ids: [cap.reach.email, cap.reach.social_organic]
+  - role: copywriter
+    capability_ids: [cap.build.document]
+workflows:
+  - id: trial_to_paid
+    description: Move qualified trials toward a paid subscription.
+capability_bindings:
+  cap.reach.email: [skill.outbound]
+  cap.reach.social_organic: [skill.content_distribution]
+default_channels: [email, linkedin]
+default_phases:
+  - id: validate_demand
+    proves: Target buyers will discuss the problem.
+    estimated_days: 14
+  - id: trial_to_paid
+    proves: A trial can convert to a paid plan.
+    estimated_days: 30
+prompt_overrides: {}
+thresholds:
+  trial_conversion: 0.1
+playbook_overrides: {}
+fitness:
+  ventures: 0
+  held: 0
+  regressed: 0
+provenance: seed

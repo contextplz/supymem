@@ -1,0 +1,27 @@
+# Deterministic candidate playbook for the Will (doc 79 §3.1).
+# Titles interpolate {focus}, derived from the venture brief or raw idea.
+templates:
+  - {source: probe, title: "Name five {focus} humans who would pay this week", metric: qualified_signups_per_usd}
+  - {source: insight, title: "Map the {focus} status-quo workaround and its cost", metric: sourced_claim_ratio}
+  - {source: probe, title: "Watch one {focus} user struggle without helping", metric: engagement_rate}
+  - {source: phase, title: "Ship the narrowest {focus} wedge someone would buy now", metric: landing_conversion_rate}
+  - {source: phase, title: "Interview five {focus} prospects", metric: qualified_signups_per_usd}
+  - {source: phase, title: "Publish a {focus} problem landing page", metric: landing_conversion_rate}
+  - {source: probe, title: "Run a {focus} demand probe", metric: engagement_rate}
+  - {source: phase, title: "Map the {focus} customer journey", metric: first_response_minutes}
+  - {source: probe, title: "Test a paid {focus} offer", metric: arpu}
+  - {source: insight, title: "Collect sourced {focus} competitor claims", metric: sourced_claim_ratio}
+  - {source: phase, title: "Instrument the {focus} activation funnel", metric: payment_success_rate}
+  - {source: phase, title: "Draft the {focus} founder outreach", metric: qualified_signups_per_usd}
+  - {source: probe, title: "Recruit {focus} design partners", metric: engagement_rate}
+  - {source: phase, title: "Prototype the {focus} core workflow", metric: landing_conversion_rate}
+  - {source: probe, title: "Validate {focus} pricing assumptions", metric: arpu}
+  - {source: phase, title: "Review {focus} onboarding friction", metric: first_response_minutes}
+  - {source: insight, title: "Write the {focus} value proposition", metric: sourced_claim_ratio}
+  - {source: probe, title: "Launch a {focus} waitlist test", metric: qualified_signups_per_usd}
+  - {source: insight, title: "Audit {focus} conversion evidence", metric: landing_conversion_rate}
+  - {source: insight, title: "Compare {focus} alternatives", metric: engagement_rate}
+  - {source: phase, title: "Set a {focus} success threshold", metric: payment_success_rate}
+  - {source: probe, title: "Run a {focus} concierge test", metric: first_response_minutes}
+  - {source: phase, title: "Define the {focus} retention loop", metric: arpu}
+  - {source: insight, title: "Capture {focus} objection patterns", metric: sourced_claim_ratio}

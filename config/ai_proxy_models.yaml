@@ -1,0 +1,17 @@
+version: 1
+# Allowlist for founder Apps (docs/supymem/08 §3). BYOK apps may pass provider
+# model ids; those still meter min_charge + tokens through this proxy.
+models:
+  - id: supymem-pro
+    tier: passthrough
+    purpose: chat
+  - id: supymem-flash
+    tier: passthrough
+    purpose: chat
+  - id: supymem-embed
+    tier: embed
+    purpose: embed
+default_chat: supymem-flash
+min_charge_micro: 100
+default_rpm: 60
+default_max_tokens: 2048

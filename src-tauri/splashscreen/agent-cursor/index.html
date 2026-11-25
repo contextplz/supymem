@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supymem cursor</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent;
+      pointer-events: none; user-select: none; -webkit-user-select: none; cursor: none; }
+    :root { --brand: #6d4aff; --brand-2: #ad95ff; --charlie: #ffc83d; --ink: #21183e; }
+    #cur { position: absolute; left: 0; top: 0; opacity: 0; transition: opacity 180ms ease; will-change: transform; }
+    #cur.on { opacity: 1; }
+    #body { position: relative; width: 30px; height: 30px; transform-origin: 3px 3px; transition: transform 110ms ease-out; }
+    #body.press { transform: scale(.82); }
+    #body.shake { animation: shake 320ms ease; }
+    /* Soft glow doubles as the "still working" heartbeat. */
+    #glow { position: absolute; left: -14px; top: -14px; width: 48px; height: 48px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(132,97,255,.34), rgba(109,74,255,0) 70%); opacity: 0; }
+    #cur.working #glow { animation: pulse 2.4s ease-in-out infinite; }
+    #pointer { position: absolute; left: 0; top: 0; filter: drop-shadow(0 2px 3px rgba(20,10,60,.35)); overflow: visible; }
+    #dot { position: absolute; left: 19px; top: 19px; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--charlie); border: 1.5px solid #fff; box-shadow: 0 1px 5px rgba(60,35,0,.22); }
+    #ripple { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid var(--brand-2); opacity: 0; }
+    #ripple.go { animation: ripple 520ms ease-out; }
+    #label { position: absolute; left: 3px; top: 37px; display: flex; align-items: center; gap: 7px;
+      padding: 7px 10px 7px 8px; border-radius: 12px; white-space: nowrap;
+      font: 590 11px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; letter-spacing: .01em; color: #fff;
+      background: linear-gradient(125deg, rgba(50,32,88,.96), rgba(38,26,71,.95));
+      border: 1px solid rgba(202,183,255,.32); box-shadow: 0 3px 12px rgba(25,14,52,.22), inset 0 1px 0 rgba(255,255,255,.08);
+      opacity: 0; transform: translateY(-4px) scale(.96); transform-origin: 12px 0;
+      transition: opacity 140ms, transform 180ms cubic-bezier(.22,.7,.3,1); }
+    #label.show { opacity: 1; transform: none; }
+    #label.flipx { left: auto; right: 38px; transform-origin: right top; }
+    #label.flipy { top: auto; bottom: 34px; }
+    #activityIcon { width: 14px; height: 14px; flex: none; color: #c4afff; }
+    #activityIcon svg { display: block; width: 14px; height: 14px; overflow: visible; }
+    #activityIcon .scan { opacity: 0; }
+    #cur.reading #activityIcon .scan, #cur.capturing #activityIcon .scan { opacity: 1; }
+    #cur.reading #activityIcon .orbit, #cur.capturing #activityIcon .orbit { opacity: 0; }
+    #cur.working #activityIcon .orbit { transform-origin: 7px 7px; animation: orbit 2.4s linear infinite; }
+    #cur.reading #activityIcon .scanline, #cur.capturing #activityIcon .scanline { animation: scan 1.8s ease-in-out infinite; }
+    #activityDots { display: flex; gap: 2px; margin-left: 1px; align-items: center; }
+    #activityDots i { width: 2px; height: 2px; border-radius: 50%; background: #d5c7f6; opacity: .45; }
+    #cur.working #activityDots i { animation: dots 1.5s ease-in-out infinite; }
+    #activityDots i:nth-child(2) { animation-delay: .16s !important; }
+    #activityDots i:nth-child(3) { animation-delay: .32s !important; }
+    #cur.typing #activityDots i { animation-duration: .8s; }
+    #cur.fail #label { background: rgba(101,37,53,.96); border-color: rgba(255,166,176,.48); }
+    #cur.fail #activityIcon { color: #ffb1bb; }
+    #cur.parked #glow { animation-duration: 3s; }
+    @keyframes pulse { 0%,100% { opacity: .15; transform: scale(.85); } 50% { opacity: .9; transform: scale(1.35); } }
+    @keyframes ripple { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(3.4); } }
+    @keyframes shake { 20%,60% { transform: translateX(-3px); } 40%,80% { transform: translateX(3px); } }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    @keyframes scan { 0%,100% { transform: translateY(-2px); opacity: .4; } 50% { transform: translateY(2px); opacity: 1; } }
+    @keyframes dots { 0%,70%,100% { opacity: .3; transform: translateY(0); } 35% { opacity: 1; transform: translateY(-1px); } }
+    @media (prefers-reduced-motion: reduce) {
+      #cur, #body, #label { transition: none; }
+      #cur.working #glow { animation: none; opacity: .4; }
+      #cur.working #activityIcon .orbit, #cur.working #activityIcon .scanline,
+      #cur.working #activityDots i, #body.shake, #ripple.go { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="cur" aria-hidden="true">
+    <div id="body">
+      <div id="glow"></div><div id="ripple"></div>
+      <!-- Rounded arrow: not the system pointer shape, so it is never mistaken for the user's cursor. -->
+      <svg id="pointer" width="30" height="30" viewBox="0 0 28 28">
+        <defs><linearGradient id="pointerPaint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a68aff"/><stop offset=".52" stop-color="#7955f5"/><stop offset="1" stop-color="#5835d8"/></linearGradient></defs>
+        <path d="M4 3.5c0-1 1.1-1.5 1.9-.9l16.2 12c.9.7.5 2.1-.6 2.2l-6.4.6-3.4 5.6c-.6 1-2 .8-2.3-.3z"
+              fill="url(#pointerPaint)" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+      <div id="dot"></div>
+    </div>
+    <div id="label">
+      <span id="activityIcon"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+        <g class="orbit"><circle cx="7" cy="7" r="4.5" opacity=".28"/><path d="M7 2.5a4.5 4.5 0 0 1 4.5 4.5"/></g>
+        <g class="scan"><path d="M5 2.5H3v2M9 2.5h2v2M3 9.5v2h2M11 9.5v2H9"/><path class="scanline" d="M4.5 7h5"/></g>
+      </svg></span>
+      <span id="activityText"></span><span id="activityDots"><i></i><i></i><i></i></span>
+    </div>
+  </div>
+  <script type="module">
+    import { glide } from "./path.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    const cur = $("cur"), body = $("body"), label = $("label"), ripple = $("ripple"), activityText = $("activityText");
+    const DEFAULT_LABEL = { type: "Typing", click: "Clicking", read: "Reading screen", scroll: "Scrolling", move: "Moving", begin: "Starting", done: "Checking result", fail: "Needs attention", end: "" };
+    // Closed labels: document text, menu paths, app names and keyboard payloads
+    // never become on-screen copy. These hints do not certify task success.
+    const SAFE_LABELS = new Set(["Reading screen", "Reading page", "Capturing screen", "Opening page", "Opening folder", "Waiting", "Working on code", "Working in browser",
+      "Saving note", "Updating Calendar", "Updating Reminders", "Exporting image", "Saving file", "Organizing files",
+      "Working with files", "Running a script", "Clicking", "Double-clicking", "Right-clicking", "Typing", "Scrolling", "Dragging"]);
+    const activity = (e) => {
+      const raw = typeof e.label === "string" ? e.label.trim().replace(/…$/, "") : "";
+      if (SAFE_LABELS.has(raw)) return raw;
+      if (raw.startsWith("Pressing ")) return "Using keyboard";
+      if (raw.startsWith("Menu ")) return "Using menu";
+      if (raw.startsWith("Opening ")) return "Opening app";
+      if (raw.startsWith("Switching to ")) return "Switching app";
+      return DEFAULT_LABEL[e.kind];
+    };
+    const phases = ["reading", "capturing", "typing", "clicking", "scrolling", "moving", "checking", "attention"];
+    const area = { ox: 0, oy: 0, w: innerWidth, h: innerHeight };
+    const motionPreference = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    let reducedMotion = motionPreference?.matches === true;
+    let pos = null, anim = null, bobbing = false, labelTimer = 0, pressTimer = 0, here = false, spatialTarget = false, frameScheduled = false;
+
+    const place = (p) => {
+      pos = p;
+      const bob = bobbing && !reducedMotion ? Math.sin(performance.now() / 160) * 1.4 : 0;
+      cur.style.transform = `translate(${p.x}px, ${p.y + bob}px)`;
+      label.classList.toggle("flipx", p.x > area.w - 190);
+      label.classList.toggle("flipy", p.y > area.h - 78);
+    };
+    const say = (text, hold) => {
+      clearTimeout(labelTimer);
+      activityText.textContent = text || "";
+      label.classList.toggle("show", !!text);
+      if (hold && text) labelTimer = setTimeout(() => label.classList.remove("show"), hold);
+    };
+    const press = () => {
+      body.classList.add("press"); ripple.classList.remove("go"); void ripple.offsetWidth; ripple.classList.add("go");
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => body.classList.remove("press"), 140);
+    };
+    const tick = (now) => {
+      frameScheduled = false;
+      if (anim) {
+        const ms = now - anim.t0;
+        place(anim.g.sample(ms));
+        if (ms >= anim.g.duration) { const done = anim.then; anim = null; done && done(); }
+      } else if (bobbing && pos) place(pos);
+      if (anim || bobbing && !reducedMotion) scheduleFrame();
+    };
+    const scheduleFrame = () => { if (!frameScheduled) { frameScheduled = true; requestAnimationFrame(tick); } };
+    scheduleFrame();
+
+    function glideTo(to, then) {
+      if (!pos || reducedMotion) { place(to); then && then(); return; }
+      anim = { g: glide(pos, to, (Math.random() * 2 ** 32) >>> 0), t0: performance.now(), to, then };
+      scheduleFrame();
+    }
+
+    const cancelAction = () => {
+      anim = null; bobbing = false;
+      clearTimeout(pressTimer);
+      body.classList.remove("press"); ripple.classList.remove("go");
+    };
+
+    // A parked activity cursor is useful for isolated browser/script tasks
+    // that have no desktop point. It never invents a target or moves the user's
+    // physical pointer, and appears on the primary display only.
+    const park = () => {
+      if (spatialTarget || area.ox > 0 || area.oy > 0 || area.ox + area.w <= 0 || area.oy + area.h <= 0) return;
+      here = true;
+      cur.classList.add("parked", "on");
+      place({ x: Math.max(18, area.w - 210), y: Math.max(18, area.h - 112) });
+    };
+    motionPreference?.addEventListener?.("change", (event) => {
+      reducedMotion = event.matches === true;
+      if (reducedMotion) {
+        const pending = anim;
+        anim = null; bobbing = false;
+        if (pending) { place(pending.to); pending.then?.(); }
+      }
+    });
+
+    function applyEvent(e) {
+      if (!e || !Object.hasOwn(DEFAULT_LABEL, e.kind)) return;
+      const text = activity(e);
+      cur.classList.remove(...phases);
+      const phase = text === "Capturing screen" ? "capturing" : ({read:"reading", type:"typing", click:"clicking", scroll:"scrolling", move:"moving", done:"checking", fail:"attention"})[e.kind];
+      if (phase) cur.classList.add(phase);
+      if (e.kind === "end") { cancelAction(); cur.classList.remove("working", "on", "parked"); say(""); here = false; spatialTarget = false; return; }
+      if (e.kind === "done" || e.kind === "fail") {
+        cancelAction();
+        cur.classList.toggle("fail", e.kind === "fail");
+        if (e.kind === "fail") { body.classList.remove("shake"); void body.offsetWidth; if (!reducedMotion) body.classList.add("shake"); say(text, 2500); }
+        else say(text);
+        return;
+      }
+      cur.classList.remove("fail");
+      cur.classList.add("working");
+      if (e.kind === "begin") { cancelAction(); here = false; pos = null; spatialTarget = false; cur.classList.remove("on", "parked"); park(); say(text); return; }
+      bobbing = false;
+      let to = pos;
+      if (typeof e.x === "number" && typeof e.y === "number" && Number.isFinite(e.x) && Number.isFinite(e.y)) {
+        spatialTarget = true;
+        cur.classList.remove("parked");
+        to = { x: e.x - area.ox, y: e.y - area.oy };
+        const inside = to.x >= 0 && to.y >= 0 && to.x <= area.w && to.y <= area.h;
+        if (!inside) { // the cursor is on another display: this one lets go of it
+          here = false; anim = null; pos = null; cur.classList.remove("on"); return;
+        }
+        if (!here) { here = true; anim = null; pos = null; cur.classList.add("on"); } // display switch: the only teleport
+      }
+      if (!here && !spatialTarget) { park(); to = pos; }
+      if (!here) return;
+      cur.classList.add("on");
+      say(text);
+      const arrive = () => {
+        if (e.kind === "click") press();
+        if (e.kind === "type" && !reducedMotion) { bobbing = true; scheduleFrame(); }
+      };
+      to ? glideTo(to, arrive) : arrive();
+    }
+
+    let receiptRevision = 0;
+    function handle(e) {
+      const revision = ++receiptRevision;
+      applyEvent(e);
+      const receipt = e?.receipt;
+      const invoke = window.__TAURI_INTERNALS__?.invoke;
+      if (!receipt || typeof invoke !== "function" || !Number.isSafeInteger(receipt.sequence) || receipt.sequence < 1
+          || !Number.isSafeInteger(receipt.generation) || !Object.hasOwn(DEFAULT_LABEL, receipt.kind)
+          || receipt.document_generation !== window.__agentCursorDocumentGeneration) return;
+      // Only a committed current visual receives a receipt. Never replay an
+      // older event's ACK after end, replacement, or a later delivery.
+      requestAnimationFrame(() => {
+        const animations = new Map((cur.getAnimations?.({subtree:true}) || []).map(a => [a, a.currentTime]));
+        requestAnimationFrame(() => {
+          if (revision !== receiptRevision || activityText.textContent !== receipt.activity
+              || receipt.document_generation !== window.__agentCursorDocumentGeneration) return;
+          const contentVisible = cur.classList.contains("on") && label.classList.contains("show")
+            && Number(getComputedStyle(cur).opacity) > 0 && Number(getComputedStyle(label).opacity) > 0;
+          const animationRunning = !reducedMotion && [...animations].some(([a, time]) =>
+            a.playState === "running" && typeof time === "number" && typeof a.currentTime === "number" && a.currentTime > time);
+          invoke("agent_cursor_rendered", {receipt: {generation:receipt.generation, sequence:receipt.sequence,
+            document_generation:receipt.document_generation,
+            owner:receipt.owner, kind:receipt.kind, activity:receipt.activity,
+            content_visible:contentVisible, animation_frames:2, animation_running:animationRunning, reduced_motion:reducedMotion}}).catch(() => {});
+        });
+      });
+    }
+
+    // Native still drives all visuals through eval. IPC is limited to a closed
+    // receipt and cannot request input, account data, or task execution.
+    window.__agentCursor = {
+      init: (ox, oy, w, h) => Object.assign(area, { ox, oy, w, h }),
+      event: handle,
+    };
+    // Native document-finished can precede an asynchronous module import. Apply
+    // the exact display origin before replaying its bounded visual-only hints.
+    if (Array.isArray(window.__agentCursorInit)) {
+      window.__agentCursor.init(...window.__agentCursorInit);
+      delete window.__agentCursorInit;
+    }
+    const pending = window.__agentCursorPending || [];
+    delete window.__agentCursorPending;
+    for (const event of pending) handle(event);
+  </script>
+</body>
+</html>

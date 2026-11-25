@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "notes": "<!--cos-update {\"mandatory\":true,\"min_version\":\"0.1.0\"}-->\nForce fixture 0.2.0 — Update now only.",
+  "pub_date": "2026-08-24T00:00:00Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "unsigned-local-fixture",
+      "url": "https://supymem.com/downloads/CompanyOS.app.tar.gz"
+    },
+    "darwin-x86_64": {
+      "signature": "unsigned-local-fixture",
+      "url": "https://supymem.com/downloads/CompanyOS.app.tar.gz"
+    },
+    "linux-x86_64": {
+      "signature": "unsigned-local-fixture",
+      "url": "https://supymem.com/downloads/CompanyOS.app.tar.gz"
+    },
+    "windows-x86_64": {
+      "signature": "unsigned-local-fixture",
+      "url": "https://supymem.com/downloads/CompanyOS.app.tar.gz"
+    }
+  }
+}

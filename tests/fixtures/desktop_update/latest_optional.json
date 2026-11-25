@@ -1,0 +1,11 @@
+{
+  "version": "0.1.1",
+  "notes": "<!--cos-update {\"mandatory\":false}-->\nOptional fixture — Later is allowed.",
+  "pub_date": "2026-08-22T00:00:00Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "unsigned-local-fixture",
+      "url": "http://127.0.0.1/CompanyOS.app.tar.gz"
+    }
+  }
+}

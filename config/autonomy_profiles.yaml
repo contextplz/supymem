@@ -1,0 +1,122 @@
+# Autonomy profiles — 11-dimension vector, one dial in the UI (14 §2).
+# Modes: deny | propose | allow | allow_readonly | allow_within_budget |
+#         allow_quota_limited | allow_allowlisted | allow_low_risk |
+#         allow_drafted | allow_gated
+
+dimensions:
+  - plan
+  - read
+  - write_code
+  - deploy
+  - post_public
+  - message_customer
+  - spend_money
+  - install_dependency
+  - network_egress
+  - modify_org
+  - modify_self
+
+# Hard system maxima — founder cannot raise caps above these without editing
+# this file by hand and restarting the warden.
+system_max_caps:
+  max_active_agents: 24
+  max_agent_spawns_per_day: 10
+  max_promotions_per_cycle: 4
+  max_code_promotions_per_day: 6
+  max_concurrent_coding_runs: 2
+  max_concurrent_agent_runs: 8
+  daily_token_budget_usd: 50.0
+  monthly_channel_spend_usd: 200.0
+  max_human_tasks_visible: 10
+  max_rework_loops: 4
+  max_clarification_rounds: 2
+
+profiles:
+  L0:
+    label: "Observe only"
+    description: "Agents watch and report. Nothing changes without you doing it."
+    plan: allow
+    read: allow
+    write_code: deny
+    deploy: deny
+    post_public: deny
+    message_customer: deny
+    spend_money: deny
+    install_dependency: deny
+    network_egress: deny
+    modify_org: deny
+    modify_self: deny
+
+  L1:
+    label: "Suggest"
+    description: "Agents propose everything and wait for you. Safest way to start."
+    plan: allow
+    read: allow
+    write_code: propose
+    deploy: propose
+    post_public: propose
+    message_customer: propose
+    spend_money: deny
+    install_dependency: propose
+    network_egress: allow_readonly
+    modify_org: propose
+    modify_self: deny
+
+  L2:
+    label: "Assisted"
+    description: >
+      Agents handle low-risk config changes themselves. Code, deploys, public posts,
+      and org changes still come to you.
+    plan: allow
+    read: allow
+    write_code: propose
+    deploy: propose
+    post_public: propose
+    message_customer: propose
+    spend_money: deny
+    install_dependency: propose
+    network_egress: allow_readonly
+    modify_org: propose
+    modify_self: allow_low_risk
+
+  L3:
+    label: "Autonomous operations"
+    description: >
+      Agents run the company day to day: they post, reply, and can hire and retire
+      each other. Product code changes and strategy changes still need you.
+    plan: allow
+    read: allow
+    write_code: propose
+    deploy: propose
+    post_public: allow_within_budget
+    message_customer: allow_drafted
+    spend_money: allow_within_budget
+    install_dependency: allow_allowlisted
+    network_egress: allow
+    modify_org: allow_quota_limited
+    modify_self: allow
+    requires:
+      - redteam_suite_passing
+
+  L4:
+    label: "Full autonomy"
+    description: >
+      Agents also change product code and deploy it. Every change is still versioned,
+      measured, and reversible. Requires the red-team suite to be passing.
+    plan: allow
+    read: allow
+    write_code: allow_gated
+    deploy: allow_gated
+    post_public: allow_within_budget
+    message_customer: allow_drafted
+    spend_money: allow_within_budget
+    install_dependency: allow_allowlisted
+    network_egress: allow
+    modify_org: allow_quota_limited
+    modify_self: allow
+    requires:
+      - redteam_suite_passing
+      - calibration_min_samples
+      - backup_verified
+
+default_level: L1

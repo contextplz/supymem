@@ -1,0 +1,38 @@
+version: 1
+tiers:
+  - id: static
+    name: static
+    cpu: 0
+    memory_mb: 0
+    min_tasks: 0
+    max_tasks: 0
+    db_placement: none
+    monthly_credits: 30
+    description: Landing pages and static apps (S3 + CloudFront)
+  - id: micro
+    name: micro
+    cpu: 0.25
+    memory_mb: 512
+    min_tasks: 0
+    max_tasks: 2
+    db_placement: shared_cluster
+    monthly_credits: 900
+    description: First users; scale-to-zero when idle
+  - id: small
+    name: small
+    cpu: 0.5
+    memory_mb: 1024
+    min_tasks: 1
+    max_tasks: 3
+    db_placement: shared_cluster
+    monthly_credits: 2400
+    description: First paying customers
+  - id: medium
+    name: medium
+    cpu: 1
+    memory_mb: 2048
+    min_tasks: 2
+    max_tasks: 6
+    db_placement: dedicated_instance
+    monthly_credits: 9000
+    description: Growth

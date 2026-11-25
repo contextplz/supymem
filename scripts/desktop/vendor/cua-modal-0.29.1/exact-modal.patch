@@ -1,0 +1,4741 @@
+diff --git a/crates/cua-driver-contract/src/lib.rs b/crates/cua-driver-contract/src/lib.rs
+--- a/crates/cua-driver-contract/src/lib.rs
++++ b/crates/cua-driver-contract/src/lib.rs
+@@ -47,8 +47,9 @@
+     ClipboardReadOutput, ClipboardWriteOutput, CursorMotionOutput, CursorPointOutput,
+     CursorPositionOutput, CursorThemeOutput, CursorVisualOutput, DesktopStateOutput,
+     EffectiveScope, EndSessionOutput, GetAgentCursorStateOutput, ListSessionsOutput,
+-    ScreenSizeOutput, SessionClientKindOutput, SessionLifecycleState, SessionOutput,
+-    SessionStateOutput, SessionTransportOutput, SetAgentCursorEnabledOutput,
++    NativeProbeDiagnostics, NativeProbeProtocol, NativeProbeReason, NativeProbeSample,
++    NativeProbeStage, ScreenSizeOutput, SessionClientKindOutput, SessionLifecycleState,
++    SessionOutput, SessionStateOutput, SessionTransportOutput, SetAgentCursorEnabledOutput,
+     SetAgentCursorMotionOutput, SetAgentCursorThemeOutput, StartSessionOutput, ToolOutput,
+     TOOL_INVOCATION_FAILED_CODE,
+ };
+diff --git a/crates/cua-driver-contract/src/outputs.rs b/crates/cua-driver-contract/src/outputs.rs
+--- a/crates/cua-driver-contract/src/outputs.rs
++++ b/crates/cua-driver-contract/src/outputs.rs
+@@ -553,9 +553,85 @@
+     pub reason: ActionEscalationReason,
+ }
+
++/// Closed native producer diagnostics. This never supplies action/task evidence.
++#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, uniffi::Enum)]
++pub enum NativeProbeProtocol {
++    #[serde(rename = "supymem_press_probe_metadata_v1")]
++    PressProbeMetadataV1,
++}
++#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, uniffi::Enum)]
++#[serde(rename_all = "snake_case")]
++pub enum NativeProbeStage {
++    CapturePreflight,
++    AfterAckSample,
++    AfterAckFinal,
++}
++#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, uniffi::Enum)]
++#[serde(rename_all = "snake_case")]
++pub enum NativeProbeReason {
++    NotEligible,
++    TargetOwnerUnconfirmed,
++    AxTimeoutUnavailable,
++    FocusedElementUnavailable,
++    ButtonCapabilityUnavailable,
++    AncestryUnavailable,
++    AncestryIdentityMismatch,
++    ParentIdentityUnavailable,
++    ParentIdentityMismatch,
++    SheetsUnavailable,
++    SheetsMalformed,
++    SheetsPartial,
++    SheetsComplete,
++    TargetSheetNotListed,
++    CaptureComplete,
++    PostconditionUnconfirmed,
++    PostconditionConfirmed,
++    SampleBudgetExhausted,
++}
++#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, uniffi::Record)]
++#[serde(deny_unknown_fields)]
++pub struct NativeProbeSample {
++    pub stage: NativeProbeStage,
++    pub reason: NativeProbeReason,
++    #[schemars(range(min = 0, max = 3))]
++    pub sample_index: u8,
++    pub target_cg_present: Option<bool>,
++    pub target_cg_owned: Option<bool>,
++    pub parent_cg_owned: Option<bool>,
++    pub parent_identity_exact: Option<bool>,
++    pub sheets_available: Option<bool>,
++    #[schemars(range(min = 0, max = 32))]
++    pub sheets_count: Option<u8>,
++    pub target_sheet_listed: Option<bool>,
++    #[schemars(range(min = -25214, max = -25200))]
++    pub ax_error_code: Option<i32>,
++}
++#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, uniffi::Record)]
++#[serde(deny_unknown_fields)]
++pub struct NativeProbeDiagnostics {
++    pub protocol: NativeProbeProtocol,
++    pub truncated: bool,
++    #[schemars(length(max = 16))]
++    pub samples: Vec<NativeProbeSample>,
++}
++impl NativeProbeDiagnostics {
++    pub fn validate(&self) -> bool {
++        self.samples.len() <= 16
++            && self.samples.iter().all(|sample| {
++                sample.sample_index <= 3
++                    && sample.sheets_count.is_none_or(|n| n <= 32)
++                    && sample
++                        .ax_error_code
++                        .is_none_or(|n| (-25214..=-25200).contains(&n))
++            })
++    }
++}
++
+ #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, uniffi::Record)]
+ #[serde(deny_unknown_fields)]
+ pub struct ActionResult {
++    #[serde(default, skip_serializing_if = "Option::is_none")]
++    pub probe_diagnostics: Option<NativeProbeDiagnostics>,
+     pub effect: ActionEffect,
+     pub route: ActionRoute,
+     #[serde(default, skip_serializing_if = "Option::is_none")]
+@@ -577,6 +653,7 @@
+
+ #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+ pub enum ActionResultValidationError {
++    InvalidProbeDiagnostics,
+     ConfirmedRequiresEvidence,
+     PartialRequiresDeliveredCount,
+     RefusedCannotHaveDelivery,
+@@ -587,6 +664,7 @@
+ impl std::fmt::Display for ActionResultValidationError {
+     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+         formatter.write_str(match self {
++            Self::InvalidProbeDiagnostics => "invalid closed native probe metadata",
+             Self::ConfirmedRequiresEvidence => "confirmed effect requires evidence",
+             Self::PartialRequiresDeliveredCount => "partial effect requires delivered_count",
+             Self::RefusedCannotHaveDelivery => "refused effect cannot include delivery",
+@@ -600,6 +678,13 @@
+
+ impl ActionResult {
+     pub fn validate_invariants(&self) -> Result<(), ActionResultValidationError> {
++        if self
++            .probe_diagnostics
++            .as_ref()
++            .is_some_and(|value| !value.validate())
++        {
++            return Err(ActionResultValidationError::InvalidProbeDiagnostics);
++        }
+         match self.effect {
+             ActionEffect::Confirmed
+                 if self
+@@ -712,6 +797,7 @@
+
+     fn confirmed_result() -> ActionResult {
+         ActionResult {
++            probe_diagnostics: None,
+             effect: ActionEffect::Confirmed,
+             route: ActionRoute::Accessibility,
+             delivery: Some(ActionDelivery {
+@@ -729,6 +815,68 @@
+     }
+
+     #[test]
++    fn native_probe_contract_denies_unknown_and_private_fields() {
++        let sample = json!({"stage":"after_ack_sample","reason":"postcondition_unconfirmed","sample_index":1,
++            "target_cg_present":null,"target_cg_owned":null,"parent_cg_owned":null,"parent_identity_exact":null,
++            "sheets_available":false,"sheets_count":null,"target_sheet_listed":null,"ax_error_code":-25205});
++        let base = json!({"protocol":"supymem_press_probe_metadata_v1","truncated":false,"samples":[sample.clone()]});
++        let typed: NativeProbeDiagnostics = serde_json::from_value(base.clone()).unwrap();
++        assert!(typed.validate());
++        assert_eq!(serde_json::to_value(typed).unwrap(), base);
++        for (key, value) in [
++            ("window_title", json!("private title")),
++            ("payload", json!("private input")),
++            ("reason", json!("private diagnostic prose")),
++            ("sample_index", json!(true)),
++        ] {
++            let mut hostile = base.clone();
++            hostile["samples"][0][key] = value;
++            assert!(serde_json::from_value::<NativeProbeDiagnostics>(hostile).is_err());
++        }
++        let mut top = base.clone();
++        top["private_body"] = json!("withheld");
++        assert!(serde_json::from_value::<NativeProbeDiagnostics>(top).is_err());
++        for (key, value) in [
++            ("sample_index", json!(4)),
++            ("sheets_count", json!(33)),
++            ("ax_error_code", json!(42)),
++        ] {
++            let mut invalid = base.clone();
++            invalid["samples"][0][key] = value;
++            assert!(!serde_json::from_value::<NativeProbeDiagnostics>(invalid)
++                .unwrap()
++                .validate());
++        }
++        let mut overflow = base;
++        overflow["samples"] = json!(vec![sample; 17]);
++        assert!(!serde_json::from_value::<NativeProbeDiagnostics>(overflow)
++            .unwrap()
++            .validate());
++    }
++
++    #[test]
++    fn native_probe_diagnostics_are_optional_and_never_completion_evidence() {
++        let mut result = confirmed_result();
++        result.evidence = None;
++        result.probe_diagnostics = Some(NativeProbeDiagnostics {
++            protocol: NativeProbeProtocol::PressProbeMetadataV1,
++            truncated: false,
++            samples: vec![],
++        });
++        assert_eq!(
++            result.validate_invariants(),
++            Err(ActionResultValidationError::ConfirmedRequiresEvidence)
++        );
++        result.effect = ActionEffect::Unverifiable;
++        assert!(result.validate_invariants().is_ok());
++        result.probe_diagnostics = None;
++        assert!(serde_json::to_value(result)
++            .unwrap()
++            .get("probe_diagnostics")
++            .is_none());
++    }
++
++    #[test]
+     fn action_result_schema_is_exact_and_closed() {
+         let schema = ActionResult::output_schema();
+         assert_eq!(schema["additionalProperties"], false);
+@@ -743,6 +891,7 @@
+                 "error",
+                 "escalation",
+                 "evidence",
++                "probe_diagnostics",
+                 "route",
+                 "summary"
+             ]
+diff --git a/crates/cua-driver-core/src/action_record.rs b/crates/cua-driver-core/src/action_record.rs
+--- a/crates/cua-driver-core/src/action_record.rs
++++ b/crates/cua-driver-core/src/action_record.rs
+@@ -339,6 +339,7 @@
+     ) -> Result<cua_driver_contract::ActionResult, ActionRecordValidationError> {
+         let projection = self.stable_projection()?;
+         Ok(cua_driver_contract::ActionResult {
++            probe_diagnostics: None,
+             effect: match projection.effect {
+                 ActionEffect::Confirmed => cua_driver_contract::ActionEffect::Confirmed,
+                 ActionEffect::Partial => cua_driver_contract::ActionEffect::Partial,
+diff --git a/crates/cua-driver-core/src/lib.rs b/crates/cua-driver-core/src/lib.rs
+--- a/crates/cua-driver-core/src/lib.rs
++++ b/crates/cua-driver-core/src/lib.rs
+@@ -42,6 +42,7 @@
+ }
+
+ pub mod action_record;
++pub mod owned_modal;
+ pub mod action_target;
+ pub mod authorization;
+ pub mod background_input;
+diff --git a/crates/cua-driver-core/src/owned_modal.rs b/crates/cua-driver-core/src/owned_modal.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/cua-driver-core/src/owned_modal.rs
+@@ -0,0 +1,301 @@
++//! Optional, reviewed direct-child modal authority. Native observations are
++//! internal typed values, never deserialized from a proposed tool call.
++use std::collections::HashSet;
++use std::sync::{Mutex, OnceLock};
++
++pub const FEATURE_ENV: &str = "SUPYMEM_REVIEWED_MODAL_CHILDREN";
++#[derive(Clone, Debug, Eq, PartialEq)]
++pub struct ReviewedModalParent {
++    pub pid: i64,
++    pub window_id: u64,
++    pub process_start_identity: String,
++}
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub enum SheetInventory {
++    CompleteUniqueChild,
++    ExplicitAttributeUnsupported,
++}
++#[derive(Clone, Debug, Eq, PartialEq)]
++pub struct NativeModalFacts {
++    pub parent_pid: i64,
++    pub parent_window_id: u64,
++    pub child_pid: i64,
++    pub child_window_id: u64,
++    pub process_start_before: String,
++    pub process_start_after: String,
++    pub exact_parent_ax_root: bool,
++    pub exact_child_ax_sheet: bool,
++    pub native_parent_matches: bool,
++    pub parent_sheet_inventory: SheetInventory,
++    pub parent_cg_owned: bool,
++    pub child_cg_owned: bool,
++    pub within_read_budget: bool,
++}
++pub type NativeModalResolver = fn(&ReviewedModalParent, i64, u64) -> Option<NativeModalFacts>;
++static NATIVE_RESOLVER: OnceLock<NativeModalResolver> = OnceLock::new();
++/// Only a compiled platform registration path can install this callback. There
++/// is no protocol, JSON, manifest, or model argument for replacing it.
++pub fn register_native_resolver(resolver: NativeModalResolver) -> Result<(), &'static str> {
++    NATIVE_RESOLVER
++        .set(resolver)
++        .map_err(|_| "owned_modal_resolver_already_registered")
++}
++pub fn enabled() -> bool {
++    std::env::var(FEATURE_ENV).ok().as_deref() == Some("1")
++}
++/// Peekaboo v4.5.0 SystemIdentityResolver.swift uses sec*1_000_000+usec,
++/// losslessly serialized decimal UInt64. Refuse invalid kernel/overflow facts.
++pub fn kernel_identity(seconds: u64, microseconds: u64) -> Option<String> {
++    if seconds == 0 || microseconds >= 1_000_000 {
++        return None;
++    }
++    seconds
++        .checked_mul(1_000_000)?
++        .checked_add(microseconds)
++        .map(|value| value.to_string())
++}
++/// Classify a native inventory read, not a JSON or error-prose claim.
++pub fn classify_sheet_inventory(
++    ids: Option<&[u32]>,
++    child: u32,
++    error: Option<i32>,
++    attribute_read: bool,
++) -> Option<SheetInventory> {
++    if child == 0 || !attribute_read {
++        return None;
++    }
++    match ids {
++        Some(ids) => {
++            if error.is_some()
++                || ids.len() > 32
++                || ids.iter().any(|id| *id == 0)
++                || ids.iter().enumerate().any(|(i, id)| ids[..i].contains(id))
++                || ids.iter().filter(|id| **id == child).count() != 1
++            {
++                return None;
++            }
++            Some(SheetInventory::CompleteUniqueChild)
++        }
++        None if error == Some(-25205) => Some(SheetInventory::ExplicitAttributeUnsupported),
++        None => None,
++    }
++}
++pub fn validates(
++    parent: &ReviewedModalParent,
++    pid: i64,
++    wid: u64,
++    facts: &NativeModalFacts,
++) -> bool {
++    parent.pid > 0
++        && parent.window_id > 0
++        && pid == parent.pid
++        && wid > 0
++        && wid != parent.window_id
++        && !parent.process_start_identity.is_empty()
++        && facts.parent_pid == parent.pid
++        && facts.parent_window_id == parent.window_id
++        && facts.child_pid == pid
++        && facts.child_window_id == wid
++        && facts.process_start_before == parent.process_start_identity
++        && facts.process_start_after == parent.process_start_identity
++        && facts.exact_parent_ax_root
++        && facts.exact_child_ax_sheet
++        && facts.native_parent_matches
++        && matches!(
++            facts.parent_sheet_inventory,
++            SheetInventory::CompleteUniqueChild | SheetInventory::ExplicitAttributeUnsupported
++        )
++        && facts.parent_cg_owned
++        && facts.child_cg_owned
++        && facts.within_read_budget
++}
++pub fn resolves(parent: &ReviewedModalParent, pid: i64, wid: u64) -> bool {
++    enabled()
++        && NATIVE_RESOLVER
++            .get()
++            .and_then(|resolve| resolve(parent, pid, wid))
++            .is_some_and(|facts| validates(parent, pid, wid, &facts))
++}
++fn active_children() -> &'static Mutex<HashSet<(i64, u64)>> {
++    static ACTIVE: OnceLock<Mutex<HashSet<(i64, u64)>>> = OnceLock::new();
++    ACTIVE.get_or_init(|| Mutex::new(HashSet::new()))
++}
++/// One tool-dispatch custody token, held through actual platform completion.
++/// A child is not appended to the manifest, cached, or granted to later calls.
++pub struct OwnedModalDispatchLease {
++    parent: ReviewedModalParent,
++    child: (i64, u64),
++}
++impl OwnedModalDispatchLease {
++    pub fn acquire(parent: &ReviewedModalParent, pid: i64, wid: u64) -> Result<Self, &'static str> {
++        if !resolves(parent, pid, wid) {
++            return Err("owned_modal_identity_unconfirmed");
++        }
++        let mut active = active_children()
++            .lock()
++            .map_err(|_| "owned_modal_custody_unavailable")?;
++        if !active.insert((pid, wid)) {
++            return Err("owned_modal_dispatch_busy");
++        }
++        Ok(Self {
++            parent: parent.clone(),
++            child: (pid, wid),
++        })
++    }
++    /// Re-read the native relation after queued coordination/recording and
++    /// immediately before platform invoke. No earlier proof rescues a change.
++    pub fn revalidate(&self) -> Result<(), &'static str> {
++        resolves(&self.parent, self.child.0, self.child.1)
++            .then_some(())
++            .ok_or("owned_modal_identity_changed")
++    }
++}
++impl Drop for OwnedModalDispatchLease {
++    fn drop(&mut self) {
++        if let Ok(mut active) = active_children().lock() {
++            active.remove(&self.child);
++        }
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn parent() -> ReviewedModalParent {
++        ReviewedModalParent {
++            pid: 42,
++            window_id: 10,
++            process_start_identity: "1234567".into(),
++        }
++    }
++    fn facts() -> NativeModalFacts {
++        NativeModalFacts {
++            parent_pid: 42,
++            parent_window_id: 10,
++            child_pid: 42,
++            child_window_id: 11,
++            process_start_before: "1234567".into(),
++            process_start_after: "1234567".into(),
++            exact_parent_ax_root: true,
++            exact_child_ax_sheet: true,
++            native_parent_matches: true,
++            parent_sheet_inventory: SheetInventory::CompleteUniqueChild,
++            parent_cg_owned: true,
++            child_cg_owned: true,
++            within_read_budget: true,
++        }
++    }
++    #[test]
++    fn native_inventory_unsupported_is_not_unknown_or_contradiction() {
++        assert_eq!(
++            classify_sheet_inventory(Some(&[11, 12]), 11, None, true),
++            Some(SheetInventory::CompleteUniqueChild)
++        );
++        assert_eq!(
++            classify_sheet_inventory(None, 11, Some(-25205), true),
++            Some(SheetInventory::ExplicitAttributeUnsupported)
++        );
++        for ids in [
++            Some(&[][..]),
++            Some(&[12][..]),
++            Some(&[11, 11][..]),
++            Some(&[11, 0][..]),
++        ] {
++            assert_eq!(classify_sheet_inventory(ids, 11, None, true), None);
++            assert_eq!(classify_sheet_inventory(ids, 11, Some(-25205), true), None);
++        }
++        for error in [None, Some(0), Some(-25200), Some(-25204), Some(-25206)] {
++            assert_eq!(classify_sheet_inventory(None, 11, error, true), None);
++        }
++        assert_eq!(
++            classify_sheet_inventory(None, 11, Some(-25205), false),
++            None
++        );
++    }
++    #[test]
++    fn kernel_identity_matches_pinned_sdk_and_rejects_invalid_facts() {
++        assert_eq!(kernel_identity(1234, 567890), Some("1234567890".into()));
++        assert_eq!(kernel_identity(0, 1), None);
++        assert_eq!(kernel_identity(1, 1_000_000), None);
++        assert_eq!(kernel_identity(u64::MAX, 0), None);
++    }
++    #[test]
++    fn unsupported_inventory_never_rescues_missing_parent_binding() {
++        let mut f = facts();
++        f.parent_sheet_inventory = SheetInventory::ExplicitAttributeUnsupported;
++        assert!(validates(&parent(), 42, 11, &f));
++        f.native_parent_matches = false;
++        assert!(!validates(&parent(), 42, 11, &f));
++    }
++    #[test]
++    fn exact_direct_child_requires_every_native_fact() {
++        assert!(validates(&parent(), 42, 11, &facts()));
++        for i in 0..6 {
++            let mut f = facts();
++            match i {
++                0 => f.exact_parent_ax_root = false,
++                1 => f.exact_child_ax_sheet = false,
++                2 => f.native_parent_matches = false,
++                3 => f.parent_cg_owned = false,
++                4 => f.child_cg_owned = false,
++                _ => f.within_read_budget = false,
++            };
++            assert!(!validates(&parent(), 42, 11, &f));
++        }
++    }
++    #[test]
++    fn stale_foreign_reused_pid_decoy_root_and_recursive_scope_hold() {
++        for i in 0..6 {
++            let mut f = facts();
++            match i {
++                0 => f.parent_pid = 43,
++                1 => f.child_pid = 43,
++                2 => f.parent_window_id = 12,
++                3 => f.child_window_id = 12,
++                4 => f.process_start_before = "other".into(),
++                _ => f.process_start_after = "other".into(),
++            };
++            assert!(!validates(&parent(), 42, 11, &f));
++        }
++        assert!(!validates(&parent(), 42, 10, &facts()));
++        assert!(!validates(&parent(), 43, 11, &facts()));
++        assert!(!validates(&parent(), 42, 0, &facts()));
++    }
++    #[test]
++    fn lease_is_single_dispatch_fresh_revalidated_and_released() {
++        use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
++        static PRESENT: AtomicBool = AtomicBool::new(true);
++        static READS: AtomicUsize = AtomicUsize::new(0);
++        fn native(_: &ReviewedModalParent, pid: i64, wid: u64) -> Option<NativeModalFacts> {
++            READS.fetch_add(1, Ordering::SeqCst);
++            PRESENT.load(Ordering::SeqCst).then(|| {
++                let mut f = facts();
++                f.child_pid = pid;
++                f.child_window_id = wid;
++                f
++            })
++        }
++        std::env::remove_var(FEATURE_ENV);
++        register_native_resolver(native).unwrap();
++        assert!(OwnedModalDispatchLease::acquire(&parent(), 42, 11).is_err());
++        assert_eq!(READS.load(Ordering::SeqCst), 0);
++        std::env::set_var(FEATURE_ENV, "true");
++        assert!(OwnedModalDispatchLease::acquire(&parent(), 42, 11).is_err());
++        std::env::set_var(FEATURE_ENV, "1");
++        let lease = OwnedModalDispatchLease::acquire(&parent(), 42, 11).unwrap();
++        assert!(matches!(
++            OwnedModalDispatchLease::acquire(&parent(), 42, 11),
++            Err("owned_modal_dispatch_busy")
++        ));
++        let other = OwnedModalDispatchLease::acquire(&parent(), 42, 12).unwrap();
++        assert!(lease.revalidate().is_ok());
++        PRESENT.store(false, Ordering::SeqCst);
++        assert_eq!(lease.revalidate(), Err("owned_modal_identity_changed"));
++        drop(lease);
++        drop(other);
++        PRESENT.store(true, Ordering::SeqCst);
++        assert!(OwnedModalDispatchLease::acquire(&parent(), 42, 11).is_ok());
++        std::env::remove_var(FEATURE_ENV);
++        assert!(!resolves(&parent(), 42, 11));
++        assert!(register_native_resolver(native).is_err());
++    }
++}
+diff --git a/crates/cua-driver-core/src/protocol.rs b/crates/cua-driver-core/src/protocol.rs
+--- a/crates/cua-driver-core/src/protocol.rs
++++ b/crates/cua-driver-core/src/protocol.rs
+@@ -306,6 +306,9 @@
+     /// the MCP result envelope or its legacy structured payload.
+     #[serde(skip)]
+     pub action_record: Option<crate::action_record::ActionExecutionRecord>,
++    /// Source-owned closed metadata, never deserialized from a MCP legacy payload.
++    #[serde(skip)]
++    pub probe_diagnostics: Option<cua_driver_contract::NativeProbeDiagnostics>,
+ }
+
+ impl ToolResult {
+@@ -326,6 +329,14 @@
+
+     pub fn with_structured(mut self, v: Value) -> Self {
+         self.structured_content = Some(v);
++        self
++    }
++
++    pub fn with_probe_diagnostics(
++        mut self,
++        value: Option<cua_driver_contract::NativeProbeDiagnostics>,
++    ) -> Self {
++        self.probe_diagnostics = value.filter(|value| value.validate());
+         self
+     }
+
+diff --git a/crates/cua-driver-core/src/session_manifest.rs b/crates/cua-driver-core/src/session_manifest.rs
+--- a/crates/cua-driver-core/src/session_manifest.rs
++++ b/crates/cua-driver-core/src/session_manifest.rs
+@@ -43,6 +43,7 @@
+     applications: Vec<ApplicationGrant>,
+     desktop_applications: HashSet<i64>,
+     desktop_windows: HashSet<(i64, u64)>,
++    modal_parents: Vec<crate::owned_modal::ReviewedModalParent>,
+     desktop_display: bool,
+     readable_paths: HashSet<String>,
+     writable_paths: HashSet<String>,
+@@ -302,6 +303,7 @@
+         if self.desktop_windows.contains(&(pid, window_id))
+             || self.existing_profiles.contains(&(pid, window_id))
+             || self.resource_matches_application(resource, true)
++            || self.modal_parents.iter().any(|parent| crate::owned_modal::resolves(parent, pid, window_id))
+         {
+             Ok(())
+         } else {
+@@ -309,6 +311,28 @@
+                 "desktop pid {pid} window {window_id} is outside the capability manifest"
+             ))
+         }
++    }
++
++    pub fn reviewed_modal_children_active(&self) -> bool {
++        !self.modal_parents.is_empty() && crate::owned_modal::enabled()
++    }
++
++    /// Prepare one dynamic child dispatch using an implementation-attested
++    /// resource, not proposed parent metadata. Static grants retain their policy.
++    pub fn admit_owned_modal_dispatch(&self, resource: &serde_json::Value)
++        -> Result<Option<crate::owned_modal::OwnedModalDispatchLease>, &'static str> {
++        if !self.reviewed_modal_children_active() { return Ok(None); }
++        if !matches!(resource.get("kind").and_then(serde_json::Value::as_str),
++                    Some("window" | "window_input")) { return Ok(None); }
++        let pid = resource.get("pid").and_then(serde_json::Value::as_i64)
++            .ok_or("owned_modal_resource_invalid")?;
++        let wid = resource.get("window_id").and_then(serde_json::Value::as_u64)
++            .ok_or("owned_modal_resource_invalid")?;
++        if self.desktop_windows.contains(&(pid,wid)) || self.existing_profiles.contains(&(pid,wid))
++            || self.resource_matches_application(resource, true) { return Ok(None); }
++        let parent = self.modal_parents.iter().find(|parent| crate::owned_modal::resolves(parent,pid,wid))
++            .ok_or("owned_modal_identity_unconfirmed")?;
++        crate::owned_modal::OwnedModalDispatchLease::acquire(parent,pid,wid).map(Some)
+     }
+
+     fn authorize_desktop_application(&self, resource: &serde_json::Value) -> Result<(), String> {
+@@ -611,6 +635,8 @@
+     #[serde(default)]
+     windows: Vec<RawDesktopWindow>,
+     #[serde(default)]
++    modal_parents: Vec<RawModalParent>,
++    #[serde(default)]
+     display: bool,
+ }
+
+@@ -620,6 +646,24 @@
+ struct RawDesktopWindow {
+     pid: i64,
+     window_id: u64,
++}
++
++#[cfg(feature = "yaml")]
++#[derive(Debug, Deserialize)]
++#[serde(deny_unknown_fields)]
++struct RawModalParent {
++    pid: i64,
++    window_id: u64,
++    #[serde(deserialize_with = "deserialize_modal_identity")]
++    process_start_identity: String,
++}
++
++#[cfg(feature = "yaml")]
++fn deserialize_modal_identity<'de,D:serde::Deserializer<'de>>(deserializer:D)->Result<String,D::Error> {
++    match serde_json::Value::deserialize(deserializer)? {
++        serde_json::Value::String(value)=>Ok(value),
++        _=>Err(serde::de::Error::custom("modal process identity requires a lossless decimal string")),
++    }
+ }
+
+ #[cfg(feature = "yaml")]
+@@ -783,6 +827,7 @@
+         let RawDesktopResources {
+             applications: raw_desktop_applications,
+             windows: raw_desktop_windows,
++            modal_parents: raw_modal_parents,
+             display: desktop_display,
+         } = desktop;
+         let RawFileResources {
+@@ -930,6 +975,28 @@
+                     window.pid, window.window_id
+                 ));
+             }
++        }
++        let mut modal_parents = Vec::new();
++        let mut modal_keys = HashSet::new();
++        if raw_modal_parents.len() > 32 {
++            return Err("desktop modal_parents exceeds bounded reviewed roots".to_owned());
++        }
++        for parent in raw_modal_parents {
++            let identity = &parent.process_start_identity;
++            if parent.pid <= 0 || parent.pid > i32::MAX as i64 || parent.window_id == 0
++                || parent.window_id > u32::MAX as u64
++                || !desktop_windows.contains(&(parent.pid,parent.window_id))
++                || !desktop_applications.contains(&parent.pid)
++                || identity.is_empty() || identity.len() > 24
++                || !identity.bytes().all(|value| value.is_ascii_digit())
++                || identity.parse::<u64>().ok().filter(|value| *value > 0).is_none()
++                || !modal_keys.insert((parent.pid,parent.window_id)) {
++                return Err("desktop modal_parents requires distinct exact reviewed root identities".to_owned());
++            }
++            modal_parents.push(crate::owned_modal::ReviewedModalParent {
++                pid:parent.pid, window_id:parent.window_id,
++                process_start_identity:parent.process_start_identity,
++            });
+         }
+         let (readable_paths, readable_roots) =
+             validate_manifest_path_resources("files.read", raw_readable_paths, version)?;
+@@ -1026,6 +1093,7 @@
+             applications,
+             desktop_applications,
+             desktop_windows,
++            modal_parents,
+             desktop_display,
+             readable_paths,
+             writable_paths,
+@@ -1365,6 +1433,33 @@
+         let path = dir.path().join("manifest.yaml");
+         std::fs::write(&path, source).unwrap();
+         load_manifest(&path)
++    }
++
++    #[cfg(feature = "yaml")]
++    #[test]
++    fn reviewed_modal_roots_require_exact_static_subset_and_closed_identity() {
++        fn source(parents:&str, apps:&str, windows:&str)->String {
++            format!("version: 3\nresources:\n  desktop:\n    applications: {apps}\n    windows: {windows}\n    modal_parents: {parents}\nallow:\n  tools: [click]\n")
++        }
++        let root="{pid: 42, window_id: 10, process_start_identity: '1234567'}";
++        let windows="[{pid: 42, window_id: 10}]";
++        let loaded=manifest(&source(&format!("[{root}]"),"[42]",windows)).unwrap();
++        assert_eq!(loaded.modal_parents.len(),1);
++        assert!(loaded.authorize_desktop_window(&serde_json::json!({"pid":42,"window_id":10})).is_ok());
++        // No resolver is installed in the ordinary parser suite. New child IDs
++        // cannot become authority through manifest or public argument metadata.
++        assert!(loaded.authorize_desktop_window(&serde_json::json!({"pid":43,"window_id":11})).is_err());
++        for parents in [format!("[{root}, {root}]"),
++            "[{pid: 42, window_id: 11, process_start_identity: '1234567'}]".into(),
++            "[{pid: 43, window_id: 10, process_start_identity: '1234567'}]".into(),
++            "[{pid: 42, window_id: 10, process_start_identity: '0'}]".into(),
++            "[{pid: 42, window_id: 10, process_start_identity: 'abc'}]".into(),
++            "[{pid: 42, window_id: 10, process_start_identity: 1234567}]".into(),
++            "[{pid: 42, window_id: 10, process_start_identity: '1234567', parent_verified: true}]".into()] {
++            assert!(manifest(&source(&parents,"[42]",windows)).is_err(), "accepted invalid reviewed root: {parents}");
++        }
++        assert!(manifest(&source(&format!("[{root}]"),"[]",windows)).is_err());
++        assert!(manifest(&source(&format!("[{root}]"),"[42]","[]")).is_err());
+     }
+
+     #[cfg(feature = "yaml")]
+diff --git a/crates/cua-driver-core/src/tool.rs b/crates/cua-driver-core/src/tool.rs
+--- a/crates/cua-driver-core/src/tool.rs
++++ b/crates/cua-driver-core/src/tool.rs
+@@ -1470,6 +1470,29 @@
+             }
+         }
+
++        // Proposed child IDs only select a native observation. Parent authority
++        // comes exclusively from the immutable manifest + registered resolver.
++        let _owned_modal_dispatch = if has_adapter("desktop_input") || has_adapter("private_observation") {
++            match context.capability_manifest() {
++                Some(manifest) if manifest.reviewed_modal_children_active()
++                    && public_args.get("window_id").and_then(Value::as_u64).is_some() => {
++                    let mut resource = serde_json::json!({
++                        "kind": if has_adapter("desktop_input") { "window_input" } else { "window" },
++                        "pid": public_args.get("pid").and_then(Value::as_i64),
++                        "window_id": public_args.get("window_id").and_then(Value::as_u64),
++                    });
++                    if let Some(pid) = resource.get("pid").and_then(Value::as_i64) {
++                        self.enrich_application_resource(&mut resource,pid).await;
++                    }
++                    match manifest.admit_owned_modal_dispatch(&resource) {
++                        Ok(lease) => lease,
++                        Err(code) => return protected_refusal(code, "The reviewed native parent-child identity is unavailable."),
++                    }
++                }
++                _ => None,
++            }
++        } else { None };
++
+         if let Err(error) = context.commit_authorized_dispatch() {
+             return permission_denied_result(error);
+         }
+@@ -1570,11 +1593,15 @@
+         // Desktop pixels read off a capped get_desktop_state image are mapped
+         // back to the uncapped capture before any platform interprets them.
+         crate::desktop_capture_scale::map_desktop_args(&mut args);
+-        let mut result = crate::recording::scope_dispatch_click_capture(
+-            pending_turn.as_ref(),
+-            tool.invoke(args.clone()),
+-        )
+-        .await;
++        // Coordination and before-turn recording may have waited. Re-prove the
++        // native relation at the final dispatch boundary; refusal follows the
++        // normal recording/lifecycle cleanup without invoking the platform.
++        let mut result = match _owned_modal_dispatch.as_ref().map(|lease| lease.revalidate()) {
++            Some(Err(code)) => protected_refusal(code, "The reviewed native parent-child identity changed before dispatch."),
++            _ => crate::recording::scope_dispatch_click_capture(
++                pending_turn.as_ref(), tool.invoke(args.clone()),
++            ).await,
++        };
+         match resolved_name {
+             "get_desktop_state" if result.is_error != Some(true) => {
+                 crate::desktop_capture_scale::record_desktop_state(
+@@ -2783,6 +2810,12 @@
+     let mut public = action
+         .public_result()
+         .map_err(|error| format!("invalid internal execution record: {error:?}"))?;
++    // Never recover diagnostic fields from legacy JSON. Only the native producer's
++    // internal typed, bounded member can cross the canonical public projection.
++    public.probe_diagnostics = result
++        .probe_diagnostics
++        .clone()
++        .filter(|value| value.validate());
+     // Some MCP clients (Claude Code among them) hand the model only
+     // `structuredContent` when it is present and drop the text blocks. The
+     // producer's text is the only place the resolved points, the element hit,
+@@ -4597,6 +4630,72 @@
+         let after_end = registry.invoke_with_context("click", args, context).await;
+         assert_eq!(after_end.is_error, Some(true));
+         assert_eq!(hits.load(Ordering::SeqCst), 1);
++    }
++
++    fn source_probe_fixture() -> cua_driver_contract::NativeProbeDiagnostics {
++        serde_json::from_value(serde_json::json!({"protocol":"supymem_press_probe_metadata_v1","truncated":false,"samples":[{
++            "stage":"capture_preflight","reason":"sheets_unavailable","sample_index":0,
++            "target_cg_present":null,"target_cg_owned":null,"parent_cg_owned":null,"parent_identity_exact":null,
++            "sheets_available":false,"sheets_count":null,"target_sheet_listed":null,"ax_error_code":-25205
++        }]})).unwrap()
++    }
++    fn probe_projection_result() -> ToolResult {
++        use crate::action_record::{
++            ActionEffect, ActionExecutionRecord, ActionTransport, ActualDelivery, RequestedDelivery,
++        };
++        ToolResult::text("Synthetic native ACK")
++            .with_structured(serde_json::json!({
++                "path":"ax","effect":"confirmed","verified":true,
++                "probe_diagnostics":{"private_body":"must not project legacy JSON"}
++            }))
++            .with_action_record(
++                ActionExecutionRecord::builder(
++                    ActionEffect::Unverifiable,
++                    ActionTransport::MacosAxAction,
++                    RequestedDelivery::Background,
++                )
++                .actual_delivery(ActualDelivery::Background)
++                .build()
++                .unwrap(),
++            )
++    }
++    #[test]
++    fn canonical_publisher_preserves_only_source_owned_probe_metadata() {
++        let metadata = source_probe_fixture();
++        let mut result = probe_projection_result().with_probe_diagnostics(Some(metadata.clone()));
++        publish_action_result(&mut result).unwrap();
++        let structured = result.structured_content.unwrap();
++        assert_eq!(
++            structured["probe_diagnostics"],
++            serde_json::to_value(metadata).unwrap()
++        );
++        assert_eq!(structured["effect"], "unverifiable");
++        for field in ["path", "verified", "private_body"] {
++            assert!(structured.get(field).is_none());
++        }
++        assert!(!structured.to_string().contains("must not project"));
++        cua_driver_contract::validate_success_output("click", structured).unwrap();
++    }
++    #[test]
++    fn canonical_publisher_drops_legacy_or_invalid_probe_metadata() {
++        let mut legacy = probe_projection_result();
++        publish_action_result(&mut legacy).unwrap();
++        assert!(legacy
++            .structured_content
++            .unwrap()
++            .get("probe_diagnostics")
++            .is_none());
++        let mut metadata = source_probe_fixture();
++        metadata.samples[0].sample_index = 4;
++        let mut invalid = probe_projection_result();
++        // Even an invalid internal member is not serialized by the dispatcher.
++        invalid.probe_diagnostics = Some(metadata);
++        publish_action_result(&mut invalid).unwrap();
++        assert!(invalid
++            .structured_content
++            .unwrap()
++            .get("probe_diagnostics")
++            .is_none());
+     }
+
+     #[tokio::test]
+diff --git a/crates/platform-linux/src/tools/impl_.rs b/crates/platform-linux/src/tools/impl_.rs
+--- a/crates/platform-linux/src/tools/impl_.rs
++++ b/crates/platform-linux/src/tools/impl_.rs
+@@ -1729,6 +1729,7 @@
+                     is_error: None,
+                     structured_content: Some(structured),
+                     action_record: None,
++                    probe_diagnostics: None,
+                 }
+             }
+             Ok(Err(e)) => ToolResult::error(format!("Capture error: {e}")),
+@@ -12179,6 +12180,7 @@
+                     is_error: None,
+                     structured_content: Some(structured),
+                     action_record: None,
++                    probe_diagnostics: None,
+                 }
+             }
+             Ok(Err(e)) => ToolResult::error(format!("Capture error: {e}")),
+@@ -13072,6 +13074,7 @@
+                         "mime_type": "image/jpeg"
+                     })),
+                     action_record: None,
++                    probe_diagnostics: None,
+                 }
+             }
+             Ok(Err(e)) => ToolResult::error(format!("Zoom failed: {e}")),
+diff --git a/crates/platform-macos/src/ax/action_error.rs b/crates/platform-macos/src/ax/action_error.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/action_error.rs
+@@ -0,0 +1,69 @@
++//! Closed AX dispatch failure metadata. No element labels, action prose or replay.
++//! Mapping follows Apple's AXError.h (macOS SDK 15.5); unknown numeric values
++//! remain withheld. A failed return never proves that no effect occurred.
++use std::fmt;
++
++#[derive(Debug)]
++pub struct AxActionError(i32);
++
++impl AxActionError {
++    pub fn from_return(code: i32) -> Option<Self> {
++        (code != 0).then_some(Self(code))
++    }
++
++    pub fn known(&self) -> Option<(i32, &'static str)> {
++        let name = match self.0 {
++            -25200 => "failure",
++            -25201 => "illegal_argument",
++            -25202 => "invalid_ui_element",
++            -25203 => "invalid_ui_element_observer",
++            -25204 => "cannot_complete",
++            -25205 => "attribute_unsupported",
++            -25206 => "action_unsupported",
++            -25207 => "notification_unsupported",
++            -25208 => "not_implemented",
++            -25209 => "notification_already_registered",
++            -25210 => "notification_not_registered",
++            -25211 => "api_disabled",
++            -25212 => "no_value",
++            -25213 => "parameterized_attribute_unsupported",
++            -25214 => "not_enough_precision",
++            _ => return None,
++        };
++        Some((self.0, name))
++    }
++}
++
++impl fmt::Display for AxActionError {
++    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
++        formatter.write_str("Native AX dispatch failed; effect unconfirmed")
++    }
++}
++impl std::error::Error for AxActionError {}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn known_apple_returns_map_exactly_without_private_context() {
++        let names = ["failure", "illegal_argument", "invalid_ui_element", "invalid_ui_element_observer",
++            "cannot_complete", "attribute_unsupported", "action_unsupported", "notification_unsupported",
++            "not_implemented", "notification_already_registered", "notification_not_registered", "api_disabled",
++            "no_value", "parameterized_attribute_unsupported", "not_enough_precision"];
++        for (offset, name) in names.into_iter().enumerate() {
++            let code = -25200 - offset as i32;
++            let error = AxActionError::from_return(code).expect("nonzero native return");
++            assert_eq!(error.known(), Some((code, name)));
++            assert_eq!(error.to_string(), "Native AX dispatch failed; effect unconfirmed");
++        }
++    }
++    #[test]
++    fn success_is_not_an_error_and_unknown_numbers_are_withheld() {
++        assert!(AxActionError::from_return(0).is_none());
++        for code in [1, -1, -25215, -25199, i32::MIN, i32::MAX] {
++            let error = AxActionError::from_return(code).unwrap();
++            assert_eq!(error.known(), None);
++            assert!(!error.to_string().contains(&code.to_string()));
++        }
++    }
++}
+diff --git a/crates/platform-macos/src/ax/action_receipt.rs b/crates/platform-macos/src/ax/action_receipt.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/action_receipt.rs
+@@ -0,0 +1,317 @@
++//! Source-owned canonical records for acknowledged native input. No legacy JSON
++//! or caller-authored verified flag is consulted. Readback proves only the named
++//! scoped postcondition, never task completion or business acceptance.
++use super::{control_state::Kind, press_readback::Transition};
++use cua_driver_core::action_record::{
++    ActionEffect, ActionEvidence, ActionExecutionRecord, ActionTransport, ActualDelivery,
++    EvidenceKind, RequestedDelivery,
++};
++
++pub fn click_record(
++    foreground: bool,
++    pixel_selection: bool,
++    suspected_noop: bool,
++    selection_readback: bool,
++    transition: Option<Transition>,
++    control: Option<Kind>,
++    pid: i32,
++    window_id: u32,
++) -> ActionExecutionRecord {
++    let scoped = !suspected_noop && pid > 0 && window_id > 0;
++    let transition = if scoped && !foreground && !pixel_selection {
++        transition
++    } else {
++        None
++    };
++    let control = if scoped && !foreground && !pixel_selection {
++        control
++    } else {
++        None
++    };
++    let evidence = if let Some(transition) = transition {
++        Some(transition_evidence(transition))
++    } else if let Some(control) = control {
++        Some(ActionEvidence { kind: EvidenceKind::AccessibilityReadback, detail: match control {
++            Kind::CheckBox => "the exact enabled same-PID same-window checkbox binary value toggled and remained stable",
++            Kind::RadioButton => "the exact enabled same-PID same-window radio binary value changed from unselected to selected and remained stable",
++            Kind::Disclosure => "the exact enabled same-PID same-window disclosure expansion toggled and remained stable",
++            Kind::Selection => "the exact enabled same-PID same-window control changed from unselected to selected and remained stable",
++        }.into() })
++    } else if scoped && selection_readback {
++        Some(ActionEvidence { kind: EvidenceKind::AccessibilityReadback,
++            detail: "the same native AX selection was independently read back after the acknowledged input".into() })
++    } else {
++        None
++    };
++    let transport = if pixel_selection {
++        if foreground {
++            ActionTransport::MacosCgEventHid
++        } else {
++            ActionTransport::MacosCgEventPid
++        }
++    } else {
++        ActionTransport::MacosAxAction
++    };
++    record(foreground, transport, suspected_noop, evidence)
++}
++
++pub fn key_record(
++    foreground: bool,
++    transition: Option<Transition>,
++    value_selection_readback: bool,
++    pid: i32,
++    window_id: Option<u32>,
++) -> ActionExecutionRecord {
++    let scoped = pid > 0 && window_id.is_some_and(|id| id > 0);
++    let evidence = if scoped && !foreground {
++        transition.map(transition_evidence)
++    } else { None }.or_else(|| (scoped && value_selection_readback).then(|| ActionEvidence {
++        kind: EvidenceKind::AccessibilityReadback,
++        detail: "the same native AX element changed value or selection after the acknowledged key post".into(),
++    }));
++    record(
++        foreground,
++        if foreground {
++            ActionTransport::MacosCgEventHid
++        } else {
++            ActionTransport::MacosCgEventPid
++        },
++        false,
++        evidence,
++    )
++}
++
++fn transition_evidence(transition: Transition) -> ActionEvidence {
++    ActionEvidence { kind: if transition == Transition::WindowAbsent { EvidenceKind::WindowChange }
++        else { EvidenceKind::AccessibilityReadback }, detail: match transition {
++        Transition::ModalOpened => "the exact target acquired one newly admitted child modal after the acknowledged input",
++        Transition::ModalClosed => "the exact admitted modal closed while its same-PID parent remained live after the acknowledged input",
++        Transition::WindowAbsent => "the freshly bound exact owned AX root window was absent from a successful complete CG inventory after the acknowledged input; this observed postcondition does not prove task completion or distinguish external closure",
++    }.into() }
++}
++
++fn record(
++    foreground: bool,
++    transport: ActionTransport,
++    suspected_noop: bool,
++    evidence: Option<ActionEvidence>,
++) -> ActionExecutionRecord {
++    let effect = if evidence.is_some() {
++        ActionEffect::Confirmed
++    } else if suspected_noop {
++        ActionEffect::SuspectedNoop
++    } else {
++        ActionEffect::Unverifiable
++    };
++    let mut builder = ActionExecutionRecord::builder(
++        effect,
++        transport,
++        if foreground {
++            RequestedDelivery::Foreground
++        } else {
++            RequestedDelivery::Background
++        },
++    )
++    .actual_delivery(if foreground {
++        ActualDelivery::Foreground
++    } else {
++        ActualDelivery::Background
++    });
++    if let Some(evidence) = evidence {
++        builder = builder.evidence(evidence);
++    } else {
++        builder = builder.evidence(ActionEvidence {
++            kind: EvidenceKind::NativeApiResult,
++            detail: "native input was acknowledged; consumption and task outcome remain unverified"
++                .into(),
++        });
++    }
++    builder
++        .build()
++        .expect("closed native readback record is valid")
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn canonical_unsupported_sheet_absence_is_observed_window_change_only() {
++        use super::super::press_readback::{
++            dispatch_once, Observation, Scope, SheetAbsenceCapture,
++        };
++        let before = Observation {
++            scope: Scope {
++                pid: 42,
++                window_id: 10,
++                parent_window_id: Some(9),
++                sheet: true,
++            },
++            target_owned: true,
++            ax_root_exact: true,
++            target_absent: false,
++            parent_owned: true,
++            sheets: None,
++        };
++        let binding =
++            SheetAbsenceCapture::capture(&before, true, true, Some("1234"), Some("1234")).unwrap();
++        let mut after = before.clone();
++        after.target_owned = false;
++        after.target_absent = true;
++        let posts = std::cell::Cell::new(0);
++        let (_, transition) = dispatch_once(
++            || {
++                posts.set(posts.get() + 1);
++                Ok::<_, ()>(())
++            },
++            || binding.confirm(&after, true, Some("1234"), true),
++        )
++        .unwrap();
++        assert_eq!(posts.get(), 1);
++        assert_eq!(transition, Some(Transition::WindowAbsent));
++        let record = click_record(false, false, false, false, transition, None, 42, 10);
++        assert_eq!(record.effect, ActionEffect::Confirmed);
++        let evidence = record.evidence.first().unwrap();
++        assert_eq!(evidence.kind, EvidenceKind::WindowChange);
++        assert!(evidence.detail.contains("does not prove task completion"));
++        let public = serde_json::to_value(record.public_result().unwrap()).unwrap();
++        assert!(public["evidence"]
++            .as_array()
++            .unwrap()
++            .iter()
++            .any(|e| e["kind"] == "window_change"));
++        assert_eq!(
++            click_record(false, false, true, false, transition, None, 42, 10).effect,
++            ActionEffect::SuspectedNoop
++        );
++        assert_eq!(
++            click_record(false, false, false, false, None, None, 42, 10).effect,
++            ActionEffect::Unverifiable
++        );
++        let failed = dispatch_once(
++            || Err::<(), _>(()),
++            || panic!("unacked must never observe absence"),
++        );
++        assert!(failed.is_err());
++    }
++    #[test]
++    fn canonical_ack_and_noop_never_promote() {
++        for (noop, expected) in [
++            (false, ActionEffect::Unverifiable),
++            (true, ActionEffect::SuspectedNoop),
++        ] {
++            let r = click_record(false, false, noop, false, None, None, 42, 10);
++            assert_eq!(r.effect, expected);
++            assert!(r.public_result().is_ok());
++        }
++        assert_eq!(
++            key_record(false, None, false, 42, Some(10)).effect,
++            ActionEffect::Unverifiable
++        );
++    }
++    #[test]
++    fn canonical_contradictory_noop_cannot_promote_any_readback() {
++        for (selection, transition, control) in [
++            (true, None, None),
++            (false, Some(Transition::ModalClosed), None),
++            (false, Some(Transition::WindowAbsent), None),
++            (false, None, Some(Kind::CheckBox)),
++        ] {
++            let r = click_record(false, false, true, selection, transition, control, 42, 10);
++            assert_eq!(r.effect, ActionEffect::SuspectedNoop);
++            assert!(r.public_result().is_ok());
++        }
++    }
++    #[test]
++    fn canonical_all_closed_native_postconditions_survive() {
++        for t in [
++            Transition::ModalOpened,
++            Transition::ModalClosed,
++            Transition::WindowAbsent,
++        ] {
++            let c = click_record(false, false, false, false, Some(t), None, 42, 10);
++            let k = key_record(false, Some(t), false, 42, Some(10));
++            for r in [c, k] {
++                assert_eq!(r.effect, ActionEffect::Confirmed);
++                let public = r.public_result().unwrap();
++                assert!(!public.evidence.unwrap().is_empty());
++            }
++        }
++        for kind in [
++            Kind::CheckBox,
++            Kind::RadioButton,
++            Kind::Disclosure,
++            Kind::Selection,
++        ] {
++            let r = click_record(false, false, false, false, None, Some(kind), 42, 10);
++            assert_eq!(r.effect, ActionEffect::Confirmed);
++            assert!(r.public_result().is_ok());
++        }
++    }
++    #[test]
++    fn canonical_invalid_scope_and_transport_cannot_promote_readback() {
++        for (pid, wid) in [(0, 10), (42, 0)] {
++            assert_eq!(
++                click_record(
++                    false,
++                    false,
++                    false,
++                    true,
++                    Some(Transition::ModalClosed),
++                    Some(Kind::CheckBox),
++                    pid,
++                    wid
++                )
++                .effect,
++                ActionEffect::Unverifiable
++            );
++            assert_eq!(
++                key_record(false, Some(Transition::ModalClosed), true, pid, Some(wid)).effect,
++                ActionEffect::Unverifiable
++            );
++        }
++        for (fg, pixel) in [(true, false), (false, true)] {
++            assert_eq!(
++                click_record(
++                    fg,
++                    pixel,
++                    false,
++                    false,
++                    Some(Transition::WindowAbsent),
++                    Some(Kind::CheckBox),
++                    42,
++                    10
++                )
++                .effect,
++                ActionEffect::Unverifiable
++            );
++        }
++        assert_eq!(
++            key_record(true, Some(Transition::ModalClosed), false, 42, Some(10)).effect,
++            ActionEffect::Unverifiable
++        );
++    }
++    #[test]
++    fn canonical_selection_uses_actual_transport_and_closed_private_evidence() {
++        for (fg, pixel) in [(false, false), (false, true), (true, true)] {
++            let r = click_record(fg, pixel, false, true, None, None, 42, 10);
++            assert_eq!(r.effect, ActionEffect::Confirmed);
++            assert_eq!(
++                r.transport,
++                if pixel {
++                    if fg {
++                        ActionTransport::MacosCgEventHid
++                    } else {
++                        ActionTransport::MacosCgEventPid
++                    }
++                } else {
++                    ActionTransport::MacosAxAction
++                }
++            );
++            assert!(r.public_result().is_ok());
++            assert!(r
++                .evidence
++                .iter()
++                .all(|e| !e.detail.contains("42") && !e.detail.contains("10")));
++        }
++    }
++}
+diff --git a/crates/platform-macos/src/ax/ancestry_scope.rs b/crates/platform-macos/src/ax/ancestry_scope.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/ancestry_scope.rs
+@@ -0,0 +1,229 @@
++//! Pure admission for the nearest actual native ancestor, never AXWindow-first
++//! fallback. A sheet may name its exact containing parent in AXWindow only
++//! when native relationship/PID/SPI/CG identities are all positively proved.
++#[derive(Clone, Copy, Debug)]
++pub struct Surface {
++    pub pid: Option<i32>,
++    pub window_id: Option<u32>,
++    pub sheet: bool,
++    pub cg_owned: bool,
++}
++#[derive(Clone, Copy, Debug)]
++pub enum Hint {
++    Missing,
++    Nearest {
++        native_identity_matches: bool,
++        surface: Surface,
++    },
++    Parent {
++        native_identity_matches: bool,
++        surface: Surface,
++    },
++    Invalid,
++}
++pub fn resolve(pid: i32, nearest: Surface, parent: Option<Surface>, hint: Hint) -> Option<u32> {
++    let owned = |s: Surface| {
++        pid > 0 && s.pid == Some(pid) && s.window_id.is_some_and(|id| id > 0) && s.cg_owned
++    };
++    if !owned(nearest) {
++        return None;
++    }
++    if nearest.sheet {
++        let parent = parent?;
++        if !owned(parent) || parent.window_id == nearest.window_id {
++            return None;
++        }
++    }
++    match hint {
++        Hint::Missing => nearest.window_id,
++        Hint::Nearest {
++            native_identity_matches: true,
++            surface,
++        } if owned(surface)
++            && surface.window_id == nearest.window_id
++            && surface.sheet == nearest.sheet =>
++        {
++            nearest.window_id
++        }
++        Hint::Parent {
++            native_identity_matches: true,
++            surface,
++        } if nearest.sheet
++            && owned(surface)
++            && parent.is_some_and(|p| {
++                p.window_id == surface.window_id && p.pid == surface.pid && p.sheet == surface.sheet
++            }) =>
++        {
++            nearest.window_id
++        }
++        _ => None,
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn window(id: u32, sheet: bool) -> Surface {
++        Surface {
++            pid: Some(42),
++            window_id: Some(id),
++            sheet,
++            cg_owned: true,
++        }
++    }
++    #[test]
++    fn nearest_sheet_wins_only_over_its_actual_proven_parent_hint() {
++        assert_eq!(
++            resolve(
++                42,
++                window(11, true),
++                Some(window(10, false)),
++                Hint::Parent {
++                    native_identity_matches: true,
++                    surface: window(10, false)
++                }
++            ),
++            Some(11)
++        );
++    }
++    #[test]
++    fn direct_sheet_hint_and_missing_hint_use_positive_ancestry() {
++        assert_eq!(
++            resolve(
++                42,
++                window(11, true),
++                Some(window(10, false)),
++                Hint::Nearest {
++                    native_identity_matches: true,
++                    surface: window(11, true)
++                }
++            ),
++            Some(11)
++        );
++        assert_eq!(
++            resolve(42, window(11, true), Some(window(10, false)), Hint::Missing),
++            Some(11)
++        );
++    }
++    #[test]
++    fn ordinary_window_identity_remains_exact() {
++        assert_eq!(
++            resolve(42, window(10, false), None, Hint::Missing),
++            Some(10)
++        );
++        assert_eq!(
++            resolve(
++                42,
++                window(10, false),
++                None,
++                Hint::Nearest {
++                    native_identity_matches: true,
++                    surface: window(10, false)
++                }
++            ),
++            Some(10)
++        );
++        assert_eq!(
++            resolve(
++                42,
++                window(10, false),
++                None,
++                Hint::Parent {
++                    native_identity_matches: true,
++                    surface: window(9, false)
++                }
++            ),
++            None
++        );
++    }
++    #[test]
++    fn unknown_sheet_spi_never_falls_back_to_parent_hint() {
++        let mut s = window(11, true);
++        s.window_id = None;
++        assert_eq!(
++            resolve(
++                42,
++                s,
++                Some(window(10, false)),
++                Hint::Parent {
++                    native_identity_matches: true,
++                    surface: window(10, false)
++                }
++            ),
++            None
++        );
++    }
++    #[test]
++    fn foreign_or_unknown_sheet_pid_never_falls_back() {
++        for pid in [None, Some(7)] {
++            let mut s = window(11, true);
++            s.pid = pid;
++            assert_eq!(resolve(42, s, Some(window(10, false)), Hint::Missing), None);
++        }
++    }
++    #[test]
++    fn closed_or_foreign_sheet_and_parent_hold() {
++        let mut s = window(11, true);
++        s.cg_owned = false;
++        assert_eq!(resolve(42, s, Some(window(10, false)), Hint::Missing), None);
++        let mut p = window(10, false);
++        p.cg_owned = false;
++        assert_eq!(resolve(42, window(11, true), Some(p), Hint::Missing), None);
++    }
++    #[test]
++    fn contradictory_or_alias_hint_holds() {
++        for hint in [
++            Hint::Invalid,
++            Hint::Parent {
++                native_identity_matches: false,
++                surface: window(10, false),
++            },
++            Hint::Parent {
++                native_identity_matches: true,
++                surface: window(12, false),
++            },
++            Hint::Nearest {
++                native_identity_matches: true,
++                surface: window(10, false),
++            },
++        ] {
++            assert_eq!(
++                resolve(42, window(11, true), Some(window(10, false)), hint),
++                None
++            );
++        }
++    }
++    #[test]
++    fn missing_or_same_sheet_parent_holds() {
++        for parent in [None, Some(window(11, false))] {
++            assert_eq!(resolve(42, window(11, true), parent, Hint::Missing), None);
++        }
++    }
++    #[test]
++    fn exact_actual_nested_sheet_parent_can_admit_without_geometry() {
++        let parent = window(10, true);
++        assert_eq!(
++            resolve(
++                42,
++                window(11, true),
++                Some(parent),
++                Hint::Parent {
++                    native_identity_matches: true,
++                    surface: parent
++                }
++            ),
++            Some(11)
++        );
++        assert_eq!(
++            resolve(
++                42,
++                window(11, true),
++                Some(parent),
++                Hint::Parent {
++                    native_identity_matches: true,
++                    surface: window(10, false)
++                }
++            ),
++            None
++        );
++    }
++}
+diff --git a/crates/platform-macos/src/ax/bindings.rs b/crates/platform-macos/src/ax/bindings.rs
+--- a/crates/platform-macos/src/ax/bindings.rs
++++ b/crates/platform-macos/src/ax/bindings.rs
+@@ -12,7 +12,7 @@
+
+ use core_foundation::{
+     array::CFArrayRef,
+-    base::{CFRelease, CFRetain, CFTypeID, CFTypeRef},
++    base::{CFEqual, CFRelease, CFRetain, CFTypeID, CFTypeRef},
+     string::CFStringRef,
+ };
+ use std::os::raw::{c_int, c_void};
+@@ -50,6 +50,7 @@
+ #[link(name = "ApplicationServices", kind = "framework")]
+ extern "C" {
+     pub fn AXUIElementCreateApplication(pid: i32) -> AXUIElementRef;
++    pub fn AXUIElementGetPid(element: AXUIElementRef, pid: *mut i32) -> AXError;
+     pub fn AXUIElementCopyAttributeValue(
+         element: AXUIElementRef,
+         attribute: CFStringRef,
+@@ -840,6 +841,7 @@
+     window_id: u32,
+ ) -> Vec<AXUIElementRef> {
+     let mut windows = copy_ax_windows(app);
++    windows.extend(copy_nested_surfaces(&windows.clone(), pid));
+     let listed = windows
+         .iter()
+         .any(|&window| ax_get_window_id(window) == Some(window_id));
+@@ -960,3 +962,117 @@
+         assert_eq!(false_result.state_value, "0");
+     }
+ }
++
++/// Read-only process identity. Unknown never grants a surface capability.
++pub unsafe fn element_pid(element: AXUIElementRef) -> Option<i32> {
++    let mut pid = 0;
++    (AXUIElementGetPid(element, &mut pid) == kAXErrorSuccess && pid > 0).then_some(pid)
++}
++
++/// A modal's actual parent window; not its overlapping rectangle or model label.
++pub unsafe fn parent_window_id(element: AXUIElementRef) -> Option<u32> {
++    let parent = copy_element_attr(element, "AXParent")?;
++    let result = super::exact_target::element_window_id(parent);
++    CFRelease(parent as CFTypeRef);
++    result
++}
++
++/// Discover nested native surfaces from positively owned AXWindows. Every edge
++/// must agree with the child's own AXParent, every process and CG owner match.
++/// A bounded partial discovery never substitutes a frame match or global input.
++pub unsafe fn copy_nested_surfaces(roots: &[AXUIElementRef], pid: i32) -> Vec<AXUIElementRef> {
++    unsafe fn visit_body(
++        element: AXUIElementRef,
++        parent: Option<AXUIElementRef>,
++        pid: i32,
++        depth: usize,
++        seen: &mut Vec<AXUIElementRef>,
++        found: &mut Vec<AXUIElementRef>,
++        began: std::time::Instant,
++    ) {
++        if depth > 12
++            || seen.len() >= 512
++            || began.elapsed() > std::time::Duration::from_millis(250)
++        {
++            return;
++        }
++        if seen
++            .iter()
++            .any(|&old| CFEqual(old as CFTypeRef, element as CFTypeRef) != 0)
++        {
++            return;
++        }
++        if element_pid(element) != Some(pid) {
++            return;
++        }
++        if let Some(expected) = parent {
++            let Some(actual) = copy_element_attr(element, "AXParent") else {
++                return;
++            };
++            let matches = CFEqual(actual as CFTypeRef, expected as CFTypeRef) != 0;
++            CFRelease(actual as CFTypeRef);
++            if !matches {
++                return;
++            }
++        }
++        CFRetain(element as CFTypeRef); // keep identity comparisons live through the bounded walk
++        seen.push(element);
++        let role = copy_string_attr(element, "AXRole").unwrap_or_default();
++        if parent.is_some() && matches!(role.as_str(), "AXWindow" | "AXSheet") {
++            let wid = ax_get_window_id(element);
++            let parent_wid = parent_window_id(element);
++            let facts = super::modal_scope::SurfaceFacts {
++                pid: element_pid(element),
++                native_window_role: true,
++                parent_matches: true,
++                window_id: wid,
++                parent_window_id: parent_wid,
++                parent_cg_owned: parent_wid.is_some_and(|wid| {
++                    matches!(
++                        crate::windows::resolve_window_owner(pid, wid),
++                        crate::windows::WindowOwner::SamePid
++                    )
++                }),
++                cg_owned: wid.is_some_and(|wid| {
++                    matches!(
++                        crate::windows::resolve_window_owner(pid, wid),
++                        crate::windows::WindowOwner::SamePid
++                    )
++                }),
++            };
++            if super::modal_scope::admit(pid, &facts).is_some() {
++                CFRetain(element as CFTypeRef);
++                found.push(element);
++            }
++        }
++        AXUIElementSetMessagingTimeout(element, 0.02);
++        for child in copy_children(element) {
++            visit(child, Some(element), pid, depth + 1, seen, found, began);
++            CFRelease(child as CFTypeRef);
++        }
++        AXUIElementSetMessagingTimeout(element, 0.0);
++    }
++    unsafe fn visit(
++        element: AXUIElementRef,
++        parent: Option<AXUIElementRef>,
++        pid: i32,
++        depth: usize,
++        seen: &mut Vec<AXUIElementRef>,
++        found: &mut Vec<AXUIElementRef>,
++        began: std::time::Instant,
++    ) {
++        AXUIElementSetMessagingTimeout(element, 0.02);
++        visit_body(element, parent, pid, depth, seen, found, began);
++        AXUIElementSetMessagingTimeout(element, 0.0);
++    }
++    let mut seen = Vec::new();
++    let mut found = Vec::new();
++    let began = std::time::Instant::now();
++    for &root in roots {
++        visit(root, None, pid, 0, &mut seen, &mut found, began);
++    }
++    for element in seen {
++        CFRelease(element as CFTypeRef);
++    }
++    found
++}
+diff --git a/crates/platform-macos/src/ax/control_probe.rs b/crates/platform-macos/src/ax/control_probe.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/control_probe.rs
+@@ -0,0 +1,117 @@
++//! Read-only postcondition probe for an exact retained standard native control.
++//! No strings/state values are emitted, no input/retry/activation is performed.
++use super::{
++    bindings::*,
++    control_state::{self, Kind, State},
++};
++use core_foundation::base::{CFRelease, CFRetain, CFTypeRef};
++use std::time::{Duration, Instant};
++struct Element(AXUIElementRef);
++impl Drop for Element {
++    fn drop(&mut self) {
++        unsafe {
++            CFRelease(self.0 as CFTypeRef);
++        }
++    }
++}
++struct Timeout(AXUIElementRef);
++impl Timeout {
++    unsafe fn set(element: AXUIElementRef) -> Option<Self> {
++        (AXUIElementSetMessagingTimeout(element, 0.02) == kAXErrorSuccess).then_some(Self(element))
++    }
++}
++impl Drop for Timeout {
++    fn drop(&mut self) {
++        unsafe {
++            AXUIElementSetMessagingTimeout(self.0, 0.0);
++        }
++    }
++}
++unsafe fn observe(
++    element: AXUIElementRef,
++    pid: i32,
++    wid: u32,
++) -> Option<(State, String, Option<String>)> {
++    let _timeout = Timeout::set(element)?;
++    if pid <= 0 || wid == 0 || element_pid(element) != Some(pid) {
++        return None;
++    }
++    drop(_timeout);
++    if super::exact_target::element_window_id(element) != Some(wid) {
++        return None;
++    }
++    let _timeout = Timeout::set(element)?;
++    let role = copy_string_attr(element, "AXRole")?;
++    let subrole = copy_string_attr(element, "AXSubrole");
++    if subrole.as_ref().is_some_and(|s| s.len() > 64) {
++        return None;
++    }
++    let kind = control_state::policy(&role, subrole.as_deref())?;
++    let state = State {
++        pid,
++        window_id: wid,
++        kind,
++        identity_proved: true,
++        enabled: copy_binary_attr(element, "AXEnabled"),
++        value: copy_binary_attr(element, kind.attribute()),
++    };
++    Some((state, role, subrole))
++}
++pub struct ControlProbe {
++    element: Element,
++    before: State,
++    role: String,
++    subrole: Option<String>,
++}
++impl ControlProbe {
++    /// Caller holds the exact admitted per-PID mutation lease. Retain the
++    /// same AX identity across one advertised plain background AXPress only.
++    pub unsafe fn capture(element: AXUIElementRef, pid: i32, wid: u32) -> Option<Self> {
++        let began = Instant::now();
++        let (before, role, subrole) = observe(element, pid, wid)?;
++        if before.enabled != Some(true) || before.value.is_none() {
++            return None;
++        }
++        let _timeout = Timeout::set(element)?;
++        if !copy_action_names(element).iter().any(|a| a == "AXPress")
++            || began.elapsed() > Duration::from_millis(250)
++        {
++            return None;
++        }
++        CFRetain(element as CFTypeRef);
++        Some(Self {
++            element: Element(element),
++            before,
++            role,
++            subrole,
++        })
++    }
++    unsafe fn read(&self) -> Option<State> {
++        let (state, role, subrole) =
++            observe(self.element.0, self.before.pid, self.before.window_id)?;
++        (role == self.role && subrole == self.subrole).then_some(state)
++    }
++    /// Require two fresh scoped reads of the same expected transition. Time
++    /// bounds further work but is never evidence; unknown/transient state holds.
++    pub unsafe fn after_acknowledged(&self) -> Option<Kind> {
++        let began = Instant::now();
++        for _ in 0..3 {
++            if began.elapsed() > Duration::from_millis(450) {
++                return None;
++            }
++            let after = self.read()?;
++            if began.elapsed() > Duration::from_millis(450) {
++                return None;
++            }
++            std::thread::sleep(Duration::from_millis(40));
++            let stable = self.read()?;
++            if began.elapsed() > Duration::from_millis(450) {
++                return None;
++            }
++            if control_state::confirms(self.before, after, stable) {
++                return Some(self.before.kind);
++            }
++        }
++        None
++    }
++}
+diff --git a/crates/platform-macos/src/ax/control_state.rs b/crates/platform-macos/src/ax/control_state.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/control_state.rs
+@@ -0,0 +1,176 @@
++//! Closed semantic readback policies for standard native AX controls.
++//! Binary values stay internal; no label/text/hash delta can confirm a press.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum Kind {
++    CheckBox,
++    RadioButton,
++    Disclosure,
++    Selection,
++}
++impl Kind {
++    pub fn attribute(self) -> &'static str {
++        match self {
++            Self::Disclosure => "AXExpanded",
++            Self::Selection => "AXSelected",
++            _ => "AXValue",
++        }
++    }
++    pub fn label(self) -> &'static str {
++        match self {
++            Self::CheckBox => "checkbox_toggled",
++            Self::RadioButton => "radio_selected",
++            Self::Disclosure => "disclosure_toggled",
++            Self::Selection => "control_selected",
++        }
++    }
++}
++pub fn policy(role: &str, subrole: Option<&str>) -> Option<Kind> {
++    match (role, subrole) {
++        ("AXCheckBox", _) => Some(Kind::CheckBox),
++        ("AXRadioButton", _) => Some(Kind::RadioButton),
++        ("AXDisclosureTriangle", _) => Some(Kind::Disclosure),
++        ("AXRow" | "AXCell", _) => Some(Kind::Selection),
++        _ => None,
++    }
++}
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub struct State {
++    pub pid: i32,
++    pub window_id: u32,
++    pub kind: Kind,
++    pub identity_proved: bool,
++    pub enabled: Option<bool>,
++    pub value: Option<bool>,
++}
++pub fn confirms(before: State, after: State, stable: State) -> bool {
++    if before.pid <= 0
++        || before.window_id == 0
++        || !before.identity_proved
++        || !after.identity_proved
++        || !stable.identity_proved
++        || before.enabled != Some(true)
++        || after.enabled != Some(true)
++        || stable.enabled != Some(true)
++        || before.pid != after.pid
++        || before.window_id != after.window_id
++        || before.kind != after.kind
++        || after != stable
++    {
++        return false;
++    }
++    let (Some(old), Some(new)) = (before.value, after.value) else {
++        return false;
++    };
++    match before.kind {
++        Kind::RadioButton | Kind::Selection => !old && new,
++        _ => old != new,
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn state(kind: Kind, value: Option<bool>) -> State {
++        State {
++            pid: 42,
++            window_id: 10,
++            kind,
++            identity_proved: true,
++            enabled: Some(true),
++            value,
++        }
++    }
++    #[test]
++    fn checkbox_and_checkbox_toggle_can_flip_in_either_direction() {
++        for kind in [Kind::CheckBox] {
++            for old in [false, true] {
++                let a = state(kind, Some(old));
++                let b = state(kind, Some(!old));
++                assert!(confirms(a, b, b));
++            }
++        }
++    }
++    #[test]
++    fn radio_and_selection_confirm_only_new_positive_selection() {
++        for kind in [Kind::RadioButton, Kind::Selection] {
++            let off = state(kind, Some(false));
++            let on = state(kind, Some(true));
++            assert!(confirms(off, on, on));
++            assert!(!confirms(on, off, off));
++            assert!(!confirms(on, on, on));
++        }
++    }
++    #[test]
++    fn disclosure_requires_binary_expanded_transition() {
++        let a = state(Kind::Disclosure, Some(false));
++        let b = state(Kind::Disclosure, Some(true));
++        assert!(confirms(a, b, b));
++        assert_eq!(Kind::Disclosure.attribute(), "AXExpanded");
++    }
++    #[test]
++    fn missing_mixed_or_unchanged_state_cannot_confirm() {
++        let a = state(Kind::CheckBox, Some(false));
++        let b = state(Kind::CheckBox, Some(true));
++        assert!(!confirms(state(Kind::CheckBox, None), b, b));
++        assert!(!confirms(
++            a,
++            state(Kind::CheckBox, None),
++            state(Kind::CheckBox, None)
++        ));
++        assert!(!confirms(a, a, a));
++    }
++    #[test]
++    fn transient_readback_is_not_stable_evidence() {
++        let a = state(Kind::CheckBox, Some(false));
++        let b = state(Kind::CheckBox, Some(true));
++        assert!(!confirms(a, b, a));
++    }
++    #[test]
++    fn changed_window_pid_or_role_cannot_confirm() {
++        let a = state(Kind::CheckBox, Some(false));
++        let b = state(Kind::CheckBox, Some(true));
++        for c in [
++            State { pid: 7, ..b },
++            State { window_id: 11, ..b },
++            State {
++                kind: Kind::RadioButton,
++                ..b
++            },
++        ] {
++            assert!(!confirms(a, c, c));
++        }
++    }
++    #[test]
++    fn unknown_ownership_disabled_or_missing_enabled_holds() {
++        let a = state(Kind::CheckBox, Some(false));
++        let b = state(Kind::CheckBox, Some(true));
++        for c in [
++            State {
++                identity_proved: false,
++                ..b
++            },
++            State { enabled: None, ..b },
++            State {
++                enabled: Some(false),
++                ..b
++            },
++        ] {
++            assert!(!confirms(a, c, c));
++        }
++    }
++    #[test]
++    fn ordinary_button_and_arbitrary_value_roles_are_not_policies() {
++        for role in [
++            "AXButton",
++            "AXTextField",
++            "AXSlider",
++            "AXPopUpButton",
++            "custom-role",
++            "AXListItem",
++        ] {
++            assert_eq!(policy(role, None), None);
++        }
++        assert_eq!(policy("AXButton", Some("custom-toggle")), None);
++        assert_eq!(policy("AXButton", Some("AXToggle")), None);
++        assert_eq!(policy("AXCheckBox", Some("AXToggle")), Some(Kind::CheckBox));
++    }
++}
+diff --git a/crates/platform-macos/src/ax/enablement.rs b/crates/platform-macos/src/ax/enablement.rs
+--- a/crates/platform-macos/src/ax/enablement.rs
++++ b/crates/platform-macos/src/ax/enablement.rs
+@@ -22,11 +22,11 @@
+ /// lifetime.
+ const CHROMIUM_SETTLE_SECONDS: f64 = 0.5;
+
+-type ProcessStartStamp = (u64, u64);
++pub(crate) type ProcessStartStamp = (u64, u64);
+
+ /// Kernel start time of a process: `(pbi_start_tvsec, pbi_start_tvusec)`.
+ /// `None` when the process is gone or proc info is unreadable.
+-fn process_start_stamp(pid: i32) -> Option<ProcessStartStamp> {
++pub(crate) fn process_start_stamp(pid: i32) -> Option<ProcessStartStamp> {
+     // SAFETY: proc_pidinfo writes at most `size` bytes into `info` and returns
+     // the number of bytes filled (<= size) or <= 0 on failure.
+     unsafe {
+diff --git a/crates/platform-macos/src/ax/exact_target.rs b/crates/platform-macos/src/ax/exact_target.rs
+--- a/crates/platform-macos/src/ax/exact_target.rs
++++ b/crates/platform-macos/src/ax/exact_target.rs
+@@ -7,66 +7,151 @@
+ //! top-level keyboard destinations, and addressed-element ancestry. All reads are
+ //! bounded and fail closed — an unreadable fact never unlocks a route.
+
+-use core_foundation::base::{CFRelease, CFTypeRef};
++use core_foundation::base::{CFEqual, CFRelease, CFRetain, CFTypeRef};
+ use cua_driver_core::background_input::{
+     BackgroundTargetFacts, ElementAncestry, WindowServerOwnership,
+ };
+
+ use super::bindings::{
+     ax_get_window_id, copy_ax_windows_including, copy_bool_attr, copy_element_attr,
+-    copy_string_attr, focused_element_of_pid, AXUIElementCreateApplication, AXUIElementRef,
++    copy_string_attr, element_pid, focused_element_of_pid, kAXErrorSuccess,
++    AXUIElementCreateApplication, AXUIElementRef, AXUIElementSetMessagingTimeout,
+ };
+ use crate::windows::{all_windows, resolve_window_owner, WindowOwner};
+
+-/// Bounded `AXParent` ascent used when an element does not expose `AXWindow`.
++/// Preserve the original ancestry depth bound, and additionally bound AX RPCs.
+ const MAX_ANCESTRY_DEPTH: usize = 40;
+-
+-/// Resolve the CGWindowID of the top-level AX window that owns `element`.
+-///
+-/// Prefers the element's `AXWindow` attribute and falls back to a bounded
+-/// `AXParent` walk. `None` means ancestry could not be proven — callers must
+-/// treat that as "not the requested window", never as a wildcard.
++struct NativeElement(AXUIElementRef);
++impl Drop for NativeElement {
++    fn drop(&mut self) {
++        unsafe {
++            CFRelease(self.0 as CFTypeRef);
++        }
++    }
++}
++struct ReadTimeout(AXUIElementRef);
++impl ReadTimeout {
++    unsafe fn set(element: AXUIElementRef) -> Option<Self> {
++        (AXUIElementSetMessagingTimeout(element, 0.02) == kAXErrorSuccess).then_some(Self(element))
++    }
++}
++impl Drop for ReadTimeout {
++    fn drop(&mut self) {
++        unsafe {
++            AXUIElementSetMessagingTimeout(self.0, 0.0);
++        }
++    }
++}
++unsafe fn native_surface(element: AXUIElementRef) -> Option<super::ancestry_scope::Surface> {
++    let _timeout = ReadTimeout::set(element)?;
++    let role = copy_string_attr(element, "AXRole")?;
++    if !matches!(role.as_str(), "AXWindow" | "AXSheet") {
++        return None;
++    }
++    let pid = element_pid(element);
++    let window_id = ax_get_window_id(element);
++    Some(super::ancestry_scope::Surface {
++        pid,
++        window_id,
++        sheet: role == "AXSheet",
++        cg_owned: match (pid, window_id) {
++            (Some(pid), Some(wid)) if wid > 0 => {
++                matches!(resolve_window_owner(pid, wid), WindowOwner::SamePid)
++            }
++            _ => false,
++        },
++    })
++}
++/// Resolve the nearest actual native AXWindow/AXSheet ancestor. A containing
++/// AXWindow hint cannot override a sheet, or rescue missing/foreign sheet
++/// identity. The hint is compatible only with the exact retained native root
++/// or the actual positively proved containing parent of that sheet.
+ ///
+ /// # Safety
+-///
+-/// `element` must be a valid `AXUIElementRef` for the duration of the call.
++/// `element` must remain a valid retained AXUIElementRef throughout this call.
+ pub unsafe fn element_window_id(element: AXUIElementRef) -> Option<u32> {
+-    if let Some(window) = copy_element_attr(element, "AXWindow") {
+-        let window_id = ax_get_window_id(window);
+-        CFRelease(window as CFTypeRef);
+-        if window_id.is_some() {
+-            return window_id;
+-        }
+-    }
+-    // Fallback: ascend AXParent until a window role, then map it.
+-    let mut current: AXUIElementRef = element;
+-    let mut owned = false;
+-    let mut resolved = None;
++    let began = std::time::Instant::now();
++    let _timeout = ReadTimeout::set(element)?;
++    let pid = element_pid(element)?;
++    if pid <= 0 {
++        return None;
++    }
++    let hint = copy_element_attr(element, "AXWindow").map(NativeElement);
++    drop(_timeout);
++    CFRetain(element as CFTypeRef);
++    let mut current = NativeElement(element);
++    let mut seen: Vec<NativeElement> = Vec::new();
+     for _ in 0..MAX_ANCESTRY_DEPTH {
+-        match copy_string_attr(current, "AXRole").as_deref() {
+-            Some("AXWindow") | Some("AXSheet") => {
+-                resolved = ax_get_window_id(current);
+-                break;
++        if began.elapsed() > std::time::Duration::from_millis(250) {
++            return None;
++        }
++        let _timeout = ReadTimeout::set(current.0)?;
++        if element_pid(current.0) != Some(pid) {
++            return None;
++        }
++        let role = copy_string_attr(current.0, "AXRole")?;
++        if matches!(role.as_str(), "AXWindow" | "AXSheet") {
++            drop(_timeout);
++            let nearest = native_surface(current.0)?;
++            let parent = if nearest.sheet {
++                let _timeout = ReadTimeout::set(current.0)?;
++                Some(NativeElement(copy_element_attr(current.0, "AXParent")?))
++            } else {
++                None
++            };
++            let parent_surface = parent.as_ref().and_then(|p| native_surface(p.0));
++            let hint = match hint.as_ref() {
++                None => super::ancestry_scope::Hint::Missing,
++                Some(hint) => match native_surface(hint.0) {
++                    None => super::ancestry_scope::Hint::Invalid,
++                    Some(surface) if CFEqual(hint.0 as CFTypeRef, current.0 as CFTypeRef) != 0 => {
++                        super::ancestry_scope::Hint::Nearest {
++                            native_identity_matches: true,
++                            surface,
++                        }
++                    }
++                    Some(surface)
++                        if parent.as_ref().is_some_and(|p| {
++                            CFEqual(hint.0 as CFTypeRef, p.0 as CFTypeRef) != 0
++                        }) =>
++                    {
++                        super::ancestry_scope::Hint::Parent {
++                            native_identity_matches: true,
++                            surface,
++                        }
++                    }
++                    _ => super::ancestry_scope::Hint::Invalid,
++                },
++            };
++            if began.elapsed() > std::time::Duration::from_millis(250) {
++                return None;
+             }
+-            Some("AXApplication") | None => break,
+-            _ => {}
+-        }
+-        let parent = copy_element_attr(current, "AXParent");
+-        if owned {
+-            CFRelease(current as CFTypeRef);
+-        }
+-        match parent {
+-            Some(parent) => {
+-                current = parent;
+-                owned = true;
+-            }
+-            None => return None,
+-        }
+-    }
+-    if owned {
+-        CFRelease(current as CFTypeRef);
+-    }
+-    resolved
++            return super::ancestry_scope::resolve(pid, nearest, parent_surface, hint);
++        }
++        if role == "AXApplication" {
++            return None;
++        }
++        let next = NativeElement(copy_element_attr(current.0, "AXParent")?);
++        if CFEqual(next.0 as CFTypeRef, current.0 as CFTypeRef) != 0
++            || seen
++                .iter()
++                .any(|old| CFEqual(old.0 as CFTypeRef, next.0 as CFTypeRef) != 0)
++        {
++            return None;
++        }
++        drop(_timeout);
++        seen.push(current);
++        current = next;
++    }
++    None
++}
++
++fn element_ancestry_from_id(window_id: u32, resolved: Option<u32>) -> ElementAncestry {
++    match resolved {
++        Some(id) if id == window_id => ElementAncestry::ProvenDescendant,
++        Some(_) => ElementAncestry::OutsideTargetWindow,
++        None => ElementAncestry::Unproven,
++    }
+ }
+
+ /// The process's focused AX element, but only when it provably belongs to the
+@@ -176,10 +261,8 @@
+             super::enablement::ensure_chromium_ax_enabled(pid, app);
+             let records = ax_window_records(app, pid, window_id);
+             let app_hidden = copy_bool_attr(app, "AXHidden");
+-            let element = element_ptr.map(|ptr| match element_window_id(ptr as AXUIElementRef) {
+-                Some(id) if id == window_id => ElementAncestry::ProvenDescendant,
+-                Some(_) => ElementAncestry::OutsideTargetWindow,
+-                None => ElementAncestry::Unproven,
++            let element = element_ptr.map(|ptr| {
++                element_ancestry_from_id(window_id, element_window_id(ptr as AXUIElementRef))
+             });
+             CFRelease(app as CFTypeRef);
+             (records, app_hidden, element)
+@@ -208,7 +291,8 @@
+
+ #[cfg(test)]
+ mod tests {
+-    use super::{count_competing_keyboard_destinations, AxWindowRecord};
++    use super::{count_competing_keyboard_destinations, element_ancestry_from_id, AxWindowRecord};
++    use cua_driver_core::background_input::ElementAncestry;
+
+     fn ax_window(window_id: u32, minimized: Option<bool>) -> AxWindowRecord {
+         AxWindowRecord {
+@@ -218,6 +302,56 @@
+     }
+
+     #[test]
++    fn modal_native_identity_feeds_current_mutation_gate_without_parent_fallback() {
++        use crate::ax::ancestry_scope::{resolve, Hint, Surface};
++        let sheet = Surface {
++            pid: Some(42),
++            window_id: Some(11),
++            sheet: true,
++            cg_owned: true,
++        };
++        let parent = Surface {
++            pid: Some(42),
++            window_id: Some(10),
++            sheet: false,
++            cg_owned: true,
++        };
++        let id = resolve(
++            42,
++            sheet,
++            Some(parent),
++            Hint::Parent {
++                native_identity_matches: true,
++                surface: parent,
++            },
++        );
++        assert_eq!(
++            element_ancestry_from_id(11, id),
++            ElementAncestry::ProvenDescendant
++        );
++        assert_eq!(
++            element_ancestry_from_id(10, id),
++            ElementAncestry::OutsideTargetWindow
++        );
++        let unknown = resolve(
++            42,
++            Surface {
++                window_id: None,
++                ..sheet
++            },
++            Some(parent),
++            Hint::Parent {
++                native_identity_matches: true,
++                surface: parent,
++            },
++        );
++        assert_eq!(
++            element_ancestry_from_id(11, unknown),
++            ElementAncestry::Unproven
++        );
++    }
++
++    #[test]
+     fn compositor_surfaces_do_not_create_keyboard_ambiguity() {
+         let rows = [(42, 10), (42, 11), (42, 12), (42, 13), (42, 14), (42, 15)];
+         let records = [ax_window(10, Some(false))];
+diff --git a/crates/platform-macos/src/ax/mod.rs b/crates/platform-macos/src/ax/mod.rs
+--- a/crates/platform-macos/src/ax/mod.rs
++++ b/crates/platform-macos/src/ax/mod.rs
+@@ -16,10 +16,18 @@
+ //! - Non-indexed (no actions, not interesting): `- AXRole = "value"`
+ //! - 2-space indent per depth level
+
++pub mod ancestry_scope;
+ pub mod bindings;
+ pub mod cache;
++pub mod control_state;
++pub mod control_probe;
+ pub mod enablement;
+ pub mod exact_target;
++pub mod modal_scope;
++pub mod press_readback;
++pub mod action_error;
++pub mod press_probe;
++pub mod press_diagnostic;
+ pub mod tree;
+ pub mod window_scope;
+
+@@ -28,3 +36,7 @@
+     walk_tree, walk_tree_bounded, AXNode, TreeWalkResult, DEFAULT_MAX_DEPTH, DEFAULT_MAX_ELEMENTS,
+ };
+ pub use window_scope::WindowScope;
++
++pub mod action_receipt;
++
++pub mod owned_modal;
+diff --git a/crates/platform-macos/src/ax/modal_scope.rs b/crates/platform-macos/src/ax/modal_scope.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/modal_scope.rs
+@@ -0,0 +1,94 @@
++//! Pure admission for a nested native window/sheet. Geometry is never authority.
++#[derive(Debug)]
++pub struct SurfaceFacts {
++    pub pid: Option<i32>,
++    pub native_window_role: bool,
++    pub parent_matches: bool,
++    pub window_id: Option<u32>,
++    pub parent_window_id: Option<u32>,
++    pub cg_owned: bool,
++    pub parent_cg_owned: bool,
++}
++pub fn admit(pid: i32, facts: &SurfaceFacts) -> Option<u32> {
++    let wid = facts.window_id?;
++    let parent = facts.parent_window_id?;
++    (pid > 0
++        && facts.pid == Some(pid)
++        && facts.native_window_role
++        && facts.parent_matches
++        && wid > 0
++        && parent > 0
++        && wid != parent
++        && facts.cg_owned
++        && facts.parent_cg_owned)
++        .then_some(wid)
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn facts() -> SurfaceFacts {
++        SurfaceFacts {
++            pid: Some(7),
++            native_window_role: true,
++            parent_matches: true,
++            window_id: Some(22),
++            parent_window_id: Some(11),
++            cg_owned: true,
++            parent_cg_owned: true,
++        }
++    }
++    #[test]
++    fn nested_exact_surface_admits_its_own_identity() {
++        assert_eq!(admit(7, &facts()), Some(22));
++    }
++    #[test]
++    fn unknown_spi_identity_never_uses_frame_overlap() {
++        let mut f = facts();
++        f.window_id = None;
++        assert_eq!(admit(7, &f), None);
++    }
++    #[test]
++    fn wrong_or_unknown_pid_never_admits() {
++        for pid in [None, Some(8)] {
++            let mut f = facts();
++            f.pid = pid;
++            assert_eq!(admit(7, &f), None);
++        }
++    }
++    #[test]
++    fn ambiguous_or_absent_parentage_never_admits() {
++        let mut f = facts();
++        f.parent_matches = false;
++        assert_eq!(admit(7, &f), None);
++        f = facts();
++        f.parent_window_id = None;
++        assert_eq!(admit(7, &f), None);
++        f = facts();
++        f.parent_window_id = f.window_id;
++        assert_eq!(admit(7, &f), None);
++    }
++    #[test]
++    fn closed_or_foreign_cg_owner_never_admits() {
++        let mut f = facts();
++        f.cg_owned = false;
++        assert_eq!(admit(7, &f), None);
++    }
++}
++
++#[cfg(test)]
++mod parent_tests {
++    use super::*;
++    #[test]
++    fn closed_parent_never_admits_a_nested_surface() {
++        let f = SurfaceFacts {
++            pid: Some(7),
++            native_window_role: true,
++            parent_matches: true,
++            window_id: Some(22),
++            parent_window_id: Some(11),
++            cg_owned: true,
++            parent_cg_owned: false,
++        };
++        assert_eq!(admit(7, &f), None);
++    }
++}
+diff --git a/crates/platform-macos/src/ax/owned_modal.rs b/crates/platform-macos/src/ax/owned_modal.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/owned_modal.rs
+@@ -0,0 +1,104 @@
++//! Native-only direct sheet resolver. No labels, screenshots, user text,
++//! permission mutation, input dispatch, model data or parent hints are used.
++use super::bindings::*;
++use core_foundation::base::{CFRelease, CFTypeRef};
++use cua_driver_core::owned_modal::{NativeModalFacts, ReviewedModalParent};
++use std::time::{Duration, Instant};
++struct Element(AXUIElementRef);
++impl Drop for Element {
++    fn drop(&mut self) {
++        unsafe {
++            CFRelease(self.0 as CFTypeRef);
++        }
++    }
++}
++struct Timeout(AXUIElementRef);
++impl Timeout {
++    unsafe fn set(e: AXUIElementRef) -> Option<Self> {
++        (AXUIElementSetMessagingTimeout(e, 0.02) == kAXErrorSuccess).then_some(Self(e))
++    }
++}
++impl Drop for Timeout {
++    fn drop(&mut self) {
++        unsafe {
++            AXUIElementSetMessagingTimeout(self.0, 0.0);
++        }
++    }
++}
++fn generation(pid: i32) -> Option<String> {
++    let (sec, usec) = super::enablement::process_start_stamp(pid)?;
++    cua_driver_core::owned_modal::kernel_identity(sec, usec)
++}
++pub fn resolve(
++    parent: &ReviewedModalParent,
++    child_pid: i64,
++    child_wid: u64,
++) -> Option<NativeModalFacts> {
++    let began = Instant::now();
++    let pid = i32::try_from(child_pid).ok()?;
++    let wid = u32::try_from(child_wid).ok()?;
++    let parent_wid = u32::try_from(parent.window_id).ok()?;
++    if pid <= 0 || parent.pid != child_pid || wid == 0 || parent_wid == 0 || wid == parent_wid {
++        return None;
++    }
++    let before = generation(pid)?;
++    if before != parent.process_start_identity {
++        return None;
++    }
++    unsafe {
++        let app = AXUIElementCreateApplication(pid);
++        if app.is_null() {
++            return None;
++        }
++        let app = Element(app);
++        let _timeout = Timeout::set(app.0)?;
++        let windows: Vec<Element> = copy_ax_windows_including(app.0, pid, wid)
++            .into_iter()
++            .map(Element)
++            .collect();
++        if windows.len() > 128 || began.elapsed() > Duration::from_millis(250) {
++            return None;
++        }
++        let mut selected = None;
++        for element in &windows {
++            let _timeout = Timeout::set(element.0)?;
++            if began.elapsed() > Duration::from_millis(250) {
++                return None;
++            }
++            if ax_get_window_id(element.0) == Some(wid) {
++                // Ambiguous duplicate roots cannot acquire a child lease.
++                if selected.is_some() {
++                    return None;
++                }
++                if element_pid(element.0) != Some(pid) {
++                    return None;
++                }
++                selected = Some(element.0);
++            }
++        }
++        let inventory =
++            super::press_probe::reviewed_direct_modal_relation(selected?, pid, parent_wid, wid)?;
++        let after = generation(pid)?;
++        if before != after
++            || after != parent.process_start_identity
++            || began.elapsed() > Duration::from_millis(250)
++        {
++            return None;
++        }
++        Some(NativeModalFacts {
++            parent_pid: parent.pid,
++            parent_window_id: parent.window_id,
++            child_pid,
++            child_window_id: child_wid,
++            process_start_before: before,
++            process_start_after: after,
++            exact_parent_ax_root: true,
++            exact_child_ax_sheet: true,
++            native_parent_matches: true,
++            parent_sheet_inventory: inventory,
++            parent_cg_owned: true,
++            child_cg_owned: true,
++            within_read_budget: true,
++        })
++    }
++}
+diff --git a/crates/platform-macos/src/ax/press_diagnostic.rs b/crates/platform-macos/src/ax/press_diagnostic.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/press_diagnostic.rs
+@@ -0,0 +1,186 @@
++//! Closed metadata only. No native handles, titles, values, coordinates or prose.
++use std::sync::{Arc, Mutex};
++macro_rules! names {
++    ($name:ident {$($variant:ident => $wire:literal),* $(,)?}) => {
++        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
++        pub enum $name {$($variant),*}
++        impl $name {pub fn label(self) -> &'static str {match self {$(Self::$variant => $wire),*}}}
++    }
++}
++names!(Stage {Capture => "capture_preflight", AfterAck => "after_ack_sample", Final => "after_ack_final"});
++names!(Reason {NotEligible => "not_eligible", OwnerUnknown => "target_owner_unconfirmed", Timeout => "ax_timeout_unavailable",
++    FocusUnknown => "focused_element_unavailable", ButtonUnknown => "button_capability_unavailable",
++    AncestryUnknown => "ancestry_unavailable", AncestryMismatch => "ancestry_identity_mismatch",
++    ParentUnknown => "parent_identity_unavailable", ParentMismatch => "parent_identity_mismatch",
++    SheetsUnknown => "sheets_unavailable", SheetsMalformed => "sheets_malformed", SheetsPartial => "sheets_partial",
++    SheetsComplete => "sheets_complete", TargetNotListed => "target_sheet_not_listed", Captured => "capture_complete",
++    Unchanged => "postcondition_unconfirmed", Confirmed => "postcondition_confirmed", Budget => "sample_budget_exhausted"});
++/// Availability is unknown before the attribute call, independent of the gate failure.
++pub fn sheets_availability(reason: Reason, attribute_read: bool) -> Option<bool> {
++    if !attribute_read {
++        None
++    } else {
++        Some(reason != Reason::SheetsUnknown)
++    }
++}
++/// Complete CG inventory distinguishes unknown, absent and foreign owners.
++pub fn cg_facts(owner: Option<Option<i32>>, pid: i32) -> (Option<bool>, Option<bool>) {
++    if pid <= 0 {
++        return (None, None);
++    }
++    (
++        owner.map(|value| value.is_some()),
++        owner.map(|value| value == Some(pid)),
++    )
++}
++#[derive(Clone, Debug)]
++pub struct Sample {
++    pub stage: Stage,
++    pub reason: Reason,
++    pub sample_index: u8,
++    pub target_cg_present: Option<bool>,
++    pub target_cg_owned: Option<bool>,
++    pub parent_cg_owned: Option<bool>,
++    pub parent_identity_exact: Option<bool>,
++    pub sheets_available: Option<bool>,
++    pub sheets_count: Option<u8>,
++    pub target_sheet_listed: Option<bool>,
++    pub ax_error_code: Option<i32>,
++}
++impl Sample {
++    pub fn new(stage: Stage, reason: Reason) -> Self {
++        Self {
++            stage,
++            reason,
++            sample_index: 0,
++            target_cg_present: None,
++            target_cg_owned: None,
++            parent_cg_owned: None,
++            parent_identity_exact: None,
++            sheets_available: None,
++            sheets_count: None,
++            target_sheet_listed: None,
++            ax_error_code: None,
++        }
++    }
++}
++#[derive(Default)]
++struct Rows {
++    samples: Vec<Sample>,
++    truncated: bool,
++}
++#[derive(Clone, Default)]
++pub struct Trace(Arc<Mutex<Rows>>);
++impl Trace {
++    pub fn push(&self, mut sample: Sample) {
++        if sample.sample_index > 3 || sample.sheets_count.is_some_and(|count| count > 32) {
++            return;
++        }
++        sample.ax_error_code = sample
++            .ax_error_code
++            .filter(|code| (-25214..=-25200).contains(code));
++        if let Ok(mut rows) = self.0.lock() {
++            if rows.samples.len() < 16 {
++                rows.samples.push(sample);
++            } else {
++                rows.truncated = true;
++            }
++        }
++    }
++    /// Only the immediately preceding native inventory sample, never a stale
++    /// sample from another stage/attempt or a truncated diagnostic history.
++    pub fn explicit_unsupported_inventory(&self,stage:Stage,index:u8)->bool {
++        let (rows,truncated)=self.snapshot();
++        !truncated && rows.last().is_some_and(|row|row.stage==stage && row.sample_index==index
++            && row.reason==Reason::SheetsUnknown && row.ax_error_code==Some(-25205)
++            && row.sheets_available==Some(false))
++    }
++    pub fn snapshot(&self) -> (Vec<Sample>, bool) {
++        self.0
++            .lock()
++            .map(|rows| (rows.samples.clone(), rows.truncated))
++            .unwrap_or((Vec::new(), true))
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn unsupported_is_exact_current_native_inventory_not_prior_or_unknown() {
++        let trace=Trace::default();
++        let mut row=Sample::new(Stage::Capture,Reason::SheetsUnknown);
++        row.ax_error_code=Some(-25205);row.sheets_available=Some(false);
++        trace.push(row.clone());
++        assert!(trace.explicit_unsupported_inventory(Stage::Capture,0));
++        assert!(!trace.explicit_unsupported_inventory(Stage::AfterAck,1));
++        for (code,reason,available) in [(None,Reason::SheetsUnknown,Some(false)),(Some(-25200),Reason::SheetsUnknown,Some(false)),(Some(-25205),Reason::SheetsMalformed,Some(true)),(Some(-25205),Reason::SheetsUnknown,None)] {
++            row.ax_error_code=code;row.reason=reason;row.sheets_available=available;trace.push(row.clone());
++            assert!(!trace.explicit_unsupported_inventory(Stage::Capture,0));
++        }
++        row.ax_error_code=Some(-25205);row.reason=Reason::SheetsUnknown;row.sheets_available=Some(false);row.stage=Stage::AfterAck;row.sample_index=1;
++        trace.push(row.clone());assert!(trace.explicit_unsupported_inventory(Stage::AfterAck,1));
++        trace.push(Sample::new(Stage::AfterAck,Reason::Unchanged));
++        assert!(!trace.explicit_unsupported_inventory(Stage::AfterAck,1));
++        for _ in 0..20 {trace.push(row.clone());}
++        assert!(!trace.explicit_unsupported_inventory(Stage::AfterAck,1));
++    }
++    #[test]
++    fn sheets_preflight_unknown_is_distinct_from_unavailable_and_malformed() {
++        assert_eq!(sheets_availability(Reason::Timeout, false), None);
++        assert_eq!(sheets_availability(Reason::ParentUnknown, false), None);
++        assert_eq!(
++            sheets_availability(Reason::SheetsUnknown, true),
++            Some(false)
++        );
++        for reason in [
++            Reason::SheetsMalformed,
++            Reason::SheetsPartial,
++            Reason::Timeout,
++            Reason::ParentUnknown,
++        ] {
++            assert_eq!(sheets_availability(reason, true), Some(true));
++        }
++    }
++    #[test]
++    fn cg_unknown_absent_foreign_and_owned_remain_distinct() {
++        assert_eq!(cg_facts(None, 42), (None, None));
++        assert_eq!(cg_facts(Some(None), 42), (Some(false), Some(false)));
++        assert_eq!(cg_facts(Some(Some(9)), 42), (Some(true), Some(false)));
++        assert_eq!(cg_facts(Some(Some(42)), 42), (Some(true), Some(true)));
++        assert_eq!(cg_facts(Some(Some(42)), 0), (None, None));
++    }
++    #[test]
++    fn trace_is_owned_and_bounded() {
++        let first = Trace::default();
++        let clone = first.clone();
++        let other = Trace::default();
++        for _ in 0..20 {
++            clone.push(Sample::new(Stage::Capture, Reason::SheetsUnknown));
++        }
++        assert_eq!(first.snapshot().0.len(), 16);
++        assert!(first.snapshot().1);
++        assert!(other.snapshot().0.is_empty());
++    }
++    #[test]
++    fn unknown_ax_numeric_and_oversize_facts_never_leave_trace() {
++        let trace = Trace::default();
++        let mut row = Sample::new(Stage::Capture, Reason::SheetsUnknown);
++        row.ax_error_code = Some(-25204);
++        trace.push(row.clone());
++        row.ax_error_code = Some(123);
++        trace.push(row.clone());
++        row.sheets_count = Some(33);
++        trace.push(row);
++        let rows = trace.snapshot().0;
++        assert_eq!(rows.len(), 2);
++        assert_eq!(rows[0].ax_error_code, Some(-25204));
++        assert_eq!(rows[1].ax_error_code, None);
++    }
++    #[test]
++    fn no_content_or_identity_channel_in_closed_samples() {
++        let row = Sample::new(Stage::AfterAck, Reason::Unchanged);
++        assert_eq!(row.stage.label(), "after_ack_sample");
++        assert_eq!(row.reason.label(), "postcondition_unconfirmed");
++        assert!(row.target_cg_present.is_none() && row.parent_identity_exact.is_none());
++    }
++}
+diff --git a/crates/platform-macos/src/ax/press_probe.rs b/crates/platform-macos/src/ax/press_probe.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/press_probe.rs
+@@ -0,0 +1,534 @@
++//! Read-only exact-surface postcondition probe, reusable by an acknowledged
++//! scoped transport. This helper never dispatches, activates, retries, or logs.
++use super::{
++    bindings::*,
++    press_diagnostic::{Reason, Sample, Stage, Trace},
++    press_readback::{self, Observation, Scope, Transition},
++};
++use core_foundation::{
++    array::CFArray,
++    base::{CFEqual, CFGetTypeID, CFRelease, CFRetain, CFTypeRef, TCFType},
++    string::CFString,
++};
++use std::time::{Duration, Instant};
++
++struct Element(AXUIElementRef);
++impl Drop for Element {
++    fn drop(&mut self) {
++        unsafe {
++            CFRelease(self.0 as CFTypeRef);
++        }
++    }
++}
++struct Timeout(AXUIElementRef);
++impl Timeout {
++    unsafe fn set(element: AXUIElementRef) -> Option<Self> {
++        (AXUIElementSetMessagingTimeout(element, 0.02) == kAXErrorSuccess).then_some(Self(element))
++    }
++}
++impl Drop for Timeout {
++    fn drop(&mut self) {
++        unsafe {
++            AXUIElementSetMessagingTimeout(self.0, 0.0);
++        }
++    }
++}
++fn owned(pid: i32, wid: u32) -> bool {
++    matches!(
++        crate::windows::resolve_window_owner(pid, wid),
++        crate::windows::WindowOwner::SamePid
++    )
++}
++fn native_generation(pid:i32)->Option<String> {
++    let (sec,usec)=super::enablement::process_start_stamp(pid)?;
++    cua_driver_core::owned_modal::kernel_identity(sec,usec)
++}
++// Unlike copy_children(), unavailable/malformed/partial is None, not an empty list.
++unsafe fn sheets(
++    root: AXUIElementRef,
++    pid: i32,
++    wid: u32,
++    began: Instant,
++    trace: &Trace,
++    stage: Stage,
++    sample_index: u8,
++) -> Option<Vec<u32>> {
++    let fail = |reason, code, attribute_read| {
++        let mut sample = Sample::new(stage, reason);
++        sample.sample_index = sample_index;
++        sample.ax_error_code = code;
++        sample.sheets_available =
++            super::press_diagnostic::sheets_availability(reason, attribute_read);
++        trace.push(sample);
++    };
++    let _timeout = Timeout::set(root).or_else(|| {
++        fail(Reason::Timeout, None, false);
++        None
++    })?;
++    if element_pid(root) != Some(pid) || ax_get_window_id(root) != Some(wid) || !owned(pid, wid) {
++        fail(Reason::ParentUnknown, None, false);
++        return None;
++    }
++    let attr = CFString::new("AXSheets");
++    let mut value: CFTypeRef = std::ptr::null();
++    let err = AXUIElementCopyAttributeValue(root, attr.as_concrete_TypeRef(), &mut value);
++    if err != kAXErrorSuccess || value.is_null() {
++        if !value.is_null() {
++            CFRelease(value);
++        }
++        fail(Reason::SheetsUnknown, Some(err), true);
++        return None;
++    }
++    if CFGetTypeID(value) != CFArray::<CFTypeRef>::type_id() {
++        CFRelease(value);
++        fail(Reason::SheetsMalformed, None, true);
++        return None;
++    }
++    let array = CFArray::<CFTypeRef>::wrap_under_create_rule(value as _);
++    if array.len() > 32 {
++        fail(Reason::SheetsPartial, None, true);
++        return None;
++    }
++    let mut ids = Vec::new();
++    for index in 0..array.len() {
++        if began.elapsed() > Duration::from_millis(150) {
++            fail(Reason::SheetsPartial, None, true);
++            return None;
++        }
++        let item = *array.get(index).or_else(|| {
++            fail(Reason::SheetsPartial, None, true);
++            None
++        })?;
++        if item.is_null() || CFGetTypeID(item) != AXUIElementGetTypeID() {
++            fail(Reason::SheetsMalformed, None, true);
++            return None;
++        }
++        let child = item as AXUIElementRef;
++        let _timeout = Timeout::set(child).or_else(|| {
++            fail(Reason::Timeout, None, true);
++            None
++        })?;
++        if element_pid(child) != Some(pid)
++            || copy_string_attr(child, "AXRole").as_deref() != Some("AXSheet")
++        {
++            fail(Reason::SheetsMalformed, None, true);
++            return None;
++        }
++        let parent = Element(copy_element_attr(child, "AXParent").or_else(|| {
++            fail(Reason::ParentUnknown, None, true);
++            None
++        })?);
++        if CFEqual(parent.0 as CFTypeRef, root as CFTypeRef) == 0 {
++            fail(Reason::SheetsMalformed, None, true);
++            return None;
++        }
++        let id = ax_get_window_id(child).or_else(|| {
++            fail(Reason::AncestryUnknown, None, true);
++            None
++        })?;
++        if id == 0 || id == wid || ids.contains(&id) || !owned(pid, id) {
++            fail(Reason::SheetsMalformed, None, true);
++            return None;
++        }
++        ids.push(id);
++    }
++    ids.sort_unstable();
++    let mut sample = Sample::new(stage, Reason::SheetsComplete);
++    sample.sample_index = sample_index;
++    sample.sheets_available = Some(true);
++    sample.sheets_count = Some(ids.len() as u8);
++    trace.push(sample);
++    Some(ids)
++}
++/// Holds native identities from BEFORE a single admitted mutation. Keep the
++/// caller's per-PID mutation lease across capture, dispatch and readback.
++pub struct Probe {
++    root: Element,
++    parent: Option<Element>,
++    before: Observation,
++    trace: Trace,
++    sheet_absence: Option<press_readback::SheetAbsenceCapture>,
++}
++impl Probe {
++    /// Capture a scoped key target. A process focus read is never admitted
++    /// without exact native target ancestry; no global input route is added.
++    /// The caller must already hold its admitted GenericKey mutation lease.
++    pub unsafe fn capture_key(
++        pid: i32,
++        wid: u32,
++        element: Option<usize>,
++        trace: Trace,
++    ) -> Option<Self> {
++        if let Some(element) = element {
++            return Self::capture(element as AXUIElementRef, pid, wid, trace);
++        }
++        if pid <= 0 || wid == 0 || !owned(pid, wid) {
++            trace.push(Sample::new(Stage::Capture, Reason::OwnerUnknown));
++            return None;
++        }
++        let app = AXUIElementCreateApplication(pid);
++        if app.is_null() {
++            trace.push(Sample::new(Stage::Capture, Reason::AncestryUnknown));
++            return None;
++        }
++        let app = Element(app);
++        let _timeout = Timeout::set(app.0).or_else(|| {
++            trace.push(Sample::new(Stage::Capture, Reason::Timeout));
++            None
++        })?;
++        let element = Element(copy_element_attr(app.0, "AXFocusedUIElement").or_else(|| {
++            trace.push(Sample::new(Stage::Capture, Reason::FocusUnknown));
++            None
++        })?);
++        // Capture rejects the nearest foreign/sibling/unknown root rather than
++        // trusting process focus or preferring a containing parent AXWindow.
++        Self::capture(element.0, pid, wid, trace)
++    }
++    /// Capability admission for this initial caller, bounded and label-free.
++    pub unsafe fn capture_button(
++        element: AXUIElementRef,
++        pid: i32,
++        wid: u32,
++        trace: Trace,
++    ) -> Option<Self> {
++        let _timeout = Timeout::set(element).or_else(|| {
++            trace.push(Sample::new(Stage::Capture, Reason::Timeout));
++            None
++        })?;
++        if copy_string_attr(element, "AXRole").as_deref() != Some("AXButton")
++            || !copy_action_names(element)
++                .iter()
++                .any(|action| action == "AXPress")
++        {
++            trace.push(Sample::new(Stage::Capture, Reason::ButtonUnknown));
++            return None;
++        }
++        Self::capture(element, pid, wid, trace)
++    }
++    /// Resolve actual ancestry, never geometry or a different arbitrary window.
++    /// Caller supplies a retained, freshly admitted element in the target scope.
++    pub unsafe fn capture(
++        element: AXUIElementRef,
++        pid: i32,
++        wid: u32,
++        trace: Trace,
++    ) -> Option<Self> {
++        if pid <= 0 || wid == 0 || !owned(pid, wid) {
++            trace.push(Sample::new(Stage::Capture, Reason::OwnerUnknown));
++            return None;
++        }
++        let generation_before=native_generation(pid);
++        CFRetain(element as CFTypeRef);
++        let mut current = Element(element);
++        let began = Instant::now();
++        let mut seen = Vec::new();
++        for _ in 0..12 {
++            if began.elapsed() > Duration::from_millis(150) {
++                trace.push(Sample::new(Stage::Capture, Reason::Budget));
++                return None;
++            }
++            let _timeout = Timeout::set(current.0).or_else(|| {
++                trace.push(Sample::new(Stage::Capture, Reason::Timeout));
++                None
++            })?;
++            let current_pid = element_pid(current.0);
++            if current_pid != Some(pid) {
++                trace.push(Sample::new(
++                    Stage::Capture,
++                    if current_pid.is_some() {
++                        Reason::AncestryMismatch
++                    } else {
++                        Reason::AncestryUnknown
++                    },
++                ));
++                return None;
++            }
++            let role = copy_string_attr(current.0, "AXRole").or_else(|| {
++                trace.push(Sample::new(Stage::Capture, Reason::AncestryUnknown));
++                None
++            })?;
++            if matches!(role.as_str(), "AXWindow" | "AXSheet") {
++                let current_window = ax_get_window_id(current.0);
++                if current_window != Some(wid) {
++                    trace.push(Sample::new(
++                        Stage::Capture,
++                        if current_window.is_some() {
++                            Reason::AncestryMismatch
++                        } else {
++                            Reason::AncestryUnknown
++                        },
++                    ));
++                    return None;
++                }
++                let parent = if role == "AXSheet" {
++                    let parent =
++                        Element(copy_element_attr(current.0, "AXParent").or_else(|| {
++                            trace.push(Sample::new(Stage::Capture, Reason::ParentUnknown));
++                            None
++                        })?);
++                    let _timeout = Timeout::set(parent.0).or_else(|| {
++                        trace.push(Sample::new(Stage::Capture, Reason::Timeout));
++                        None
++                    })?;
++                    if element_pid(parent.0) != Some(pid)
++                        || copy_string_attr(parent.0, "AXRole").as_deref() != Some("AXWindow")
++                    {
++                        trace.push(Sample::new(Stage::Capture, Reason::AncestryUnknown));
++                        return None;
++                    }
++                    Some(parent)
++                } else {
++                    None
++                };
++                let parent_wid = parent.as_ref().and_then(|p| ax_get_window_id(p.0));
++                if parent.is_some() && (parent_wid.is_none() || parent_wid == Some(wid)) {
++                    trace.push(Sample::new(Stage::Capture, Reason::AncestryUnknown));
++                    return None;
++                }
++                let scope = Scope {
++                    pid,
++                    window_id: wid,
++                    parent_window_id: parent_wid,
++                    sheet: role == "AXSheet",
++                };
++                let inventory_root = parent.as_ref().map_or(current.0, |p| p.0);
++                let inventory_wid = parent_wid.unwrap_or(wid);
++                let ids = sheets(
++                    inventory_root,
++                    pid,
++                    inventory_wid,
++                    began,
++                    &trace,
++                    Stage::Capture,
++                    0,
++                );
++                let unsupported_sheet = scope.sheet && ids.is_none()
++                    && trace.explicit_unsupported_inventory(Stage::Capture,0)
++                    && parent_wid.is_some_and(|parent_wid| reviewed_direct_modal_relation(current.0,pid,parent_wid,wid)
++                        ==Some(cua_driver_core::owned_modal::SheetInventory::ExplicitAttributeUnsupported));
++                if scope.sheet && !unsupported_sheet && !ids.as_ref().is_some_and(|ids| ids.contains(&wid)) {
++                    let mut sample = Sample::new(Stage::Capture, Reason::TargetNotListed);
++                    sample.target_sheet_listed = Some(false);
++                    trace.push(sample);
++                    return None;
++                }
++                // An unavailable AXSheets attribute may retain a top-level root,
++                // but may not retain an expired or invalidated ancestry binding.
++                if began.elapsed() > Duration::from_millis(150) {
++                    trace.push(Sample::new(Stage::Capture, Reason::Budget));
++                    return None;
++                }
++                let _fresh_timeout = Timeout::set(current.0).or_else(|| {
++                    trace.push(Sample::new(Stage::Capture, Reason::Timeout));
++                    None
++                })?;
++                if element_pid(current.0) != Some(pid)
++                    || ax_get_window_id(current.0) != Some(wid)
++                    || copy_string_attr(current.0, "AXRole").as_deref() != Some(role.as_str())
++                    || began.elapsed() > Duration::from_millis(150) {
++                    trace.push(Sample::new(Stage::Capture, Reason::AncestryUnknown));
++                    return None;
++                }
++                // Recheck exact ownership immediately before admitting the bound root.
++                if crate::windows::exact_window_pid(wid) != Some(Some(pid)) {
++                    trace.push(Sample::new(Stage::Capture, Reason::OwnerUnknown));
++                    return None;
++                }
++                let before = Observation {
++                    scope,
++                    target_owned: true,
++                    ax_root_exact: true,
++                    target_absent: false,
++                    parent_owned: parent_wid.is_some_and(|id| owned(pid, id)),
++                    sheets: ids,
++                };
++                let sheet_absence=if unsupported_sheet {
++                    Some(press_readback::SheetAbsenceCapture::capture(&before,true,true,
++                        generation_before.as_deref(),native_generation(pid).as_deref())?)
++                } else { None };
++                let mut sample = Sample::new(Stage::Capture, Reason::Captured);
++                sample.target_cg_present = Some(true);
++                sample.target_cg_owned = Some(true);
++                sample.parent_cg_owned = before
++                    .scope
++                    .parent_window_id
++                    .and_then(|_| before.parent_owned.then_some(true));
++                sample.parent_identity_exact = before.scope.parent_window_id.map(|_| true);
++                sample.target_sheet_listed = before
++                    .scope
++                    .sheet
++                    .then(|| before.sheets.as_ref().map(|ids| ids.contains(&wid))).flatten();
++                trace.push(sample);
++                drop(_timeout);
++                return Some(Self {
++                    root: current,
++                    parent,
++                    before,
++                    trace,
++                    sheet_absence,
++                });
++            }
++            let next = Element(copy_element_attr(current.0, "AXParent").or_else(|| {
++                trace.push(Sample::new(Stage::Capture, Reason::ParentUnknown));
++                None
++            })?);
++            // Retained prior identities prevent pointer reuse during the walk.
++            if CFEqual(next.0 as CFTypeRef, current.0 as CFTypeRef) != 0
++                || seen
++                    .iter()
++                    .any(|old: &Element| CFEqual(old.0 as CFTypeRef, next.0 as CFTypeRef) != 0)
++            {
++                trace.push(Sample::new(Stage::Capture, Reason::AncestryUnknown));
++                return None;
++            }
++            drop(_timeout);
++            seen.push(current);
++            current = next;
++        }
++        trace.push(Sample::new(Stage::Capture, Reason::Budget));
++        None
++    }
++    unsafe fn observe(&self, sample_index: u8) -> (Observation, Sample) {
++        let scope = self.before.scope.clone();
++        let owner = crate::windows::exact_window_pid(scope.window_id);
++        let parent_owner = scope
++            .parent_window_id
++            .and_then(crate::windows::exact_window_pid);
++        let root = self.parent.as_ref().map_or(self.root.0, |p| p.0);
++        let root_wid = scope.parent_window_id.unwrap_or(scope.window_id);
++        let mut sample = Sample::new(Stage::AfterAck, Reason::Unchanged);
++        sample.sample_index = sample_index;
++        (sample.target_cg_present, sample.target_cg_owned) =
++            super::press_diagnostic::cg_facts(owner, scope.pid);
++        sample.parent_cg_owned = super::press_diagnostic::cg_facts(parent_owner, scope.pid).1;
++        // Ancestry was checked during capture. No fresh ancestry fact is invented.
++        let observation = Observation {
++            target_owned: owner == Some(Some(scope.pid)),
++            ax_root_exact: false, // after root may be gone; capture facts are not invented
++            target_absent: owner == Some(None),
++            parent_owned: scope.parent_window_id.is_some() && parent_owner == Some(Some(scope.pid)),
++            sheets: sheets(
++                root,
++                scope.pid,
++                root_wid,
++                Instant::now(),
++                &self.trace,
++                Stage::AfterAck,
++                sample_index,
++            ),
++            scope,
++        };
++        (observation, sample)
++    }
++    /// At most three fresh readbacks, no dispatch/replay. Time is only a stop
++    /// budget, never evidence. Unknown or unrelated changes remain unconfirmed.
++    pub unsafe fn after_acknowledged(&self) -> Option<Transition> {
++        let began = Instant::now();
++        for attempt in 0..3 {
++            if began.elapsed() > Duration::from_millis(450) {
++                self.trace.push(Sample::new(Stage::Final, Reason::Budget));
++                return None;
++            }
++            let (mut after, mut sample) = self.observe(attempt + 1);
++            let effect = if let Some(binding)=self.sheet_absence.as_ref() {
++                // The child may now be gone. Rebind the retained native parent
++                // root; never infer parent identity from the absent child's ID.
++                let parent_exact=self.parent.as_ref().is_some_and(|parent| {
++                    let Some(_timeout)=Timeout::set(parent.0) else {return false;};
++                    element_pid(parent.0)==Some(after.scope.pid)
++                        && ax_get_window_id(parent.0)==after.scope.parent_window_id
++                        && copy_string_attr(parent.0,"AXRole").as_deref()==Some("AXWindow")
++                });
++                let unsupported=after.sheets.is_none() && self.trace.explicit_unsupported_inventory(Stage::AfterAck,attempt+1);
++                let owner=crate::windows::exact_window_pid(after.scope.window_id);
++                let parent_owner=after.scope.parent_window_id.and_then(crate::windows::exact_window_pid);
++                after.target_owned=owner==Some(Some(after.scope.pid));
++                after.target_absent=owner==Some(None);
++                after.parent_owned=parent_owner==Some(Some(after.scope.pid));
++                (sample.target_cg_present,sample.target_cg_owned)=super::press_diagnostic::cg_facts(owner,after.scope.pid);
++                sample.parent_cg_owned=super::press_diagnostic::cg_facts(parent_owner,after.scope.pid).1;
++                sample.parent_identity_exact=Some(parent_exact);
++                binding.confirm(&after,parent_exact,native_generation(after.scope.pid).as_deref(),unsupported)
++            } else {press_readback::confirm(&self.before, &after)};
++            sample.reason = if effect.is_some() {
++                Reason::Confirmed
++            } else {
++                Reason::Unchanged
++            };
++            sample.target_sheet_listed = after
++                .sheets
++                .as_ref()
++                .map(|ids| ids.contains(&after.scope.window_id));
++            self.trace.push(sample);
++            if let Some(effect) = effect {
++                return Some(effect);
++            }
++            if attempt < 2 {
++                std::thread::sleep(Duration::from_millis(40));
++            }
++        }
++        self.trace
++            .push(Sample::new(Stage::Final, Reason::Unchanged));
++        None
++    }
++}
++
++pub fn diagnostic_json(trace: &Trace) -> serde_json::Value {
++    let (samples, truncated) = trace.snapshot();
++    serde_json::json!({"protocol":"supymem_press_probe_metadata_v1","truncated":truncated,"samples":samples.iter().map(|s|serde_json::json!({
++        "stage":s.stage.label(),"reason":s.reason.label(),"sample_index":s.sample_index,
++        "target_cg_present":s.target_cg_present,"target_cg_owned":s.target_cg_owned,
++        "parent_cg_owned":s.parent_cg_owned,"parent_identity_exact":s.parent_identity_exact,
++        "sheets_available":s.sheets_available,"sheets_count":s.sheets_count,
++        "target_sheet_listed":s.target_sheet_listed,"ax_error_code":s.ax_error_code
++    })).collect::<Vec<_>>()})
++}
++
++/// Convert only this invocation's closed native trace, not arbitrary tool JSON.
++pub fn typed_diagnostic(trace: &Trace) -> Option<cua_driver_contract::NativeProbeDiagnostics> {
++    let value = serde_json::from_value::<cua_driver_contract::NativeProbeDiagnostics>(
++        diagnostic_json(trace),
++    )
++    .ok()?;
++    value.validate().then_some(value)
++}
++
++/// Native permission relation only. Explicitly unsupported AXSheets is distinct
++/// from any malformed/partial/refused/unknown inventory. No effect is inferred.
++pub(crate) unsafe fn reviewed_direct_modal_relation(
++    child: AXUIElementRef, pid: i32, parent_wid: u32, child_wid: u32,
++) -> Option<cua_driver_core::owned_modal::SheetInventory> {
++    let began=Instant::now();
++    if pid<=0 || parent_wid==0 || child_wid==0 || parent_wid==child_wid { return None; }
++    let _child_timeout=Timeout::set(child)?;
++    if element_pid(child)!=Some(pid) || ax_get_window_id(child)!=Some(child_wid)
++        || copy_string_attr(child,"AXRole").as_deref()!=Some("AXSheet")
++        || crate::windows::exact_window_pid(child_wid)!=Some(Some(pid)) { return None; }
++    let parent=Element(copy_element_attr(child,"AXParent")?);
++    let _parent_timeout=Timeout::set(parent.0)?;
++    if element_pid(parent.0)!=Some(pid) || ax_get_window_id(parent.0)!=Some(parent_wid)
++        || copy_string_attr(parent.0,"AXRole").as_deref()!=Some("AXWindow")
++        || crate::windows::exact_window_pid(parent_wid)!=Some(Some(pid)) { return None; }
++    let trace=Trace::default();
++    let status=match sheets(parent.0,pid,parent_wid,began,&trace,Stage::Capture,0) {
++        Some(ids) => cua_driver_core::owned_modal::classify_sheet_inventory(Some(&ids),child_wid,None,true)?,
++        None => {
++            let (rows,truncated)=trace.snapshot();
++            if truncated || rows.len()!=1 || rows[0].reason!=Reason::SheetsUnknown
++                || rows[0].ax_error_code!=Some(kAXErrorAttributeUnsupported)
++                || rows[0].sheets_available!=Some(false) { return None; }
++            cua_driver_core::owned_modal::classify_sheet_inventory(None,child_wid,rows[0].ax_error_code,true)?
++        }
++    };
++    // Inventory status never rescues a changed native relation or expired read.
++    let fresh_parent=Element(copy_element_attr(child,"AXParent")?);
++    if CFEqual(fresh_parent.0 as CFTypeRef,parent.0 as CFTypeRef)==0
++        || element_pid(child)!=Some(pid) || element_pid(parent.0)!=Some(pid)
++        || ax_get_window_id(child)!=Some(child_wid) || ax_get_window_id(parent.0)!=Some(parent_wid)
++        || copy_string_attr(child,"AXRole").as_deref()!=Some("AXSheet")
++        || copy_string_attr(parent.0,"AXRole").as_deref()!=Some("AXWindow")
++        || crate::windows::exact_window_pid(child_wid)!=Some(Some(pid))
++        || crate::windows::exact_window_pid(parent_wid)!=Some(Some(pid))
++        || began.elapsed()>Duration::from_millis(150) { return None; }
++    Some(status)
++}
+diff --git a/crates/platform-macos/src/ax/press_readback.rs b/crates/platform-macos/src/ax/press_readback.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/platform-macos/src/ax/press_readback.rs
+@@ -0,0 +1,478 @@
++//! Closed postconditions for one acknowledged AXPress; no input retry and no
++//! general tree/screenshot delta can establish a confirmed effect.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct Scope {
++    pub pid: i32,
++    pub window_id: u32,
++    pub parent_window_id: Option<u32>,
++    pub sheet: bool,
++}
++#[derive(Clone, Debug)]
++pub struct Observation {
++    pub scope: Scope,
++    pub target_owned: bool,
++    // Source capture bound the fresh AX root to the exact PID and CG window.
++    pub ax_root_exact: bool,
++    pub target_absent: bool,
++    pub parent_owned: bool,
++    // None means unavailable/partial, never an empty inventory.
++    pub sheets: Option<Vec<u32>>,
++}
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum Transition {
++    ModalOpened,
++    ModalClosed,
++    /// Exact target no longer occurs in a successful CG query; not task success.
++    WindowAbsent,
++}
++impl Transition {
++    pub fn evidence_kind(self) -> &'static str {
++        match self {
++            Self::WindowAbsent => "exact_owned_window_absence",
++            _ => "exact_modal_readback",
++        }
++    }
++    pub fn protocol(self) -> &'static str {
++        match self {
++            Self::WindowAbsent => "supymem_exact_window_absence_v1",
++            _ => "supymem_exact_modal_v1",
++        }
++    }
++    pub fn label(self) -> &'static str {
++        match self {
++            Self::ModalOpened => "opened",
++            Self::ModalClosed => "closed",
++            Self::WindowAbsent => "absent",
++        }
++    }
++}
++/// Separately typed native binding when the exact direct sheet parent was
++/// proved but its AXSheets attribute explicitly does not exist. Not modal proof.
++#[derive(Clone, Debug)]
++pub struct SheetAbsenceCapture {
++    scope: Scope,
++    generation: String,
++}
++impl SheetAbsenceCapture {
++    pub fn capture(
++        before: &Observation,
++        direct_parent_exact: bool,
++        unsupported: bool,
++        generation_before: Option<&str>,
++        generation_after: Option<&str>,
++    ) -> Option<Self> {
++        let generation = generation_before?;
++        if !before.scope.sheet
++            || !before.target_owned
++            || before.target_absent
++            || !before.ax_root_exact
++            || !before.parent_owned
++            || !direct_parent_exact
++            || !unsupported
++            || before.sheets.is_some()
++            || generation.is_empty()
++            || generation_after != Some(generation)
++            || before.scope.pid <= 0
++            || before.scope.window_id == 0
++            || before
++                .scope
++                .parent_window_id
++                .is_none_or(|p| p == 0 || p == before.scope.window_id)
++        {
++            return None;
++        }
++        Some(Self {
++            scope: before.scope.clone(),
++            generation: generation.into(),
++        })
++    }
++    pub fn confirm(
++        &self,
++        after: &Observation,
++        parent_exact: bool,
++        generation: Option<&str>,
++        unsupported_after: bool,
++    ) -> Option<Transition> {
++        (after.scope == self.scope
++            && parent_exact
++            && after.parent_owned
++            && generation == Some(self.generation.as_str())
++            && absence_inventory_acceptable(
++                after.sheets.as_deref(),
++                self.scope.window_id,
++                unsupported_after,
++            )
++            && after.target_absent
++            && !after.target_owned)
++            .then_some(Transition::WindowAbsent)
++    }
++}
++/// A complete inventory cannot contradict an observed absence; unavailable is
++/// admitted only for a positively identified native unsupported attribute.
++pub fn absence_inventory_acceptable(ids: Option<&[u32]>, target: u32, unsupported: bool) -> bool {
++    match ids {
++        Some(ids) => {
++            !unsupported
++                && ids.len() <= 32
++                && ids.iter().all(|id| *id > 0)
++                && ids.iter().enumerate().all(|(i, id)| !ids[..i].contains(id))
++                && !ids.contains(&target)
++        }
++        None => unsupported,
++    }
++}
++/// A scoped readback cannot expand the transport admitted by the caller.
++pub fn eligible_key_probe(
++    foreground: bool,
++    coordinate_focus: bool,
++    window_id: Option<u32>,
++    lease: bool,
++) -> bool {
++    !foreground && !coordinate_focus && lease && window_id.is_some_and(|id| id > 0)
++}
++/// Exactly one dispatch, readback only after acknowledgement. Errors propagate
++/// unchanged; no replay/fallback or readback can turn a rejected post into success.
++pub fn dispatch_once<T, E>(
++    dispatch: impl FnOnce() -> Result<T, E>,
++    readback: impl FnOnce() -> Option<Transition>,
++) -> Result<(T, Option<Transition>), E> {
++    let acknowledgement = dispatch()?;
++    Ok((acknowledgement, readback()))
++}
++pub fn confirm(before: &Observation, after: &Observation) -> Option<Transition> {
++    if before.scope != after.scope
++        || before.scope.pid <= 0
++        || before.scope.window_id == 0
++        || !before.ax_root_exact
++        || !before.target_owned
++        || before.target_absent
++    {
++        return None;
++    }
++    // Missing AXSheets on a top-level window does not erase its exact root
++    // binding. Only successful exact CG absence can establish this separate fact.
++    if !before.scope.sheet
++        && before.scope.parent_window_id.is_none()
++        && after.target_absent
++        && !after.target_owned
++    {
++        return Some(Transition::WindowAbsent);
++    }
++    let (Some(old), Some(new)) = (&before.sheets, &after.sheets) else {
++        return None;
++    };
++    let valid = |ids: &[u32]| {
++        ids.len() <= 32
++            && ids.iter().all(|id| *id > 0)
++            && ids.iter().enumerate().all(|(i, id)| !ids[..i].contains(id))
++    };
++    if !valid(old) || !valid(new) {
++        return None;
++    }
++    if before.scope.sheet {
++        let parent = before.scope.parent_window_id?;
++        if parent == 0
++            || parent == before.scope.window_id
++            || !before.parent_owned
++            || !after.parent_owned
++            || !after.target_absent
++            || after.target_owned
++            || !old.contains(&before.scope.window_id)
++            || new.contains(&before.scope.window_id)
++        {
++            return None;
++        }
++        // A simultaneous sibling replacement is not the admitted close postcondition.
++        let remaining: Vec<_> = old
++            .iter()
++            .copied()
++            .filter(|id| *id != before.scope.window_id)
++            .collect();
++        (remaining == *new).then_some(Transition::ModalClosed)
++    } else {
++        if !after.target_owned
++            || after.target_absent
++            || before.scope.parent_window_id.is_some()
++            || !old.iter().all(|id| new.contains(id))
++        {
++            return None;
++        }
++        let added: Vec<_> = new.iter().filter(|id| !old.contains(id)).collect();
++        (added.len() == 1 && *added[0] != before.scope.window_id).then_some(Transition::ModalOpened)
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    fn obs(sheet: bool, ids: Option<Vec<u32>>) -> Observation {
++        Observation {
++            scope: Scope {
++                pid: 42,
++                window_id: 10,
++                parent_window_id: sheet.then_some(9),
++                sheet,
++            },
++            target_owned: true,
++            ax_root_exact: true,
++            target_absent: false,
++            parent_owned: sheet,
++            sheets: ids,
++        }
++    }
++    #[test]
++    fn exact_single_child_open() {
++        let a = obs(false, Some(vec![]));
++        let b = obs(false, Some(vec![11]));
++        assert_eq!(confirm(&a, &b), Some(Transition::ModalOpened));
++    }
++    #[test]
++    fn exact_sheet_close() {
++        let a = obs(true, Some(vec![10]));
++        let mut b = obs(true, Some(vec![]));
++        b.target_owned = false;
++        b.target_absent = true;
++        assert_eq!(confirm(&a, &b), Some(Transition::ModalClosed));
++    }
++    #[test]
++    fn acknowledgement_or_unchanged_never_confirms() {
++        let a = obs(false, Some(vec![]));
++        assert_eq!(confirm(&a, &a), None);
++    }
++    #[test]
++    fn partial_inventory_never_means_empty() {
++        let a = obs(false, None);
++        let b = obs(false, Some(vec![11]));
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn wrong_identity_never_confirms() {
++        let a = obs(false, Some(vec![]));
++        let mut b = obs(false, Some(vec![11]));
++        b.scope.pid = 43;
++        assert_eq!(confirm(&a, &b), None);
++        b.scope.pid = 42;
++        b.scope.window_id = 12;
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn multiple_new_or_replaced_children_hold() {
++        let a = obs(false, Some(vec![11]));
++        assert_eq!(confirm(&a, &obs(false, Some(vec![12]))), None);
++        assert_eq!(confirm(&a, &obs(false, Some(vec![11, 12, 13]))), None);
++    }
++    #[test]
++    fn unknown_absence_or_parent_loss_hold() {
++        let a = obs(true, Some(vec![10]));
++        let mut b = obs(true, Some(vec![]));
++        b.target_owned = false;
++        assert_eq!(confirm(&a, &b), None);
++        b.target_absent = true;
++        b.parent_owned = false;
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn duplicate_or_zero_inventory_hold() {
++        let a = obs(false, Some(vec![]));
++        assert_eq!(confirm(&a, &obs(false, Some(vec![11, 11]))), None);
++        assert_eq!(confirm(&a, &obs(false, Some(vec![0]))), None);
++    }
++    #[test]
++    fn close_and_sibling_change_hold() {
++        let a = obs(true, Some(vec![10, 11]));
++        let mut b = obs(true, Some(vec![12]));
++        b.target_owned = false;
++        b.target_absent = true;
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn stale_target_before_press_hold() {
++        let mut a = obs(false, Some(vec![]));
++        a.target_owned = false;
++        assert_eq!(confirm(&a, &obs(false, Some(vec![11]))), None);
++    }
++    #[test]
++    fn key_probe_needs_exact_lease_and_plain_background_route() {
++        assert!(eligible_key_probe(false, false, Some(10), true));
++        assert!(!eligible_key_probe(true, false, Some(10), true));
++        assert!(!eligible_key_probe(false, true, Some(10), true));
++        assert!(!eligible_key_probe(false, false, Some(10), false));
++        assert!(!eligible_key_probe(false, false, None, true));
++        assert!(!eligible_key_probe(false, false, Some(0), true));
++    }
++    #[test]
++    fn one_acknowledged_post_can_return_exact_modal_evidence() {
++        let posts = std::cell::Cell::new(0);
++        let reads = std::cell::Cell::new(0);
++        let result = dispatch_once(
++            || {
++                posts.set(posts.get() + 1);
++                Ok::<_, ()>(())
++            },
++            || {
++                reads.set(reads.get() + 1);
++                Some(Transition::ModalOpened)
++            },
++        );
++        assert_eq!(result, Ok(((), Some(Transition::ModalOpened))));
++        assert_eq!(posts.get(), 1);
++        assert_eq!(reads.get(), 1);
++    }
++    #[test]
++    fn failed_post_has_no_readback_and_no_replay() {
++        let posts = std::cell::Cell::new(0);
++        let result = dispatch_once(
++            || {
++                posts.set(posts.get() + 1);
++                Err::<(), _>("refused")
++            },
++            || panic!("must not read back a failed post"),
++        );
++        assert_eq!(result, Err("refused"));
++        assert_eq!(posts.get(), 1);
++    }
++    #[test]
++    fn acknowledgement_without_postcondition_stays_unknown() {
++        assert_eq!(dispatch_once(|| Ok::<_, ()>(()), || None), Ok(((), None)));
++    }
++    #[test]
++    fn exact_top_level_absence_is_a_distinct_observed_effect() {
++        let a = obs(false, None);
++        let mut b = obs(false, None);
++        b.target_owned = false;
++        b.target_absent = true;
++        let effect = confirm(&a, &b).expect("exact owned root absence must be observable");
++        assert_eq!(effect.label(), "absent");
++        assert_eq!(effect.evidence_kind(), "exact_owned_window_absence");
++        assert_eq!(effect.protocol(), "supymem_exact_window_absence_v1");
++    }
++
++    #[test]
++    fn absence_unknown_foreign_decoy_and_pid_reuse_hold() {
++        let a = obs(false, None);
++        let mut b = obs(false, None);
++        // Unknown/foreign never sets target_absent; changed PID/scope holds.
++        b.target_owned = false;
++        assert_eq!(confirm(&a, &b), None);
++        b.target_absent = true;
++        b.scope.pid += 1;
++        assert_eq!(confirm(&a, &b), None);
++        b.scope = a.scope.clone();
++        b.scope.window_id += 1;
++        assert_eq!(confirm(&a, &b), None);
++        b.scope = a.scope.clone();
++        b.target_owned = true; // contradictory facts cannot confirm
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn stale_or_unbound_root_cannot_certify_absence() {
++        let mut a = obs(false, None);
++        let mut b = obs(false, None);
++        b.target_owned = false;
++        b.target_absent = true;
++        a.ax_root_exact = false;
++        assert_eq!(confirm(&a, &b), None);
++        a.ax_root_exact = true;
++        a.target_absent = true;
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn missing_sheet_inventory_or_parent_cannot_be_window_absence() {
++        let a = obs(true, None);
++        let mut b = obs(true, None);
++        b.target_owned = false;
++        b.target_absent = true;
++        assert_eq!(confirm(&a, &b), None);
++        let mut a = obs(false, None);
++        a.scope.parent_window_id = Some(9);
++        b.scope = a.scope.clone();
++        assert_eq!(confirm(&a, &b), None);
++    }
++    #[test]
++    fn unknown_top_level_sheets_cannot_mint_modal_open() {
++        assert_eq!(
++            confirm(&obs(false, None), &obs(false, Some(vec![11]))),
++            None
++        );
++    }
++    #[test]
++    fn refused_or_unacked_post_cannot_observe_window_absence() {
++        assert_eq!(
++            dispatch_once(|| Err::<(), _>("refused"), || panic!("must not probe")),
++            Err("refused")
++        );
++        // An acknowledged dispatch without explicit readback never becomes proof.
++        assert_eq!(dispatch_once(|| Ok::<_, ()>(()), || None), Ok(((), None)));
++    }
++
++    #[test]
++    fn unsupported_sheet_capture_only_observes_exact_absence() {
++        let before = obs(true, None);
++        let proof =
++            SheetAbsenceCapture::capture(&before, true, true, Some("1234"), Some("1234")).unwrap();
++        let mut after = before.clone();
++        after.target_owned = false;
++        after.target_absent = true;
++        assert_eq!(confirm(&before, &after), None); // stronger modal predicate unchanged
++        assert_eq!(
++            proof.confirm(&after, true, Some("1234"), true),
++            Some(Transition::WindowAbsent)
++        );
++        for (parent, generation, inventory) in [
++            (false, Some("1234"), true),
++            (true, None, true),
++            (true, Some("5678"), true),
++            (true, Some("1234"), false),
++        ] {
++            assert_eq!(proof.confirm(&after, parent, generation, inventory), None);
++        }
++        assert_eq!(proof.confirm(&before, true, Some("1234"), true), None);
++        after.sheets = Some(vec![10]);
++        assert_eq!(proof.confirm(&after, true, Some("1234"), false), None);
++        assert_eq!(proof.confirm(&after, true, Some("1234"), true), None);
++        after.sheets = Some(vec![]);
++        assert_eq!(
++            proof.confirm(&after, true, Some("1234"), false),
++            Some(Transition::WindowAbsent)
++        );
++        after.sheets = None;
++        after.scope.pid = 43;
++        assert_eq!(proof.confirm(&after, true, Some("1234"), true), None);
++        after.scope = before.scope.clone();
++        after.scope.window_id = 11;
++        assert_eq!(proof.confirm(&after, true, Some("1234"), true), None);
++        after.scope = before.scope.clone();
++        after.parent_owned = false;
++        assert_eq!(proof.confirm(&after, true, Some("1234"), true), None);
++    }
++    #[test]
++    fn sheet_absence_unknown_preflight_and_contradictions_deny() {
++        let before = obs(true, None);
++        for (parent, unsupported, old, new) in [
++            (false, true, Some("1"), Some("1")),
++            (true, false, Some("1"), Some("1")),
++            (true, true, None, None),
++            (true, true, Some("1"), Some("2")),
++        ] {
++            assert!(SheetAbsenceCapture::capture(&before, parent, unsupported, old, new).is_none());
++        }
++        assert!(SheetAbsenceCapture::capture(
++            &obs(true, Some(vec![10])),
++            true,
++            true,
++            Some("1"),
++            Some("1")
++        )
++        .is_none());
++        assert!(
++            SheetAbsenceCapture::capture(&obs(false, None), true, true, Some("1"), Some("1"))
++                .is_none()
++        );
++        assert!(absence_inventory_acceptable(None, 10, true));
++        assert!(!absence_inventory_acceptable(None, 10, false));
++        assert!(absence_inventory_acceptable(Some(&[11]), 10, false));
++        for ids in [&[10][..], &[0][..], &[11, 11][..]] {
++            assert!(!absence_inventory_acceptable(Some(ids), 10, false));
++        }
++        assert!(!absence_inventory_acceptable(Some(&[]), 10, true));
++    }
++}
+diff --git a/crates/platform-macos/src/ax/tree.rs b/crates/platform-macos/src/ax/tree.rs
+--- a/crates/platform-macos/src/ax/tree.rs
++++ b/crates/platform-macos/src/ax/tree.rs
+@@ -64,6 +64,9 @@
+     pub actions: Vec<String>,
+     /// The raw AXUIElementRef pointer value, for caching.
+     pub element_ptr: usize,
++    pub pid: Option<i32>,
++    pub window_id: Option<u32>,
++    pub parent_window_id: Option<u32>,
+     /// Depth in the rendered markdown tree (matches the indent level used in
+     /// `tree_markdown`). Layout containers AXScrollArea/AXGroup collapse so
+     /// children share the parent's depth.
+@@ -284,7 +287,7 @@
+                     let identifier = copy_string_attr(child, "AXIdentifier");
+                     // Match AX window element → CGWindowID via private SPI.
+                     // Only windows carry one, so skip the round-trip elsewhere.
+-                    let ax_window_id = if role == "AXWindow" {
++                    let ax_window_id = if matches!(role.as_str(), "AXWindow" | "AXSheet") {
+                         ax_get_window_id(child)
+                     } else {
+                         None
+@@ -521,6 +524,17 @@
+             help: help.clone(),
+             actions: actions.clone(),
+             element_ptr,
++            pid: element_pid(element),
++            window_id: if matches!(role.as_str(), "AXWindow" | "AXSheet") {
++                ax_get_window_id(element)
++            } else {
++                super::exact_target::element_window_id(element)
++            },
++            parent_window_id: if matches!(role.as_str(), "AXWindow" | "AXSheet") {
++                parent_window_id(element)
++            } else {
++                None
++            },
+             depth,
+             parent_element_index: parent_index,
+             frame,
+@@ -555,6 +569,17 @@
+             help: help.clone(),
+             actions: vec![],
+             element_ptr,
++            pid: element_pid(element),
++            window_id: if matches!(role.as_str(), "AXWindow" | "AXSheet") {
++                ax_get_window_id(element)
++            } else {
++                super::exact_target::element_window_id(element)
++            },
++            parent_window_id: if matches!(role.as_str(), "AXWindow" | "AXSheet") {
++                parent_window_id(element)
++            } else {
++                None
++            },
+             depth,
+             parent_element_index: parent_index,
+             frame,
+diff --git a/crates/platform-macos/src/ax/window_scope.rs b/crates/platform-macos/src/ax/window_scope.rs
+--- a/crates/platform-macos/src/ax/window_scope.rs
++++ b/crates/platform-macos/src/ax/window_scope.rs
+@@ -53,8 +53,7 @@
+     /// report `AXStandardWindow` rather than a dialog subrole, but identify
+     /// themselves as `open-panel` / `save-panel`.
+     pub identifier: Option<String>,
+-    /// `_AXUIElementGetWindow` result, when the SPI resolved one. Only read
+-    /// for `AXWindow` roles.
++    /// `_AXUIElementGetWindow` result for an exactly owned AXWindow or AXSheet.
+     pub ax_window_id: Option<u32>,
+ }
+
+@@ -120,8 +119,7 @@
+
+ /// Decide what a window-scoped walk of `candidates` should cover.
+ ///
+-/// `resolve_owner` is only invoked when no candidate claims `requested` — the
+-/// CGWindowList enumeration it performs is wasted work on the happy path.
++/// Fresh CG ownership is mandatory even when a cached AX surface matches.
+ pub fn decide_window_scope<F>(
+     candidates: &[TopLevelCandidate],
+     requested: u32,
+@@ -130,21 +128,29 @@
+ where
+     F: FnOnce() -> WindowOwner,
+ {
++    if let Some(scope) = scope_from_owner(&resolve_owner()) {
++        return ScopeDecision {
++            scope,
++            walk: Vec::new(),
++        };
++    }
+     let matched: Vec<usize> = candidates
+         .iter()
+         .enumerate()
+-        .filter(|(_, c)| c.role == "AXWindow" && c.ax_window_id == Some(requested))
++        .filter(|(_, c)| {
++            matches!(c.role.as_str(), "AXWindow" | "AXSheet") && c.ax_window_id == Some(requested)
++        })
+         .map(|(i, _)| i)
+         .collect();
+
+-    if matched.is_empty() {
++    if matched.len() != 1 {
+         // Nothing claims the id. Ask WindowServer *why*: a fabricated/stale id
+         // and a live id owned by another process are different refusals, and a
+         // live same-pid id whose AX surface never materialised is not a refusal
+         // at all.
+-        let scope = scope_from_owner(&resolve_owner()).unwrap_or(WindowScope::AxUnresolved {
++        let scope = WindowScope::AxUnresolved {
+             ax_window_count: candidates.iter().filter(|c| c.role == "AXWindow").count(),
+-        });
++        };
+         return ScopeDecision {
+             scope,
+             walk: Vec::new(),
+@@ -165,7 +171,7 @@
+         .iter()
+         .enumerate()
+         .filter(|(i, c)| {
+-            (c.role != "AXWindow" || matched.contains(i))
++            (!matches!(c.role.as_str(), "AXWindow" | "AXSheet") || matched.contains(i))
+                 && !(dialog_scope && c.role == "AXMenuBar")
+         })
+         .map(|(i, _)| i)
+@@ -188,7 +194,7 @@
+     }
+
+     fn never_called() -> WindowOwner {
+-        panic!("owner lookup must be skipped when a candidate claims the id");
++        WindowOwner::SamePid
+     }
+
+     /// The MACOS.md contract: a resolved normal window keeps the menu bar in
+@@ -291,14 +297,14 @@
+     /// walks Chrome's other window ids expecting the consent `AXSheet` as a
+     /// top-level non-window child.
+     #[test]
+-    fn matched_window_keeps_sibling_sheets() {
++    fn matched_window_excludes_sibling_sheets() {
+         let candidates = [
+             TopLevelCandidate::new("AXSheet", None),
+             TopLevelCandidate::new("AXWindow", Some(11)),
+         ];
+         let d = decide_window_scope(&candidates, 11, never_called);
+         assert_eq!(d.scope, WindowScope::Matched);
+-        assert_eq!(d.walk, vec![0, 1]);
++        assert_eq!(d.walk, vec![1]);
+     }
+
+     #[test]
+@@ -367,3 +373,36 @@
+         ));
+     }
+ }
++
++#[cfg(test)]
++mod supymem_modal_tests {
++    use super::*;
++    #[test]
++    fn exact_sheet_surface_is_a_unique_target_not_its_parent() {
++        let c = [
++            TopLevelCandidate::new("AXWindow", Some(11)),
++            TopLevelCandidate::new("AXSheet", Some(22)),
++            TopLevelCandidate::new("AXWindow", Some(33)),
++        ];
++        let d = decide_window_scope(&c, 22, || WindowOwner::SamePid);
++        assert_eq!(d.scope, WindowScope::Matched);
++        assert_eq!(d.walk, vec![1]);
++    }
++    #[test]
++    fn fresh_foreign_owner_overrides_stale_matching_ax_identity() {
++        let c = [TopLevelCandidate::new("AXWindow", Some(11))];
++        let d = decide_window_scope(&c, 11, || WindowOwner::Unknown);
++        assert_eq!(d.scope, WindowScope::NotFound);
++        assert!(d.walk.is_empty());
++    }
++    #[test]
++    fn duplicate_exact_roots_refuse_instead_of_double_walking() {
++        let c = [
++            TopLevelCandidate::new("AXSheet", Some(22)),
++            TopLevelCandidate::new("AXWindow", Some(22)),
++        ];
++        assert!(!decide_window_scope(&c, 22, || WindowOwner::SamePid)
++            .scope
++            .is_matched());
++    }
++}
+diff --git a/crates/platform-macos/src/browser/consent_ui.rs b/crates/platform-macos/src/browser/consent_ui.rs
+--- a/crates/platform-macos/src/browser/consent_ui.rs
++++ b/crates/platform-macos/src/browser/consent_ui.rs
+@@ -399,6 +399,9 @@
+             help: None,
+             actions: actions.iter().map(|value| (*value).to_owned()).collect(),
+             element_ptr: 7,
++            pid: None,
++            window_id: None,
++            parent_window_id: None,
+             depth,
+             parent_element_index: None,
+             frame: None,
+diff --git a/crates/platform-macos/src/browser/setup_ui.rs b/crates/platform-macos/src/browser/setup_ui.rs
+--- a/crates/platform-macos/src/browser/setup_ui.rs
++++ b/crates/platform-macos/src/browser/setup_ui.rs
+@@ -1818,6 +1818,9 @@
+             help: None,
+             actions: actions.iter().map(|value| (*value).to_owned()).collect(),
+             element_ptr: 7,
++            pid: None,
++            window_id: None,
++            parent_window_id: None,
+             depth: 0,
+             parent_element_index: None,
+             frame: None,
+diff --git a/crates/platform-macos/src/tools/click.rs b/crates/platform-macos/src/tools/click.rs
+--- a/crates/platform-macos/src/tools/click.rs
++++ b/crates/platform-macos/src/tools/click.rs
+@@ -682,6 +682,8 @@
+             // and stomp default for a non-default session).
+             let ck = cursor_key.clone();
+             let selection_modifiers = modifiers.clone();
++            let press_diagnostics = crate::ax::press_diagnostic::Trace::default();
++            let diagnostic_trace = press_diagnostics.clone();
+             let result = focus_guard::with_focus_suppressed(
+                 if foreground { None } else { Some(pid) },
+                 prior_front,
+@@ -689,6 +691,39 @@
+                 || async move {
+                     tokio::task::spawn_blocking(move || {
+                         let element_ptr = element_guard.as_ptr();
++                        // Readback is independent of dispatch acknowledgement. Capture
++                        // before exactly one advertised plain background AXButton press.
++                        let probe = if !foreground
++                            && count == 1
++                            && selection_modifiers.is_empty()
++                            && action_clone == "press"
++                        {
++                            unsafe {
++                                crate::ax::press_probe::Probe::capture_button(
++                                    element_ptr as AXUIElementRef,
++                                    pid,
++                                    wid,
++                                    diagnostic_trace.clone(),
++                                )
++                            }
++                        } else {
++                            None
++                        };
++                        let control_probe = if !foreground
++                            && count == 1
++                            && selection_modifiers.is_empty()
++                            && action_clone == "press"
++                        {
++                            unsafe {
++                                crate::ax::control_probe::ControlProbe::capture(
++                                    element_ptr as AXUIElementRef,
++                                    pid,
++                                    wid,
++                                )
++                            }
++                        } else {
++                            None
++                        };
+                         if foreground {
+                             let mut outcome = None;
+                             let has_modifiers = !selection_modifiers.is_empty();
+@@ -724,7 +759,7 @@
+                             let outcome = outcome.ok_or_else(|| {
+                                 anyhow::anyhow!("foreground AX click did not execute")
+                             })?;
+-                            Ok((outcome, fronted))
++                            Ok((outcome, fronted, None, None))
+                         } else {
+                             perform_ax_click(
+                                 element_ptr,
+@@ -737,7 +772,23 @@
+                                 &selection_modifiers,
+                                 false,
+                             )
+-                            .map(|outcome| (outcome, false))
++                            .map(|outcome| {
++                                let transition = if !outcome.2 && !outcome.3 && !outcome.4 {
++                                    probe
++                                        .as_ref()
++                                        .and_then(|p| unsafe { p.after_acknowledged() })
++                                } else {
++                                    None
++                                };
++                                let control_effect = if !outcome.2 && !outcome.3 && !outcome.4 {
++                                    control_probe
++                                        .as_ref()
++                                        .and_then(|p| unsafe { p.after_acknowledged() })
++                                } else {
++                                    None
++                                };
++                                (outcome, false, transition, control_effect)
++                            })
+                         }
+                     })
+                     .await
+@@ -758,6 +809,8 @@
+                         selection_via_pixel,
+                     ),
+                     fronted,
++                    transition,
++                    control_effect,
+                 ))) => {
+                     // For text inputs, wait 800ms for WebKit DOM focus to settle
+                     // before returning — matches the Swift reference behaviour.
+@@ -765,15 +818,9 @@
+                         tokio::time::sleep(std::time::Duration::from_millis(800)).await;
+                     }
+                     msg.push_str(&changes.result_suffix());
+-                    // AX dispatch went through, but AXPerformAction returning
+-                    // success does not confirm the on-screen effect (many elements
+-                    // no-op silently). A click is never driver-verifiable (no
+-                    // read-back) → verified:false stays for back-compat. The
+-                    // tri-state `effect` is the richer signal:
+-                    //   * suspected_noop — the element didn't advertise the action,
+-                    //     so the press likely did nothing → cross to vision/pixel.
+-                    //   * unverifiable — dispatched fine, driver just can't confirm;
+-                    //     the caller verifies via screenshot.
++                    // ACK alone stays unverifiable. Confirm only existing selection
++                    // readback or the bounded exact modal postcondition captured
++                    // before this single admitted press. Neither proves task success.
+                     let mut structured = serde_json::json!({
+                         "path": if selection_via_pixel {
+                             if fronted { "cgevent_fg" } else { "cgevent" }
+@@ -782,8 +829,8 @@
+                         } else {
+                             "ax"
+                         },
+-                        "verified": selection_verified,
+-                        "effect": if selection_verified {
++                        "verified": selection_verified || transition.is_some() || control_effect.is_some(),
++                        "effect": if selection_verified || transition.is_some() || control_effect.is_some() {
+                             "confirmed"
+                         } else if suspected_noop {
+                             "suspected_noop"
+@@ -791,10 +838,25 @@
+                             "unverifiable"
+                         },
+                     });
++                    structured["probe_diagnostics"] =
++                        crate::ax::press_probe::diagnostic_json(&press_diagnostics);
+                     if selection_verified {
+                         structured["evidence"] = serde_json::json!([
+                             { "kind": "accessibility_readback" }
+                         ]);
++                    }
++                    if let Some(transition) = transition {
++                        structured["evidence"] = serde_json::json!([{
++                            "kind": "exact_modal_readback",
++                            "transition": transition.label(),
++                            "pid": pid, "window_id": wid,
++                        }]);
++                    }
++                    if let Some(effect) = control_effect {
++                        structured["evidence"] = serde_json::json!([{
++                            "kind":"exact_control_state_readback", "policy":effect.label(),
++                            "pid":pid,"window_id":wid,
++                        }]);
+                     }
+                     if suspected_noop {
+                         structured["escalation"] = serde_json::json!({
+@@ -805,10 +867,22 @@
+                                        screenshot from get_window_state."
+                         });
+                     }
+-                    ToolResult::text(msg).with_structured(structured)
+-                }
+-                Ok(Err(e)) => ToolResult::error(format!("AX action failed: {e}")),
+-                Err(e) => ToolResult::error(format!("Task error: {e}")),
++                    ToolResult::text(msg)
++                        .with_structured(structured)
++                        .with_action_record(crate::ax::action_receipt::click_record(
++                            fronted, selection_via_pixel, suspected_noop, selection_verified,
++                            transition, control_effect, pid, wid,
++                        ))
++                        .with_probe_diagnostics(crate::ax::press_probe::typed_diagnostic(
++                            &press_diagnostics,
++                        ))
++                }
++                Ok(Err(e)) => ax_action_error_result(&e),
++                Err(_) => ToolResult::error("Native AX worker failed; effect unconfirmed")
++                    .with_structured(
++                        serde_json::json!({"status":"failed", "code":"ax_worker_failed",
++                        "stage":"ax_worker", "effect":"unverifiable", "verified":false}),
++                    ),
+             }
+         } else if let (Some(mut cx), Some(mut cy)) = (x, y) {
+             // ── Pixel path ─────────────────────────────────────────────────
+@@ -1310,6 +1384,19 @@
+ /// the driver's only signal that the press likely did nothing. The caller turns
+ /// it into `effect: "suspected_noop"` + an escalation hint so the agent crosses
+ /// to the vision/pixel path instead of trusting a hollow success.
++fn ax_action_error_result(error: &anyhow::Error) -> ToolResult {
++    let typed = error.downcast_ref::<crate::ax::action_error::AxActionError>();
++    let known = typed.and_then(|error| error.known());
++    ToolResult::error("Native AX action failed; effect unconfirmed").with_structured(
++        serde_json::json!({
++            "status":"failed", "code":"ax_action_failed", "effect":"unverifiable", "verified":false,
++            "stage":if typed.is_some() { "ax_perform_action" } else { "ax_action" },
++            "ax_error_code":known.map(|(code, _)| code),
++            "ax_error":known.map(|(_, name)| name).unwrap_or("withheld"),
++        }),
++    )
++}
++
+ fn perform_ax_click(
+     element_ptr: usize,
+     idx: usize,
+@@ -1455,27 +1542,10 @@
+     }
+
+     let err = unsafe { crate::ax::bindings::perform_action(element, ax_action) };
+-    if err != crate::ax::bindings::kAXErrorSuccess {
+-        // Some collection rows claim a click-like action but Finder returns
+-        // kAXErrorCannotComplete. Use the same verified selection fallback
+-        // before surfacing the dispatch error.
+-        if ax_action == "AXPress" && modifiers.is_empty() {
+-            if let Some(selected_role) =
+-                crate::input::ax_actions::select_nearest_container(element_ptr)
+-            {
+-                return Ok((
+-                    format!(
+-                        "✅ Selected nearest {selected_role} for [{idx}] {role} \"{title}\" \
+-                         after AXPress returned {err}; confirmed AXSelected=true."
+-                    ),
+-                    false,
+-                    false,
+-                    true,
+-                    false,
+-                ));
+-            }
+-        }
+-        anyhow::bail!("AXUIElementPerformAction({ax_action}) returned {err}");
++    if let Some(error) = crate::ax::action_error::AxActionError::from_return(err) {
++        // A failed AX return can still have a delayed/partial effect. No second
++        // selection mutation or input fallback may replay this uncertain action.
++        return Err(anyhow::Error::new(error));
+     }
+
+     let mut summary = format!("✅ Performed {ax_action} on [{idx}] {role} \"{title}\".");
+@@ -1718,4 +1788,26 @@
+             "strict-suppression paths retain their existing ownership"
+         );
+     }
++    #[test]
++    fn typed_ax_error_receipt_is_unconfirmed_and_private() {
++        let typed = crate::ax::action_error::AxActionError::from_return(-25204).unwrap();
++        let result = super::ax_action_error_result(&anyhow::Error::new(typed));
++        assert_eq!(result.is_error, Some(true));
++        let metadata = result.structured_content.unwrap();
++        assert_eq!(metadata["code"], "ax_action_failed");
++        assert_eq!(metadata["effect"], "unverifiable");
++        assert_eq!(metadata["verified"], false);
++        assert_eq!(metadata["stage"], "ax_perform_action");
++        assert_eq!(metadata["ax_error_code"], -25204);
++        assert_eq!(metadata["ax_error"], "cannot_complete");
++        let unknown = super::ax_action_error_result(&anyhow::anyhow!("private AX label/body"));
++        assert_eq!(unknown.is_error, Some(true));
++        let metadata = unknown.structured_content.unwrap();
++        assert!(metadata["ax_error_code"].is_null());
++        assert_eq!(metadata["ax_error"], "withheld");
++        assert_eq!(metadata["verified"], false);
++        assert!(!serde_json::to_string(&metadata)
++            .unwrap()
++            .contains("private"));
++    }
+ }
+diff --git a/crates/platform-macos/src/tools/get_desktop_state.rs b/crates/platform-macos/src/tools/get_desktop_state.rs
+--- a/crates/platform-macos/src/tools/get_desktop_state.rs
++++ b/crates/platform-macos/src/tools/get_desktop_state.rs
+@@ -172,6 +172,7 @@
+             is_error: None,
+             structured_content: Some(structured),
+             action_record: None,
++            probe_diagnostics: None,
+         }
+     }
+ }
+diff --git a/crates/platform-macos/src/tools/get_window_state.rs b/crates/platform-macos/src/tools/get_window_state.rs
+--- a/crates/platform-macos/src/tools/get_window_state.rs
++++ b/crates/platform-macos/src/tools/get_window_state.rs
+@@ -590,7 +590,16 @@
+         // absence must remain unknown rather than being claimed complete.
+         let elements_complete = false;
+
++        let modal_windows: Vec<Value> = tree_result.as_ref().map(|tree| tree.nodes.iter()
++            .filter(|node| node.pid == Some(pid) && matches!(node.role.as_str(), "AXWindow" | "AXSheet") && node.parent_window_id == Some(window_id))
++            .filter_map(|node| {
++                let modal_id = node.window_id?;
++                (modal_id != window_id && matches!(crate::windows::resolve_window_owner(pid, modal_id), crate::windows::WindowOwner::SamePid))
++                    .then(|| serde_json::json!({"pid": pid, "window_id": modal_id, "parent_window_id": window_id}))
++            }).collect()).unwrap_or_default();
+         let mut structured = serde_json::json!({
++            "modal_protocol": "supymem_exact_modal_v1",
++            "modal_windows": modal_windows,
+             "window_id": window_id,
+             "pid": pid,
+             "element_count": element_count,
+@@ -741,6 +750,7 @@
+             is_error: None,
+             structured_content: Some(structured),
+             action_record: None,
++            probe_diagnostics: None,
+         }
+     }
+ }
+@@ -885,6 +895,9 @@
+             // one in the per-pid LRU). See cua-driver-core's
+             // `element_token` module.
+             if let Some(sid) = snapshot_id {
++                entry["pid"] = serde_json::json!(node.pid);
++                entry["window_id"] = serde_json::json!(node.window_id);
++                entry["parent_window_id"] = serde_json::json!(node.parent_window_id);
+                 entry["element_token"] =
+                     serde_json::json!(cua_driver_core::element_token::token_for(sid, idx));
+             }
+@@ -1142,6 +1155,9 @@
+             help: None,
+             actions,
+             element_ptr: 0,
++            pid: None,
++            window_id: None,
++            parent_window_id: None,
+             depth,
+             parent_element_index: parent,
+             frame,
+diff --git a/crates/platform-macos/src/tools/hotkey.rs b/crates/platform-macos/src/tools/hotkey.rs
+--- a/crates/platform-macos/src/tools/hotkey.rs
++++ b/crates/platform-macos/src/tools/hotkey.rs
+@@ -23,6 +23,31 @@
+     pub fn new(state: Arc<ToolState>) -> Self {
+         Self { state }
+     }
++}
++
++fn scoped_key_receipt(
++    foreground: bool,
++    transition: Option<crate::ax::press_readback::Transition>,
++    pid: i32,
++    window_id: Option<u32>,
++) -> Value {
++    let transition = if !foreground && pid > 0 && window_id.is_some_and(|id| id > 0) {
++        transition
++    } else {
++        None
++    };
++    let mut receipt = serde_json::json!({
++        "path": if foreground { "key_events_fg" } else { "key_events" },
++        "verified": transition.is_some(),
++        "effect": if transition.is_some() { "confirmed" } else { "unverifiable" },
++    });
++    if let Some(transition) = transition {
++        receipt["evidence"] = serde_json::json!([{
++            "kind": "exact_modal_readback", "transition": transition.label(),
++            "pid": pid, "window_id": window_id,
++        }]);
++    }
++    receipt
+ }
+
+ static DEF: std::sync::OnceLock<ToolDef> = std::sync::OnceLock::new();
+@@ -47,7 +72,7 @@
+                ignore a background combo. With an AX target or x,y, the focused field \
+                receives the chord through the foreground HID queue (needed by native \
+                Chromium fields such as the omnibox). Requires window_id.\n\n\
+-             A combo is never driver-verifiable (no read-back) → effect:\"unverifiable\"; \
++             A scoped background combo may confirm a narrowly proven exact modal transition; other effects remain effect:\"unverifiable\"; \
+              confirm via screenshot. NOTE: a keyboard combo does NOT focus a text \
+              field — to type into a backgrounded Electron input, establish real \
+              renderer focus with a PIXEL click first, then `type_text`. If an app only \
+@@ -386,7 +411,15 @@
+         // and the prior frontmost is restored if the activation lingers.
+         let prior_front = apps::frontmost_pid();
+         let snapshot = WindowChangeDetector::snapshot(prior_front);
+-
++        let scoped_readback = crate::ax::press_readback::eligible_key_probe(
++            fg,
++            coordinate_focus,
++            window_id,
++            _mutation_lease.is_some(),
++        );
++
++        let press_diagnostics = crate::ax::press_diagnostic::Trace::default();
++        let diagnostic_trace = press_diagnostics.clone();
+         let result = focus_guard::with_focus_suppressed(
+             Some(pid),
+             prior_front,
+@@ -395,6 +428,32 @@
+                 tokio::task::spawn_blocking(move || {
+                     let element_ptr = element_guard.as_ref().map(|guard| guard.as_ptr());
+                     let m: Vec<&str> = modifiers.iter().map(String::as_str).collect();
++                    if scoped_readback {
++                        if let Some(wid) = window_id {
++                            // Existing exact GenericKey gate/lease remains required.
++                            // Capture AFTER any focus write, BEFORE one key post.
++                            if let Some(ptr) = element_ptr {
++                                focus_hotkey_element(pid, ptr)?;
++                            }
++                            let probe = unsafe {
++                                crate::ax::press_probe::Probe::capture_key(
++                                    pid,
++                                    wid,
++                                    element_ptr,
++                                    diagnostic_trace.clone(),
++                                )
++                            };
++                            return crate::ax::press_readback::dispatch_once(
++                                || crate::input::keyboard::hotkey(pid, &key, &m),
++                                || {
++                                    probe
++                                        .as_ref()
++                                        .and_then(|p| unsafe { p.after_acknowledged() })
++                                },
++                            )
++                            .map(|((), transition)| transition);
++                        }
++                    }
+                     match (fg, coordinate_focus, window_id, element_ptr) {
+                         // Chrome's native omnibox and Chromium/Electron inputs
+                         // require a genuine foreground HID chord. Keep the exact
+@@ -461,6 +520,7 @@
+                         }
+                         _ => crate::input::keyboard::hotkey(pid, &key, &m),
+                     }
++                    .map(|()| None)
+                 })
+                 .await
+             },
+@@ -470,21 +530,18 @@
+         let changes = super::finish_window_observation(snapshot).await;
+
+         match result {
+-            Ok(Ok(())) => {
++            Ok(Ok(transition)) => {
+                 let label = if fg {
+                     " (delivery_mode:foreground)"
+                 } else {
+                     ""
+                 };
+-                // A combo is never read-back-verifiable. On the background rung,
+-                // point the agent at the foreground escalation for menu shortcuts
+-                // an app drops in the background — same contract as type_text.
+-                let mut structured = serde_json::json!({
+-                    "path": if fg { "key_events_fg" } else { "key_events" },
+-                    "verified": false,
+-                    "effect": "unverifiable",
+-                });
+-                if !fg && window_id.is_some() {
++                // Posting ACK is not consumption proof. Only the captured exact
++                // modal postcondition can confirm this background key effect.
++                let mut structured = scoped_key_receipt(fg, transition, pid, window_id);
++                structured["probe_diagnostics"] =
++                    crate::ax::press_probe::diagnostic_json(&press_diagnostics);
++                if !fg && window_id.is_some() && transition.is_none() {
+                     structured["escalation"] = serde_json::json!({
+                         "recommended": "foreground",
+                         "reason": "a background combo didn't land? menu key-equivalents \
+@@ -498,6 +555,12 @@
+                     changes.result_suffix()
+                 ))
+                 .with_structured(structured)
++                .with_action_record(crate::ax::action_receipt::key_record(
++                    fg, transition, false, pid, window_id,
++                ))
++                .with_probe_diagnostics(crate::ax::press_probe::typed_diagnostic(
++                    &press_diagnostics,
++                ))
+             }
+             Ok(Err(e)) => ToolResult::error(format!("hotkey failed: {e}")),
+             Err(e) => ToolResult::error(format!("Task error: {e}")),
+@@ -508,6 +571,40 @@
+ #[cfg(test)]
+ mod tests {
+     use super::*;
++
++    #[test]
++    fn scoped_key_receipt_requires_explicit_modal_readback() {
++        let unknown = scoped_key_receipt(false, None, 42, Some(10));
++        assert_eq!(unknown["verified"], false);
++        assert_eq!(unknown["effect"], "unverifiable");
++        assert!(unknown.get("evidence").is_none());
++        for (fg, pid, wid) in [
++            (true, 42, Some(10)),
++            (false, 0, Some(10)),
++            (false, 42, None),
++            (false, 42, Some(0)),
++        ] {
++            let invalid = scoped_key_receipt(
++                fg,
++                Some(crate::ax::press_readback::Transition::ModalOpened),
++                pid,
++                wid,
++            );
++            assert_eq!(invalid["effect"], "unverifiable");
++            assert!(invalid.get("evidence").is_none());
++        }
++        let confirmed = scoped_key_receipt(
++            false,
++            Some(crate::ax::press_readback::Transition::ModalOpened),
++            42,
++            Some(10),
++        );
++        assert_eq!(confirmed["verified"], true);
++        assert_eq!(confirmed["effect"], "confirmed");
++        assert_eq!(confirmed["evidence"][0]["kind"], "exact_modal_readback");
++        assert_eq!(confirmed["evidence"][0]["pid"], 42);
++        assert_eq!(confirmed["evidence"][0]["window_id"], 10);
++    }
+
+     #[test]
+     fn hotkey_contract_accepts_snapshot_bound_ax_targets() {
+diff --git a/crates/platform-macos/src/tools/mod.rs b/crates/platform-macos/src/tools/mod.rs
+--- a/crates/platform-macos/src/tools/mod.rs
++++ b/crates/platform-macos/src/tools/mod.rs
+@@ -737,6 +737,8 @@
+     host_owns_permission_ux: bool,
+     host_bundle_id: Option<String>,
+ ) {
++    // Resolver installation is compiled native code, not a transport argument.
++    let _ = cua_driver_core::owned_modal::register_native_resolver(crate::ax::owned_modal::resolve);
+     let state = Arc::new(ToolState::new_with_capture_service(
+         registry.capture_service(),
+         cursor_overlay_available,
+diff --git a/crates/platform-macos/src/tools/press_key.rs b/crates/platform-macos/src/tools/press_key.rs
+--- a/crates/platform-macos/src/tools/press_key.rs
++++ b/crates/platform-macos/src/tools/press_key.rs
+@@ -129,6 +129,18 @@
+ }
+
+ fn action_record(confirmed: bool, foreground: bool) -> ActionExecutionRecord {
++    action_record_with_transition(confirmed, foreground, None)
++}
++fn action_record_with_transition(
++    confirmed: bool,
++    foreground: bool,
++    transition: Option<crate::ax::press_readback::Transition>,
++) -> ActionExecutionRecord {
++    let transition = if !foreground && confirmed {
++        transition
++    } else {
++        None
++    };
+     let effect = if confirmed {
+         ActionEffect::Confirmed
+     } else {
+@@ -153,9 +165,13 @@
+         ActionExecutionRecord::builder(effect, transport, requested).actual_delivery(actual);
+     if confirmed {
+         record = record.evidence(ActionEvidence {
+-            kind: EvidenceKind::AccessibilityReadback,
+-            detail: "the same native AX element changed value or selection after the key post"
+-                .into(),
++            kind: if transition == Some(crate::ax::press_readback::Transition::WindowAbsent) { EvidenceKind::WindowChange } else { EvidenceKind::AccessibilityReadback },
++            detail: match transition {
++                Some(crate::ax::press_readback::Transition::ModalOpened) => "the exact target acquired one newly admitted child modal after the key post",
++                Some(crate::ax::press_readback::Transition::ModalClosed) => "the exact admitted modal closed while its same-PID parent remained live after the key post",
++                Some(crate::ax::press_readback::Transition::WindowAbsent) => "the freshly bound exact owned AX root window was absent from complete CG inventory after the key post; observed absence is not task completion",
++                None => "the same native AX element changed value or selection after the key post",
++            }.into(),
+         });
+     } else {
+         record = record.evidence(ActionEvidence {
+@@ -392,7 +408,15 @@
+         // wildcard snapshot suppressor and the targeted FocusGuard lease.
+         let prior_front = apps::frontmost_pid();
+         let snapshot = WindowChangeDetector::snapshot(prior_front);
+-
++        let scoped_readback = crate::ax::press_readback::eligible_key_probe(
++            fg,
++            px_focus,
++            window_id,
++            _mutation_lease.is_some(),
++        );
++
++        let press_diagnostics = crate::ax::press_diagnostic::Trace::default();
++        let diagnostic_trace = press_diagnostics.clone();
+         let result = focus_guard::with_focus_suppressed(
+             Some(pid),
+             prior_front,
+@@ -439,12 +463,36 @@
+                                     crate::input::keyboard::press_key_bare_global(&key, &m)
+                                 },
+                             )
+-                        });
++                        })
++                        .map(|confirmed| (confirmed, None));
+                     }
+-                    // background (default): auth-envelope post, no raise.
+-                    dispatch_with_ax_oracle(pid, window_id, pre_focus_ptr, || {
+-                        crate::input::keyboard::press_key(pid, &key, &m)
+-                    })
++                    // Capture only a single admitted background key post, after
++                    // pre-focus. Never expand pixel/global/foreground delivery.
++                    let probe = if scoped_readback {
++                        window_id.and_then(|wid| unsafe {
++                            crate::ax::press_probe::Probe::capture_key(
++                                pid,
++                                wid,
++                                pre_focus_ptr,
++                                diagnostic_trace.clone(),
++                            )
++                        })
++                    } else {
++                        None
++                    };
++                    let (confirmed, transition) = crate::ax::press_readback::dispatch_once(
++                        || {
++                            dispatch_with_ax_oracle(pid, window_id, pre_focus_ptr, || {
++                                crate::input::keyboard::press_key(pid, &key, &m)
++                            })
++                        },
++                        || {
++                            probe
++                                .as_ref()
++                                .and_then(|p| unsafe { p.after_acknowledged() })
++                        },
++                    )?;
++                    Ok((confirmed || transition.is_some(), transition))
+                 })
+                 .await
+             },
+@@ -453,8 +501,13 @@
+
+         let changes = super::finish_window_observation(snapshot).await;
+
++        let transition = result
++            .as_ref()
++            .ok()
++            .and_then(|result| result.as_ref().ok())
++            .and_then(|(_, transition)| *transition);
+         let delivery_outcome = match result {
+-            Ok(result) => map_delivery_outcome(result),
++            Ok(result) => map_delivery_outcome(result.map(|(confirmed, _)| confirmed)),
+             Err(error) => {
+                 PressKeyDeliveryOutcome::Failed(anyhow::anyhow!("posting task failed: {error}"))
+             }
+@@ -469,17 +522,28 @@
+                 } else {
+                     ""
+                 };
+-                let structured = serde_json::json!({
++                let mut structured = serde_json::json!({
+                     "path": if fg { "key_events_fg" } else { "key_events" },
+                     "verified": confirmed,
+                     "effect": if confirmed { "confirmed" } else { "unverifiable" },
+                 });
++                structured["probe_diagnostics"] =
++                    crate::ax::press_probe::diagnostic_json(&press_diagnostics);
++                if let Some(transition) = transition {
++                    structured["evidence"] = serde_json::json!([{
++                        "kind": "exact_modal_readback", "transition": transition.label(),
++                        "pid": pid, "window_id": window_id,
++                    }]);
++                }
+                 ToolResult::text(format!(
+                     "✅ Pressed {display_key} on pid {pid}{label}.{}",
+                     changes.result_suffix()
+                 ))
+                 .with_structured(structured)
+-                .with_action_record(action_record(confirmed, fg))
++                .with_probe_diagnostics(crate::ax::press_probe::typed_diagnostic(
++                    &press_diagnostics,
++                ))
++                .with_action_record(action_record_with_transition(confirmed, fg, transition))
+             }
+             PressKeyDeliveryOutcome::Failed(error) => delivery_failed(error),
+         }
+@@ -524,6 +588,36 @@
+         );
+         assert_eq!(confirmed.evidence.unwrap().len(), 1);
+         assert!(confirmed.escalation.is_none());
++    }
++
++    #[test]
++    fn modal_transition_evidence_is_truthful() {
++        use crate::ax::press_readback::Transition;
++        for transition in [Transition::ModalOpened, Transition::ModalClosed] {
++            let result = action_record_with_transition(true, false, Some(transition))
++                .public_result()
++                .unwrap();
++            assert_eq!(result.effect, cua_driver_contract::ActionEffect::Confirmed);
++            assert_eq!(
++                result.delivery.unwrap().mode,
++                cua_driver_contract::ActionDeliveryMode::Background
++            );
++            let evidence = result.evidence.unwrap();
++            assert_eq!(evidence.len(), 1);
++            let detail = evidence[0]
++                .detail
++                .as_deref()
++                .expect("confirmed modal evidence requires detail");
++            assert!(detail.contains("modal"));
++            assert!(!detail.contains("changed value"));
++        }
++        let unknown = action_record_with_transition(false, false, None)
++            .public_result()
++            .unwrap();
++        assert_eq!(
++            unknown.effect,
++            cua_driver_contract::ActionEffect::Unverifiable
++        );
+     }
+
+     #[test]
+diff --git a/crates/platform-macos/src/tools/zoom.rs b/crates/platform-macos/src/tools/zoom.rs
+--- a/crates/platform-macos/src/tools/zoom.rs
++++ b/crates/platform-macos/src/tools/zoom.rs
+@@ -144,6 +144,7 @@
+                         "mime_type": "image/jpeg"
+                     })),
+                     action_record: None,
++                    probe_diagnostics: None,
+                 }
+             }
+             Ok(Err(e)) => ToolResult::error(format!("Zoom failed: {e}")),
+diff --git a/crates/platform-macos/src/windows.rs b/crates/platform-macos/src/windows.rs
+--- a/crates/platform-macos/src/windows.rs
++++ b/crates/platform-macos/src/windows.rs
+@@ -382,6 +382,62 @@
+     resolve_window_owner_in(&all_windows_any_layer(), pid, window_id)
+ }
+
++/// Exact CG identity query for post-action readback. `None` is unavailable or
++/// malformed; `Some(None)` is a successful empty exact-window query. Ordinary
++/// enumeration's Unknown must never be used as proof that a modal closed.
++pub(crate) fn exact_window_pid(window_id: u32) -> Option<Option<i32>> {
++    use core_foundation::{
++        array::CFArray,
++        base::{CFGetTypeID, CFRelease, CFTypeRef, TCFType},
++        dictionary::CFDictionary,
++        number::CFNumber,
++        string::CFString,
++    };
++    use std::os::raw::c_void;
++    if window_id == 0 {
++        return None;
++    }
++    // Apple CGWindow.h: IncludingWindow = 1 << 3, includes only this exact ID.
++    let raw_ref = unsafe { CGWindowListCopyWindowInfo(1 << 3, window_id) };
++    if raw_ref.is_null() {
++        return None;
++    }
++    if unsafe { CFGetTypeID(raw_ref as CFTypeRef) } != CFArray::<CFTypeRef>::type_id() {
++        unsafe {
++            CFRelease(raw_ref as CFTypeRef);
++        }
++        return None;
++    }
++    let array = unsafe { CFArray::<CFTypeRef>::wrap_under_create_rule(raw_ref as _) };
++    if array.len() == 0 {
++        return Some(None);
++    }
++    if array.len() != 1 {
++        return None;
++    }
++    let item = *array.get(0)?;
++    if item.is_null()
++        || unsafe { CFGetTypeID(item) } != CFDictionary::<*const c_void, *const c_void>::type_id()
++    {
++        return None;
++    }
++    let dict =
++        unsafe { CFDictionary::<*const c_void, *const c_void>::wrap_under_get_rule(item as _) };
++    let number = |key: &str| -> Option<i64> {
++        let key = CFString::new(key);
++        let value = *dict.find(key.as_concrete_TypeRef() as *const c_void)?;
++        if value.is_null() || unsafe { CFGetTypeID(value) } != CFNumber::type_id() {
++            return None;
++        }
++        unsafe { CFNumber::wrap_under_get_rule(value as _).to_i64() }
++    };
++    if number("kCGWindowNumber")? != i64::from(window_id) {
++        return None;
++    }
++    let pid = i32::try_from(number("kCGWindowOwnerPID")?).ok()?;
++    (pid > 0).then_some(Some(pid))
++}
++
+ /// Select the best window_id for a pid.
+ pub fn resolve_main_window_id(pid: i32) -> anyhow::Result<u32> {
+     let windows = all_windows();
+diff --git a/crates/platform-windows/src/tools/impl_.rs b/crates/platform-windows/src/tools/impl_.rs
+--- a/crates/platform-windows/src/tools/impl_.rs
++++ b/crates/platform-windows/src/tools/impl_.rs
+@@ -1670,6 +1670,7 @@
+                     is_error: None,
+                     structured_content: Some(structured),
+                     action_record: None,
++                    probe_diagnostics: None,
+                 }
+             }
+             Err(e) => ToolResult::error(format!("Error: {e}")),
+@@ -7880,6 +7881,7 @@
+             is_error: None,
+             structured_content: Some(structured),
+             action_record: None,
++            probe_diagnostics: None,
+         }
+     }
+ }
+@@ -8850,6 +8852,7 @@
+                         "mime_type": "image/jpeg"
+                     })),
+                     action_record: None,
++                    probe_diagnostics: None,
+                 }
+             }
+             Ok(Err(e)) => ToolResult::error(format!("Zoom failed: {e}")),

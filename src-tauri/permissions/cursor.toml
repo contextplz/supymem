@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-cursor-receipt"
+description = "Bundled cursor panels may acknowledge only their current closed visual delivery"
+commands.allow = ["agent_cursor_rendered"]

@@ -1,0 +1,34 @@
+{
+  "planrun1_initial": {
+    "promise": "RecallDesk automates rebooking outreach, turning no-shows and cancellations into rescheduled visits with minimal staff effort.",
+    "proof_points": [
+      "Detects no-shows and cancellations automatically within the practice management system.",
+      "Sends a rebooking invitation via SMS or WhatsApp to the patient.",
+      "Patients can reply with a preferred time, book via a link, or request a callback."
+    ]
+  },
+  "planrun1_repair": {
+    "promise": "RecallDesk monitors your schedule and reaches out automatically when appointments are marked no-show or cancelled.",
+    "proof_points": [
+      "Detects no-shows and cancellations automatically within the practice management system.",
+      "Sends a rebooking invitation via SMS or WhatsApp to the patient.",
+      "Patients can reply with a preferred time, book via a link, or request a callback."
+    ]
+  },
+  "planrun2_initial": {
+    "promise": "RecallDesk automatically detects missed appointments and sends a friendly SMS or WhatsApp message, letting patients rebook by callback, a self-schedule link, or a quick reply.",
+    "proof_points": [
+      "Detects no-show and cancelled appointments from your practice management system.",
+      "Sends SMS and WhatsApp follow-ups immediately.",
+      "Patients rebook via callback, self-schedule link, or time-preference reply."
+    ]
+  },
+  "planrun2_repair": {
+    "promise": "RecallDesk sends an SMS or WhatsApp follow‑up when an appointment is marked no‑show or cancelled in your practice system. Patients can rebook via a callback, self‑schedule link, or reply with a preferred time.",
+    "proof_points": [
+      "Automatically initiates follow‑up when a no‑show or cancellation is recorded in your practice management system.",
+      "Sends the follow‑up via SMS or WhatsApp.",
+      "Presents patients with three ways to rebook: callback, self‑schedule link, or reply with a preferred time."
+    ]
+  }
+}

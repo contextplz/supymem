@@ -1,0 +1,250 @@
+.page {
+  width: min(var(--w-content-max), 100%);
+  margin: 0 auto;
+  padding: var(--s-5) var(--s-5) var(--s-8);
+}
+
+.question {
+  margin: 0 0 var(--s-2);
+  font: var(--t-display);
+  letter-spacing: -0.02em;
+}
+
+.management { min-width: 0; }
+.management summary { cursor: pointer; min-height: 32px; padding-block: 6px; font-weight: 600; }
+.management[open] summary { margin-bottom: var(--s-3); }
+
+.lede {
+  margin: 0 0 var(--s-4);
+  max-width: 42rem;
+  color: var(--fg-1);
+}
+
+.urlBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-card);
+  box-shadow: var(--sh-1);
+}
+
+.urlText {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font: var(--t-mono);
+  color: var(--fg-0);
+}
+
+.urlBar a:focus-visible,
+.actions button:focus-visible,
+.toggle:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--bg-2);
+  font: var(--t-meta);
+  color: var(--fg-1);
+}
+
+.simBanner {
+  margin-bottom: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-2);
+  border: 1px solid var(--warn);
+  background: var(--warn-dim);
+  color: var(--warn);
+  font: var(--t-body-md);
+}
+
+.frameWrap {
+  margin-bottom: var(--s-5);
+}
+
+.toggles {
+  display: flex;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
+}
+
+.toggle {
+  border-radius: var(--r-full);
+}
+
+.toggle[aria-pressed="true"] {
+  border-color: var(--accent-line);
+  background: var(--accent-dim);
+}
+
+.frame {
+  margin: 0 auto;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-1);
+  box-shadow: var(--sh-2);
+  transition: width var(--d-base) var(--e-out);
+}
+
+.frameDesktop {
+  width: 100%;
+  height: min(60dvh, 640px);
+}
+
+.frameMobile {
+  width: min(390px, 100%);
+  height: min(60dvh, 640px);
+}
+
+.frame iframe,
+.frame > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.section {
+  margin-bottom: var(--s-5);
+  padding: var(--s-4);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-3);
+  background: var(--bg-card);
+  box-shadow: var(--sh-1);
+}
+
+.section h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-3);
+  font: var(--t-title);
+}
+
+.revisionInput {
+  display: block;
+  width: 100%;
+  min-height: 6rem;
+  margin: var(--s-2) 0;
+  padding: var(--s-2);
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-1);
+  color: var(--fg-0);
+  font: var(--t-body-md);
+}
+
+.revisionInput:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}
+
+.revisionQuote {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  background: var(--bg-2);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s-3);
+}
+
+.lead {
+  display: grid;
+  gap: 2px;
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.lead:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.leadMeta {
+  color: var(--fg-2);
+  font: var(--t-meta);
+}
+
+.empty,
+.error,
+.loading {
+  padding: var(--s-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  background: var(--bg-card);
+}
+
+.empty h2,
+.error h2 {
+  margin: 0 0 var(--s-2);
+  font: var(--t-title);
+}
+
+.empty p,
+.error p,
+.loading p,
+.section p {
+  margin: 0 0 var(--s-3);
+  color: var(--fg-1);
+}
+
+.note {
+  margin: 0 0 var(--s-3);
+  color: var(--fg-1);
+  font: var(--t-meta);
+}
+
+.fail {
+  margin: 0 0 var(--s-3);
+  color: var(--danger);
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: var(--s-4) var(--s-3) var(--s-7);
+  }
+
+  .question {
+    font: 600 1.375rem/1.2 var(--font-sans);
+  }
+}

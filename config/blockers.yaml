@@ -1,0 +1,28 @@
+version: 1
+blockers:
+  - id: blk.account_signup
+    matches: [social account, oauth, instagram account, youtube channel, create an account, sign up]
+    verdict: can_with_help
+    human_minutes: 3
+    human_task_template: account_signup
+    reason: Platforms require a person to complete verification and accept their terms.
+    we_do_instead: We prepare the handle, profile and connection steps; you authorise the account once.
+  - id: blk.kyc
+    matches: [kyc, kyb, payout, bank account, payment processor]
+    verdict: can_with_help
+    human_minutes: 10
+    human_task_template: identity_verification
+    reason: Payment providers require a real person to submit identity documents.
+    we_do_instead: We prepare checkout and ask for verification only when it is needed to withdraw funds.
+  - id: blk.hardware_manufacture
+    matches: [device, sensor, pcb, enclosure, manufacture, wearable, robot, drone, hardware]
+    verdict: cannot
+    reason: Manufacturing and shipping need a physical supplier and operator.
+    we_do_instead: We build the software interface and produce a sourced manufacturing brief.
+  - id: blk.app_store_publish
+    matches: [app store, play store, publish an app, ios app, testflight]
+    verdict: can_with_help
+    human_minutes: 45
+    human_task_template: app_store_submission
+    reason: Store accounts and submissions are tied to a verified developer identity.
+    we_do_instead: We prepare the build, listing and release assets; you submit under your developer account.

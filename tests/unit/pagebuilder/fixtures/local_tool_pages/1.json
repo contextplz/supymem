@@ -1,0 +1,135 @@
+{
+  "input": {
+    "venture_id": "ven_example",
+    "name": "Nightshift",
+    "idea": "A planned shift-handoff board for independent warehouse teams. Supervisors would leave unresolved tasks, equipment notes and shift priorities for the next crew. No inventory integrations, predictive AI or live tracking are promised.",
+    "waitlist_url": "https://gateway.supymem.com/public/waitlists/ven_example",
+    "clarified_answers": {
+      "audience": "Warehouse supervisors"
+    },
+    "research": {
+      "competitors": "Role-based access is common in other tools."
+    }
+  },
+  "draft": {
+    "brief": {
+      "audience": "Warehouse supervisors",
+      "problem": "Unresolved tasks and equipment notes need a clear shift handoff.",
+      "promise": "A planned handoff board for the incoming warehouse crew.",
+      "tone": "Calm, practical and warm",
+      "proof_points": [
+        "Leave unresolved tasks for your next crew.",
+        "Keep equipment notes with your handoff.",
+        "Share your shift priorities on the same board."
+      ],
+      "cta": "Join the early-access list",
+      "forbidden_claims": [
+        "Existing customers",
+        "Yield guarantees"
+      ],
+      "concept_disclosure": "Join the waitlist for early-access updates."
+    },
+    "direction": {
+      "concept": "The family garden notebook",
+      "palette": {
+        "background": "#f6f1e8",
+        "text": "#213226",
+        "primary": "#426340",
+        "accent": "#c5954b"
+      },
+      "palette_family": "botanical parchment",
+      "display_font": "Georgia, serif",
+      "body_font": "Arial, sans-serif",
+      "layout_archetype": "botanical field guide",
+      "density": "airy",
+      "motion": "none",
+      "illustration_style": "Warm botanical line work using the same ink and ochre palette.",
+      "section_rhythm": "An open introduction followed by a planting diagram and a warm invitation."
+    },
+    "sections": [
+      {
+        "id": "hero",
+        "purpose": "Introduce the family's shared planting plan.",
+        "headline": "A clear handoff for the next crew",
+        "body": "The concept would collect unresolved tasks, equipment notes and shift priorities.",
+        "image_id": "garden_hero"
+      },
+      {
+        "id": "problem",
+        "purpose": "Explain how the proposed garden plan stays connected.",
+        "headline": "Keep the next task in view",
+        "body": "Unresolved tasks and equipment notes need a clear shift handoff.",
+        "image_id": "planting_art"
+      },
+      {
+        "id": "how-it-works",
+        "purpose": "Explain the confirmed workflow in three steps.",
+        "headline": "From the next task to a shared plan",
+        "body": "Leave the unresolved tasks. Add the equipment notes. Share the shift priorities with the next crew."
+      },
+      {
+        "id": "audience",
+        "purpose": "Identify the customer this offer is for.",
+        "headline": "A shared place for your next task",
+        "body": "Warehouse supervisors."
+      },
+      {
+        "id": "faq",
+        "purpose": "State what remains to be confirmed before early access.",
+        "headline": "What should you know before joining?",
+        "body": "Early-access timing and pilot details are to be confirmed. Ask about your use case when you join."
+      },
+      {
+        "id": "waitlist",
+        "purpose": "Invite the family to the real hosted consent form.",
+        "headline": "Follow early access",
+        "body": "Follow early-access updates for your next shift handoff."
+      }
+    ],
+    "assets": [
+      {
+        "id": "garden_hero",
+        "role": "hero",
+        "section_id": "hero",
+        "subject": "A warehouse handoff note beside a cart",
+        "prompt": "Original conceptual illustration of a paper note and warehouse cart.",
+        "scene": {
+          "objects": [
+            {
+              "kind": "note_board",
+              "x": 600,
+              "y": 450,
+              "scale": 0.8,
+              "rotation": 0
+            }
+          ]
+        }
+      },
+      {
+        "id": "planting_art",
+        "role": "section",
+        "section_id": "problem",
+        "subject": "A handoff paper note held on a clipboard",
+        "prompt": "Original conceptual illustration of a paper note held on a clipboard.",
+        "scene": {
+          "objects": [
+            {
+              "kind": "note_board",
+              "x": 350,
+              "y": 450,
+              "scale": 0.6,
+              "rotation": 0
+            },
+            {
+              "kind": "note_board",
+              "x": 850,
+              "y": 450,
+              "scale": 0.6,
+              "rotation": 0
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

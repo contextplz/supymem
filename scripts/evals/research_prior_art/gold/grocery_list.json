@@ -1,0 +1,48 @@
+{
+  "id": "grocery_list",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Share grocery lists and add ingredients from planned meals.",
+    "customer": "Households sharing shopping duties"
+  },
+  "direct": [
+    {
+      "name": "AnyList",
+      "domain": "anylist.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.anylist.com/",
+          "fact": "Shared shopping lists, recipes and meal planning.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "OurGroceries",
+      "domain": "ourgroceries.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.ourgroceries.com/overview",
+          "fact": "Shared household grocery lists and recipe ingredients.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [],
+  "oss": [],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status.",
+    "No inactive or dead direct attempt has been independently verified for this case; dead recall is not applicable."
+  ]
+}

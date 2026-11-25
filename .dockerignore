@@ -1,0 +1,61 @@
+.git
+.gitignore
+.cursor
+.claude
+.codex
+.vscode
+.idea
+
+# Secrets — never bake into an image layer
+.env
+.env.*
+!.env.example
+
+# Runtime / generated
+data/
+.docker-data/
+artifacts/
+.artifacts/
+*.log
+*.pid
+.qm-dev.pids
+
+# Python
+.venv/
+venv/
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / Next (Python images do not need these)
+node_modules/
+.pnpm-store/
+.next/
+out/
+apps/
+
+# Vendored CLIs — absent in CI; research paths fall back without them
+vendor/
+
+# Tests and docs are not runtime
+tests/
+docs/
+*.md
+!packages/**/LICENSE
+
+# Desktop / RL shopping canary (unrelated compose)
+src-tauri/
+canary/
+services/qm/
+services/llm_adapter/
+packages/agent_runner/
+packages/browsergym_shopping/
+config/deployment.private.json

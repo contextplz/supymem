@@ -1,0 +1,154 @@
+name: Public CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['desktop-v*', 'v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    env:
+      SUPYMEM_MODE: local
+      PYTHONPATH: ${{ github.workspace }}/packages:${{ github.workspace }}/services/company_os
+      GUARDRAILS_MODE: deterministic_only
+      LLM_OFFLINE: '1'
+      LLM_CASSETTE_MODE: replay
+      CHANNELS_DRY_RUN: 'true'
+      COS_TEST_APP_REUSE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+      - name: Install locked ./start source dependencies and test tools
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --require-hashes -r services/company_os/requirements.runtime.lock
+          .venv/bin/python -m pip install --require-hashes -r services/company_os/requirements.build.lock
+          .venv/bin/python -m pip install --require-hashes -r packages/desktop_runtime/requirements.local.lock
+          .venv/bin/python -m pip install --no-deps --no-build-isolation \
+            -e packages/core -e packages/coding_agents -e packages/huginn_watch \
+            -e packages/llm_gateway -e packages/guardrails -e packages/connectors \
+            -e packages/desktop_runtime -e services/company_os
+          .venv/bin/python -m pip install pytest pytest-asyncio
+      - name: Ruff
+        if: matrix.shard == 1
+        run: |
+          .venv/bin/python -m pip install ruff==0.16.10
+          .venv/bin/ruff check packages/llm_gateway packages/guardrails
+      - name: Verify public test imports and console assets
+        if: matrix.shard == 1
+        run: PUBLIC_CHECK_PYTHON=.venv/bin/python bash scripts/check_public.sh --check-tree
+      - name: Provision the sealed landing renderer
+        run: .venv/bin/python scripts/ci_install_playwright.py
+      - name: Local SQLite unit shard
+        env:
+          COMPANY_OS_DATA_DIR: ${{ runner.temp }}/supymem-unit
+          COMPANY_OS_DB_URL: sqlite:///${{ runner.temp }}/supymem-unit.sqlite3
+          SHARD: ${{ matrix.shard }}
+        run: |
+          .venv/bin/python scripts/ci_pytest_shard.py \
+            --splits 16 --group "$SHARD" --pytest-bin ".venv/bin/python -m pytest" \
+            -- -p no:cacheprovider -m "not hosted" \
+            -o faulthandler_timeout=180 -o faulthandler_exit_on_timeout=true "$PWD/tests/unit"
+
+  offline-value-journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPYMEM_TEST_FAKE_CODING_TOOL: '1'
+      PYTHONPATH: ${{ github.workspace }}/packages:${{ github.workspace }}/services/company_os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+      - name: Install locked local runtime
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --require-hashes -r services/company_os/requirements.runtime.lock
+          .venv/bin/python -m pip install --require-hashes -r services/company_os/requirements.build.lock
+          .venv/bin/python -m pip install --require-hashes -r packages/desktop_runtime/requirements.local.lock
+          .venv/bin/python -m pip install --no-deps --no-build-isolation \
+            -e packages/core -e packages/coding_agents -e packages/huginn_watch \
+            -e packages/llm_gateway -e packages/guardrails -e packages/connectors \
+            -e packages/desktop_runtime -e services/company_os
+      - name: Check both founder journeys on loopback only
+        run: |
+          sudo unshare --net bash -c 'ip link set lo up; exec runuser -u "$1" -p -- "${@:2}"' \
+            _ "$(id -un)" env "PATH=$PATH" "PYTHONPATH=$PYTHONPATH" SUPYMEM_TEST_FAKE_CODING_TOOL=1 \
+            .venv/bin/python scripts/local_value_journey.py --offline --timeout 45
+
+  console:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SUPYMEM_MODE: local
+      NODE_USE_SYSTEM_CA: '0'
+    defaults:
+      run:
+        working-directory: apps/console
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+      - name: Install console dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.11.0 --activate
+          pnpm install --frozen-lockfile --node-linker=hoisted
+      - name: Console typecheck and tests
+        run: |
+          pnpm run typecheck
+          pnpm test
+
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate optional developer Compose configuration
+        run: docker compose --env-file /dev/null -f docker-compose.yml config --quiet
+
+  desktop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Linux desktop prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev
+      - name: Check the local Tauri app
+        working-directory: src-tauri
+        run: cargo check --features local-stack --locked

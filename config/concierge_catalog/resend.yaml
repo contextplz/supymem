@@ -1,0 +1,14 @@
+id: resend_setup
+title: Set up resend
+verified_on: "2026-06-01"
+prerequisites: []
+steps:
+  - id: open
+    title: Open resend settings
+    url: "https://resend.com/api-keys"
+    ui_locator: "text=Create API Key"
+    expect_to_see: "API Keys"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Refresh and ensure you are logged in"
+    est_seconds: 60

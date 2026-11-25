@@ -1,0 +1,12 @@
+{# Local service: what the service is, where it runs, booking intent. #}
+{% extends "_base.html.j2" %}
+
+{% block eyebrow %}A local service, starting out{% endblock %}
+
+{% block sections %}
+{% with points_heading = "What's on offer" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "How booking would work" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+{% block capture_heading %}Want to book?{% endblock %}
+{% block capture_blurb %}Leave your email and say roughly when — I'll come back to you.{% endblock %}

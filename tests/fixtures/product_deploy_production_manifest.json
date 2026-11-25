@@ -1,0 +1,24 @@
+{
+  "task_id": "task_one",
+  "title": "Deploy the checked dinner app",
+  "instruction": "Deploy the approved app files to your Vercel account.",
+  "applications": [
+    "com.companyos.app"
+  ],
+  "origins": [],
+  "actions": [
+    "terminal.execute"
+  ],
+  "deploy_verification": {
+    "operation": "workspace_deploy_v1",
+    "provider": "vercel",
+    "target": "production",
+    "workspace_slug": "test-venture",
+    "source_order_id": "dwo_run1",
+    "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+    "file_manifest_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "project_link_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "credit_ceiling_micro": 0,
+  "duration_seconds": 600
+}

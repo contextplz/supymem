@@ -1,0 +1,54 @@
+version: 2
+updates:
+  # uv pip compile produces pip-format requirements locks here, not uv.lock projects.
+  - package-ecosystem: pip
+    directories:
+      - /services/company_os
+      - /packages/*
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directories:
+      - /apps/console
+      - /apps/desktop
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: cargo
+    directory: /src-tauri
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: docker
+    directories:
+      - /services/company_os
+      - /apps/console
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]

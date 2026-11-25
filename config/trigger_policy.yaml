@@ -1,0 +1,33 @@
+version: 1
+# (venture state × trigger) → job kinds. Absent row = no-op (docs/supymem/09 §4.1).
+ticks:
+  "5m":
+    kinds: [credits.sweep, app.health_probe, status.page, autopilot.tick, experiment.beliefs.tick, gtm.journey.maintain]
+    stage2_kinds: [credits.sweep, autopilot.tick, experiment.beliefs.tick, gtm.journey.maintain, inbox.briefing.tick, inbox.cos_brief.tick]
+  "15m":
+    kinds: [ops.signal_sweep]
+    stage2_kinds: [ops.signal_sweep]
+  "30m":
+    kinds: [infra.sleep_idle]
+    stage2_kinds: []
+  hourly:
+    kinds: [infra.meter, infra.scale_check, analytics.rollup, suggestions.generate, email.schedule]
+    stage2_kinds: [analytics.rollup, analytics.ingest_batch, suggestions.generate, email.schedule]
+  "6h":
+    kinds: [ops.brain_cycle]
+    stage2_kinds: [ops.brain_cycle]
+  daily:
+    kinds:
+      - analytics.rollup
+      - infra.reconcile
+      - infra.forecast
+      - app.backup
+      - retention.purge
+      - experiment.evaluate
+      - founder.digest
+      - ops.slate
+      - lead_library.sweep
+    stage2_kinds: [analytics.rollup, retention.purge, ops.slate, experiment.evaluate, lead_library.sweep]
+  weekly:
+    kinds: [learning.cycle, knowledge.loot_drop_refresh]
+    stage2_kinds: [learning.cycle, knowledge.loot_drop_refresh]

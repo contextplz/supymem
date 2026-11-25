@@ -1,0 +1,12 @@
+{# Consumer app: outcome-led, three benefits, waitlist. #}
+{% extends "_base.html.j2" %}
+
+{% block eyebrow %}An app in the making{% endblock %}
+
+{% block sections %}
+{% with points_heading = "What you get out of it" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "How it goes" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+{% block capture_heading %}Join the waitlist{% endblock %}
+{% block capture_blurb %}I'll tell you the day you can try it. Nothing else.{% endblock %}

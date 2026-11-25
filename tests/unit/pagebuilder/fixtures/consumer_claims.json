@@ -1,0 +1,20 @@
+{
+  "name": "Pantry Path",
+  "idea": "A meal-planning tool that tracks the ingredients in your pantry with barcode scanning, sold as a subscription to home cooks.",
+  "offer": "A meal-planning tool that tracks the ingredients in your pantry with barcode scanning, sold as a subscription to home cooks.",
+  "audience": "Home cooks",
+  "claims": [
+    "Pantry Path tracks the ingredients in your pantry.",
+    "It tracks the ingredients in your pantry.",
+    "Pantry Path offers the tool as a subscription to home cooks."
+  ],
+  "invented": [
+    "Pantry Path tracks 200 pantry ingredients per second.",
+    "Pantry Path guarantees perfect meal plans.",
+    "Pantry Path offers certified nutrition advice.",
+    "Pantry Path delivers meals to paying customers.",
+    "Pantry Path tracks the ingredients in your pantry for restaurants.",
+    "Pantry Path tracks home cooks with the ingredients in your pantry.",
+    "Pantry Path offers ingredients as a subscription to home cooks."
+  ]
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1",
+    "prompt": "Hey, what's going on with LabHire right now? What do you need from me?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nLabHire: Your next step is to review your idea while its question is being prepared. Use Explain in detail if you want help, or skip this step. No new work was started.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "2",
+    "prompt": "What did we decide about who LabHire is for?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nYour saved audience is: QA engineers looking for roles that match their stack. Tell me if you want to change it.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "3",
+    "prompt": "What happened with the last Mac task you ran?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nThe latest saved Mac task, Verify venture workspace in terminal, is completed. I cannot infer its final goal outcome from that state alone. [Review the saved task](/v/ven_rvfht5hh851f/device-work-orders/dwo_vv1n418mxpz3) for its current result.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "4",
+    "prompt": "Is my Gmail connected? What can you do with it?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nGmail is not connected. Connect your account under Connections. Nothing is sent without your approval.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "5",
+    "prompt": "Why did the last build fail and what should we do about it?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nThe last build for LabHire failed: provider down. Open Builds to review the saved error and progress before trying again.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "6",
+    "prompt": "Show me how the waitlist is doing.",
+    "before": "(action / other)",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nLabHire's managed waitlist has no consented requests recorded yet.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "7",
+    "prompt": "Draft a short outreach email to a first prospect for LabHire. Do not send it.",
+    "before": "(action / other)",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nYour draft is ready to review. Nothing was sent. Tell me what to change.\n\n```text\nDraft 1\nSubject: Quick question for LabHire\n\nHi,\n\nI'm exploring LabHire, a tool that helps QA engineers find matching roles. LabHire helps QA engineers find matching roles. I am early and not selling anything: I would value 15 minutes to hear how you handle this today.\n\nWould a short call this week work?\n\nThanks,\nLabHire\n\nIf this is not relevant, just reply \"no thanks\" and I will not email you again.\n\nReply STOP to stop these emails.\n\nBusiness outreach \u00b7 Sample sender address, not for sending\n```",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "8",
+    "prompt": "Update the plan: our first milestone is 10 waitlist signups this week.",
+    "before": "(action / other)",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nYour request is starting with Ren. You can check its progress in Tasks.",
+    "kind": "next_up",
+    "pass": true
+  },
+  {
+    "id": "9",
+    "prompt": "Research three competitors of LabHire.",
+    "before": "(action / other)",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nOne quick step before research:\n\n1. Review and confirm your idea summary.\n\nNothing was started.",
+    "kind": "needs_you",
+    "pass": true
+  },
+  {
+    "id": "10",
+    "prompt": "What should I do next, in order?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nLabHire: Your next step is to review your idea while its question is being prepared. Use Explain in detail if you want help, or skip this step. No new work was started.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "11",
+    "prompt": "Remember that I prefer short answers.",
+    "before": "(action / other)",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nNo memory was changed. The exact saved statement or owned current memory could not be verified, or it contains sensitive data. Say \"Remember: <complete statement>\", \"List saved venture memories\", \"Forget memory mem_<id>\", or \"Correct memory mem_<id>: <complete replacement>\". Use an exact ID from the list. These commands change saved venture context, not tasks, approvals or verified results.",
+    "kind": "text",
+    "pass": true
+  },
+  {
+    "id": "12",
+    "prompt": "What were we just talking about?",
+    "before": "LabHire \u2013 Computer use \u00b7 autopilot on \u00b7 L1\n\n**Now**\n- Computer use: \u2026\n\n**Needs you**\n- Start reviewed Mac task\n\n**Next**\n- Start reviewed Mac task",
+    "after": "Sample answer, not market evidence.\n\n<!--employee:Charlie:Manager:manager-->\nWe were just covering: Update the plan: our first milestone is 10 waitlist signups this week.; Research three competitors of LabHire.; What should I do next, in order?; Remember that I prefer short answers.. Ask about any of those and I will dig into the saved venture state.",
+    "kind": "text",
+    "pass": true
+  }
+]

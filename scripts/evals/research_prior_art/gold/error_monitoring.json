@@ -1,0 +1,76 @@
+{
+  "id": "error_monitoring",
+  "version": 1,
+  "verified_at": "2026-10-08",
+  "gold_scope": "known_positive_seed_list",
+  "idea": {
+    "problem": "Track client-side application errors and prioritize debugging.",
+    "customer": "Web application developers"
+  },
+  "direct": [
+    {
+      "name": "Sentry",
+      "domain": "sentry.io",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://sentry.io/product/error-monitoring/",
+          "fact": "Application error monitoring with debugging context.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    },
+    {
+      "name": "BugSnag",
+      "domain": "bugsnag.com",
+      "aliases": [],
+      "status": "live",
+      "evidence": [
+        {
+          "url": "https://www.bugsnag.com/",
+          "fact": "Mobile and web error monitoring and debugging.",
+          "verified_at": "2026-10-08",
+          "source_kind": "first_party"
+        }
+      ]
+    }
+  ],
+  "dead": [
+    {
+      "name": "Proxino",
+      "domain": "proxino.com",
+      "status": "inactive",
+      "cause": null,
+      "evidence": [
+        {
+          "url": "https://www.ycombinator.com/companies/proxino",
+          "fact": "YC lists this company as Inactive. This does not establish a shutdown date or cause.",
+          "verified_at": "2026-10-08",
+          "source_kind": "yc_directory"
+        },
+        {
+          "url": "https://yc-oss.github.io/api/companies/all.json",
+          "source_kind": "yc_oss_mirror",
+          "verified_at": "2026-10-08",
+          "record": {
+            "id": 81,
+            "name": "Proxino",
+            "slug": "proxino",
+            "website": "http://proxino.com",
+            "status": "Inactive",
+            "one_liner": "Javascript proxy."
+          },
+          "mirror_snapshot_sha256": "4b47b55a099deba0aa3045703c32fb962bb472d66aefdd8b41b04b1082d19d64"
+        }
+      ]
+    }
+  ],
+  "oss": [],
+  "known_price_points": [],
+  "limits": [
+    "Positive list is not exhaustive; returned non-gold companies require human relevance judgment.",
+    "No failure cause is assumed from an inactive status."
+  ]
+}

@@ -1,0 +1,64 @@
+[package]
+name = "company-os-desktop"
+version = "1.0.0-rc.2"
+description = "Supymem desktop shell (macOS / Windows / Linux)"
+authors = ["Supymem"]
+license = "Apache-2.0"
+edition = "2021"
+
+[lib]
+name = "company_os_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[features]
+local-stack = []
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+serde_json = "1"
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "macos-private-api"] }
+tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-process = "2"
+tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "system-proxy"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["time", "process", "io-util", "macros", "rt-multi-thread", "sync"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+url = "2"
+keyring = { version = "3", features = ["apple-native", "windows-native"] }
+sha2 = "0.10"
+base64 = "0.22"
+percent-encoding = "2"
+plist = "1"
+dirs = "5"
+open = "5"
+log = "0.4"
+env_logger = "0.11"
+portable-pty = "0.8"
+uuid = { version = "1", features = ["v4"] }
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+mac-usernotifications = "0.3.1"
+objc2 = "0.6"
+block2 = "0.6"
+objc2-foundation = { version = "0.3", default-features = false, features = ["NSGeometry", "NSString"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = [
+  "NSApplication", "NSColor", "NSEvent", "NSPanel",
+  "NSScreen", "NSView", "NSWindow", "objc2-core-foundation",
+] }
+
+# macOS 14+ drops foreground notices that omit UNNotificationPresentationOptions::List.
+# Upstream 0.3.1 only returns Banner|Sound; patch until that lands.
+# Also patch send_blocking to stop gating delivery on CFRunLoop::is_waiting().
+[patch.crates-io]
+mac-usernotifications = { path = "patches/mac-usernotifications" }

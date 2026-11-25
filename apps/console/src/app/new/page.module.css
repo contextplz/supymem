@@ -1,0 +1,86 @@
+/* The workspace body clips (overflow: hidden), so the column must shrink to it: thread scrolls, composer stays pinned. */
+.chat { display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; min-width: 0; container-type: inline-size; }
+.progress { margin: 0; padding: 20px 24px 0; color: var(--text-muted, #73727b); }
+.thread { flex: 1; min-height: 0; overflow-y: auto; padding: 28px 24px 36px; display: flex; flex-direction: column; gap: 22px; }
+.welcome { margin: auto 0; min-width: 0; text-align: center; padding: clamp(8px, 2cqw, 24px); }
+.welcome h2 { font-size: clamp(1.6rem, 4cqw, 2.7rem); margin: 0 0 10px; }
+.welcome p { max-width: 640px; margin: auto; color: var(--text-muted, #73727b); font-size: clamp(.85rem, 1.5cqw, 1rem); line-height: 1.4; }
+.welcome .value { color: var(--fg, inherit); font-weight: 600; margin-bottom: 8px; }
+.welcome :global(.beta-path) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+.examples button { min-width: 0; border-radius: 12px !important; font-size: clamp(.8rem, 1.4cqw, .9rem); }
+.message { max-width: min(620px, 88%); border-radius: 20px; padding: 16px 20px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.message p { margin: 0; }
+.user p { max-height: 14em; overflow-y: auto; }
+.message p + p { margin-top: 12px; }
+.user { align-self: flex-end; background: var(--surface-raised, #ebe7df); }
+.assistant { align-self: flex-start; background: var(--surface, #f7f5f1); border: 1px solid var(--border, #e4e1db); }
+.question { align-self: center; text-align: center; }
+.question .actions { justify-content: center; }
+.question .ventureName { margin-inline: auto; }
+.question .ventureName button { justify-self: center; }
+.newPill { align-self: center; margin: -44px 0 8px; position: relative; z-index: 2; padding: 6px 14px; border: 0; border-radius: 999px; cursor: pointer; background: var(--accent, #3b5bdb); color: #fff; font: 600 12px/1.3 var(--font-sans); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+@media (max-width: 600px) { .user, .assistant { max-width: 96%; } }
+.speaker { font-size: .76rem; font-weight: 700; opacity: .65; margin-bottom: 7px; }
+.proposal { margin-top: 16px; border-top: 1px solid var(--border, #e4e1db); padding-top: 14px; }
+.proposal > p { margin-bottom: 14px; font-size: .9rem; }
+.actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+.composerArea { flex: none; position: relative; padding: 14px 24px 20px; border-top: 1px solid var(--border, #e4e1db); background: var(--surface, #f7f5f1); }
+.composer { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; border: 1px solid var(--border, #d2cec5); border-radius: 18px; padding: 10px; background: var(--background, #fff); }
+.composer:focus-within { outline: 2px solid var(--accent, #695bbb); outline-offset: 2px; }
+.composer { cursor: text; }
+.composer button { cursor: pointer; }
+.composer textarea { flex: 1; width: 100%; min-width: 0; resize: vertical; border: 0; background: transparent; color: inherit; font: inherit; line-height: 1.5; outline: none; padding: 6px; }
+.composer button { flex: none; }
+.error { color: var(--danger, #ac3535); margin: 0 0 10px; }
+.muted { color: var(--text-muted, #73727b); font-size: .85rem; }
+.historyToggle { align-self: flex-start; flex: none; margin-bottom: 12px; }
+.confirmedChat { display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; }
+.context { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px 28px; border-bottom: 1px solid var(--border, #e4e1db); }
+.context h2 { margin: 2px 0; font-size: 1.2rem; }
+.context p { margin: 0; color: var(--text-muted, #73727b); }
+/* Chat-first: just the venture name, no legacy context header or review link. */
+.homeTitle { flex: none; margin: 0; padding: 14px 28px 10px; font-size: 1.05rem; font-weight: 600; }
+.contextLabel { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted, #73727b); }
+.reviewLink { flex: none; font-size: .85rem; }
+.ventureThread { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.chatDock { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 640px) { .thread { padding: 18px 14px; } .composerArea { padding: 10px 14px 16px; } .message { max-width: 95%; } .context { align-items: flex-start; flex-direction: column; padding: 14px; gap: 10px; } }
+.welcome .actions { justify-content: center; }
+.welcome .actions button { border: 1px solid var(--line, #dbe2eb); border-radius: 999px; padding: 8px 14px; background: #fff; cursor: pointer; color: inherit; }
+
+.ventureName { display: grid; gap: 8px; margin-block: 12px; max-width: 360px; }
+.ventureName label { font-size: .9rem; }
+.ventureName input { width: 100%; min-width: 0; }
+.ventureName button { justify-self: start; }
+
+@media (min-width: 1100px) {
+  :global(body:has([data-voice-status])) .thread { padding-right: calc(min(320px, 26vw) + 32px); }
+}
+
+.actions button { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+.actions button[aria-pressed="true"] { border-color: var(--accent); background: var(--bg-elevated); }
+.selected { display: block; font-weight: 700; color: var(--accent); }
+@media (max-width: 600px) { .composer { gap: 8px; } }
+
+.hint { margin-top: 6px; color: var(--fg-2); font-size: 14px; }
+
+@media (max-height: 800px) {
+  .progress { padding-top: 8px; }
+  .thread { padding-block: 8px; gap: 10px; }
+  .welcome { padding-block: 4px; }
+  .welcome :global(.beta-path) { margin-block: 8px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .welcome :global(.beta-path-step) { padding: 6px 8px !important; font-size: .8rem; }
+  .welcome :global(.beta-path-step) > span:last-child:not(:first-of-type) { display: none !important; }
+  .composerArea { padding-block: 8px; }
+  .composer textarea { max-height: 12vh; resize: none; }
+}
+@container (max-width: 520px) {
+  .welcome :global(.beta-path), .examples { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.chat .entryComposer { flex-direction: column; }
+.chat .entryComposer > form { flex: none; width: 100%; min-width: 0; }
+.entryHelpers { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; width: 100%; color: var(--fg-2); font: var(--t-meta); text-align: left; }
+.entryHelpers p { margin: 0; }
+.entryHelpers button { font: inherit; white-space: normal; text-align: left; }

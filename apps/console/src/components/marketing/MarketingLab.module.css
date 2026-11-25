@@ -1,0 +1,407 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.links a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border: 1px solid var(--line, #e2e2e2);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  background: var(--bg-1, #fff);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.18rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid var(--line, #ddd);
+  background: #fafafa;
+  color: #444;
+}
+
+.pillLive {
+  background: #0b7a3b;
+  border-color: #0b7a3b;
+  color: #fff;
+}
+
+.pillWarn {
+  background: #8a5a00;
+  border-color: #8a5a00;
+  color: #fff;
+}
+
+.pillOff {
+  background: #f3f3f3;
+  color: #666;
+}
+
+.pillErr {
+  background: #a11;
+  border-color: #a11;
+  color: #fff;
+}
+
+.pillNeed {
+  background: #fff4e5;
+  border-color: #c47b00;
+  color: #6a3d00;
+}
+
+.card {
+  border: 1px solid var(--line, #e2e2e2);
+  border-radius: 12px;
+  background: var(--bg-1, #fff);
+  padding: 1rem 1.1rem;
+}
+
+.cardHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+
+.cardHead h2 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 650;
+}
+
+.cardHead p {
+  margin: 0;
+  color: var(--fg-2, #777);
+  font-size: 0.78rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+  gap: 0.55rem;
+}
+
+.connector {
+  border: 1px solid var(--line, #e6e6e6);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.connector strong {
+  font-size: 0.82rem;
+}
+
+.connectionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+}
+
+.connectionTile {
+  gap: 0.7rem;
+  padding: 1.1rem;
+  border-radius: 12px;
+  background: var(--bg-1, #fff);
+  overflow-wrap: anywhere;
+}
+
+.connectionConnected {
+  border-color: #91cba5;
+  box-shadow: 0 0 0 3px rgba(34, 139, 74, 0.1);
+}
+
+.connectionHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.connectionHeading img { object-fit: contain; flex: none; }
+.connectionHeading h3 { margin: 0; font-size: 1rem; }
+.connectionBadge { color: #176534; background: #eaf8ee; border-color: #91cba5; }
+.connectionTile button:focus-visible { outline: 2px solid var(--accent, #111); outline-offset: 3px; }
+
+.row {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 10rem;
+}
+
+.field label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fg-2, #666);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.82rem;
+  background: #fff;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.textarea {
+  min-height: 5.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.38rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnGhost {
+  background: #fff;
+  color: #111;
+}
+
+.btnDanger {
+  background: #fff;
+  border-color: #a11;
+  color: #a11;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.muted {
+  color: var(--fg-2, #777);
+  font-size: 0.78rem;
+  margin: 0;
+}
+
+.error {
+  color: #a11;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.ok {
+  color: #0b7a3b;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.warnBanner {
+  border: 1px solid #c47b00;
+  background: #fff8ee;
+  color: #6a3d00;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8rem;
+  margin: 0 0 0.6rem;
+}
+
+.blockList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+}
+
+.blockItem {
+  font-size: 0.76rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--line, #eee);
+  background: #fafafa;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--line, #eee);
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.35rem 0.45rem;
+  border-bottom: 1px solid var(--line, #f0f0f0);
+  vertical-align: top;
+}
+
+.table th {
+  font-weight: 650;
+  background: #fafafa;
+  position: sticky;
+  top: 0;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  word-break: break-all;
+}
+
+.expand {
+  margin-top: 0.25rem;
+}
+
+.expand summary {
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: var(--fg-2, #666);
+}
+
+.pre {
+  margin: 0.35rem 0 0;
+  padding: 0.45rem 0.55rem;
+  background: #f7f7f7;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.logPanel {
+  border: 1px solid var(--line, #e2e2e2);
+  border-radius: 12px;
+  background: #111;
+  color: #e8e8e8;
+  padding: 0.85rem 1rem;
+  position: sticky;
+  bottom: 0.5rem;
+  z-index: 2;
+  max-height: 22rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.logHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.logHead h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #fff;
+}
+
+.logBody {
+  overflow: auto;
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.logRow {
+  border-bottom: 1px solid #2a2a2a;
+  padding: 0.3rem 0;
+}
+
+.logSuccess {
+  color: #7dcea0;
+}
+
+.logWarning {
+  color: #f0c674;
+}
+
+.logError {
+  color: #e57373;
+}
+
+.logBlocked,
+.logNeedsYou {
+  color: #ffb74d;
+}
+
+.logInfo {
+  color: #b0b0b0;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.h2 {
+  margin: 0 0 0.45rem;
+  font-size: 0.98rem;
+  font-weight: 650;
+}
+
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 14rem;
+  overflow: auto;
+}

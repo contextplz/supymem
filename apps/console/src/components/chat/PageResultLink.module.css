@@ -1,0 +1,7 @@
+.result { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-right: 8px; }
+.preview { width: min(1000px, calc(100vw - 32px)); height: min(90vh, calc(100vh - 32px)); box-sizing: border-box; padding: 16px; border: 1px solid #dedee3; border-radius: 12px; background: #fff; color: #17202a; }
+.preview[open] { display: flex; flex-direction: column; overflow: auto; }
+.preview::backdrop { background: #0004; }
+.preview form { display: flex; flex: none; justify-content: flex-end; margin-bottom: 8px; }
+.previewFrame { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.previewFrame > iframe { flex: 1 1 0; min-height: 0; height: 100%; }

@@ -1,0 +1,122 @@
+{
+  "input": {
+    "venture_id": "ven_example",
+    "name": "Quiet Garden",
+    "idea": "A shared garden planner for families who need to coordinate planting tasks and seasonal crop notes.",
+    "waitlist_url": "https://gateway.supymem.com/public/waitlists/ven_example"
+  },
+  "draft": {
+    "brief": {
+      "audience": "Families tending a shared garden",
+      "problem": "Planning a family garden can involve planting tasks and seasonal crop notes.",
+      "promise": "A shared garden planner for your family's planting tasks and seasonal crop notes.",
+      "tone": "Calm, practical and warm",
+      "proof_points": [
+        "Plan planting tasks with your family.",
+        "Keep seasonal crop notes with your plan.",
+        "Coordinate your next garden task together."
+      ],
+      "cta": "Join the early-access list",
+      "forbidden_claims": [
+        "Existing customers",
+        "Yield guarantees"
+      ],
+      "concept_disclosure": "Join the waitlist for early-access updates."
+    },
+    "direction": {
+      "concept": "The family garden notebook",
+      "palette": {
+        "background": "#f6f1e8",
+        "text": "#213226",
+        "primary": "#426340",
+        "accent": "#c5954b"
+      },
+      "palette_family": "botanical parchment",
+      "display_font": "Georgia, serif",
+      "body_font": "Arial, sans-serif",
+      "layout_archetype": "botanical field guide",
+      "density": "airy",
+      "motion": "none",
+      "illustration_style": "Warm botanical line work using the same ink and ochre palette.",
+      "section_rhythm": "An open introduction followed by a planting diagram and a warm invitation."
+    },
+    "sections": [
+      {
+        "id": "hero",
+        "purpose": "Introduce the family's shared planting plan.",
+        "headline": "Coordinate your family's planting tasks",
+        "body": "A shared garden planner for your family's planting tasks and seasonal crop notes.",
+        "image_id": "garden_hero"
+      },
+      {
+        "id": "problem",
+        "purpose": "Explain how the proposed garden plan stays connected.",
+        "headline": "Keep the next task in view",
+        "body": "Planning a family garden can involve planting tasks and seasonal crop notes.",
+        "image_id": "planting_art"
+      },
+      {
+        "id": "how-it-works",
+        "purpose": "Explain the confirmed workflow in three steps.",
+        "headline": "From the next task to a shared plan",
+        "body": "Plan the planting tasks. Add seasonal crop notes. Coordinate the next task with your family."
+      },
+      {
+        "id": "audience",
+        "purpose": "Identify the customer this offer is for.",
+        "headline": "A shared place for your next task",
+        "body": "Families tending a shared garden."
+      },
+      {
+        "id": "faq",
+        "purpose": "State what remains to be confirmed before early access.",
+        "headline": "What should you know before joining?",
+        "body": "Early-access timing and pilot details are to be confirmed. Ask about your use case when you join."
+      },
+      {
+        "id": "waitlist",
+        "purpose": "Invite the family to the real hosted consent form.",
+        "headline": "Follow the garden's first season",
+        "body": "Follow early-access updates for your family's shared garden plan."
+      }
+    ],
+    "assets": [
+      {
+        "id": "garden_hero",
+        "role": "hero",
+        "section_id": "hero",
+        "subject": "A shared garden bed and a growing plant",
+        "prompt": "Original botanical illustration of a shared family garden bed.",
+        "scene": {
+          "objects": [
+            {
+              "kind": "leaf",
+              "x": 600,
+              "y": 450,
+              "scale": 0.8,
+              "rotation": 0
+            }
+          ]
+        }
+      },
+      {
+        "id": "planting_art",
+        "role": "section",
+        "section_id": "problem",
+        "subject": "An open garden notebook with a growing plant",
+        "prompt": "Original notebook illustration showing garden note lines and a growing plant.",
+        "scene": {
+          "objects": [
+            {
+              "kind": "note_board",
+              "x": 600,
+              "y": 450,
+              "scale": 0.8,
+              "rotation": 0
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

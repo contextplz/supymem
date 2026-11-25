@@ -1,0 +1,220 @@
+# Narration copy deck — founder-facing activity lines (27 §3, §5).
+# DO NOT write narration text inline in Python. Every text ≤ 72 chars.
+
+# ─────────────────────────── PHASE 0 · ORIENT ───────────────────────────
+orient.read_brief:
+  done: "Read your brief and got my bearings."
+orient.create_home:
+  done: "Set up a home base for {company}."
+orient.save_words:
+  done: "Saved your exact words so nothing gets lost."
+orient.check_permissions:
+  done: "Checked what I'm allowed to do for you  -  you're at {level}."
+  detail_hint: "Lists the capabilities allowed at this level."
+
+# ────────────────────────── PHASE 1 · UNDERSTAND ─────────────────────────
+understand.classify:
+  running: "Working out what kind of product this is."
+  done: "This reads as {archetype} for {audience}."
+understand.product_ask:
+  running: "Figuring out what you actually mean."
+  done: "I have the dilemmas  -  your turn."
+  blocked: "Answer the product questions so I know what to research."
+understand.product_brief:
+  running: "Writing what I think the product is."
+  done: "Here is the product I heard."
+  blocked: "Check the product brief  -  then I research that, not the raw sentence."
+understand.search:
+  running: "Searching the web for: {query}"
+  done: "Searched the web for: {query}"
+understand.search_deep:
+  running: "Digging deeper on: {query}"
+understand.search_skipped:
+  done: "Skipped researching you  -  you didn't ask me to."
+understand.research_market:
+  running: "Researching the product we just named  -  pages, not a skim."
+  done: "Mapped {count} competitors and where the demand sits."
+  done_unknown: "Couldn't get a clear read on the market yet  -  noting that as unknown."
+understand.score_complexity:
+  running: "Working out how much there is to build."
+  done: "Scoped it: {complexity_word} to build."
+understand.question_budget:
+  done: "GStack office hours is six forcing questions  -  I'll infer the rest."
+
+# ─────────────────────────── PHASE 2 · VALIDATE ──────────────────────────
+validate.generate_questions:
+  running: "Running GStack office hours  -  Demand Reality through Future-Fit."
+  done: "GStack is ready: six forcing questions."
+validate.ask:
+  done: "GStack office hours  -  your turn on the six forcing questions."
+  blocked: "Waiting on GStack office hours before I infer the plan."
+validate.office_hours_plan:
+  running: "GStack is inferring the plan from your office-hours answers."
+  done: "GStack wrote the plan from your answers."
+  blocked: "Review the GStack plan  -  I inferred the rest from office hours."
+validate.auto_answered:
+  done: "Auto mode: GStack took the recommended office-hours answers."
+validate.demand_read:
+  running: "Building your validation dossier from live web research."
+  done_strong: "Demand looks strong  -  people are already searching for this."
+  done_promising: "Demand looks promising  -  test the wedge before expanding."
+  done_mixed: "Demand looks mixed  -  worth testing before building everything."
+  done_weak: "Demand looks weak  -  I'd narrow this before investing in a build."
+  done_dont: "I would not proceed on this evidence  -  reframe or walk away."
+  done_unknown: "I can't judge demand yet  -  treat the first build as the experiment."
+  done_unavailable: "Live research did not finish  -  this is not a market verdict."
+validate.recommendation:
+  done: "My recommendation: {recommendation}. Yours overrides mine."
+
+# ──────────────────── VALIDATION GATE (doc 78) ───────────────────────────
+validation.review_choice:
+  done: "Research is ready  -  do you want the full read or a short verdict?"
+  blocked: "Waiting on whether you want to review the research."
+validation.decision:
+  done: "Recorded your go / no-go decision."
+  blocked: "Waiting on your proceed / don't proceed decision."
+
+# ──────────────────────────── PHASE 3 · COMMIT ───────────────────────────
+commit.mission:
+  running: "Writing your mission  -  what you're building and why it matters."
+  done: "Wrote your mission."
+commit.lock_charter:
+  running: "Locking a plan from your answers."
+  done: "Locked your plan. Every line traces back to something you chose."
+commit.roadmap:
+  running: "Sketching a product roadmap."
+  done: "Sketched a roadmap: {count} milestones."
+commit.file_documents:
+  done: "Filed your mission, roadmap and market research."
+commit.compose_team:
+  running: "Working out how many agents this actually needs."
+  done: "This MVP needs {n} agents  -  {role_list}."
+commit.hire:
+  done: "Hired them. Each one has a job and a condition for retiring."
+commit.team_capped:
+  done: "Held back {count} more roles  -  your cap is {n} active agents."
+
+# ────────────────────────── PHASE 4 · PROVISION ──────────────────────────
+provision.workspace:
+  running: "Reserving a workspace for your product."
+  done: "Reserved a workspace."
+provision.repo:
+  running: "Creating the repository your product will live in."
+  done: "Created your repository."
+  done_simulated: "Created your repository locally  -  no GitHub account connected yet."
+provision.database:
+  running: "Preparing a database."
+  done: "Prepared a managed Postgres database."
+  done_simulated: "Prepared a local database  -  no cloud database connected yet."
+provision.email:
+  running: "Giving {company} its own email identity."
+  done: "{company} now sends from {email}."
+  done_simulated: "Reserved {email}  -  connect mail before it can send."
+provision.hosting:
+  running: "Warming the hosting platform so your first deploy lands fast."
+  done: "Hosting is warm and ready."
+  done_simulated: "Skipped cloud hosting  -  I'll serve a local preview instead."
+provision.sandbox:
+  running: "Opening an isolated workspace to build in."
+  done: "Opened an isolated workspace."
+
+# ──────────────────────────── PHASE 5 · BUILD ────────────────────────────
+build.draft_adr:
+  running: "Deciding the architecture before writing any code."
+  done: "Locked the architecture: {stack_word}."
+build.plan_work_orders:
+  running: "Breaking the build into small pieces."
+  done: "Planned {count} pieces of work."
+build.reading_files:
+  done: "Read your project layout ({count} files)."
+build.editing_files:
+  done: "Designing your landing page ({count} files)."
+build.writing_files:
+  done: "Wrote {count} new components."
+build.running_commands:
+  done: "Installed dependencies and ran the build."
+build.landing_page:
+  running: "Building your landing page."
+  done: "Built your landing page."
+build.run_gates:
+  running: "Running {gate_total} quality checks."
+  done: "Passed {gate_pass} of {gate_total} checks."
+  done_partial: "Passed {gate_pass} of {gate_total}  -  fixing the rest before publishing."
+build.publish:
+  running: "Publishing your site."
+  done: "Published your site: {url}"
+  done_preview: "Preview ready: {url}. Publishing needs your go-ahead."
+build.close_sandbox:
+  done: "Closed the workspace now the site is built."
+  done_preserved: "Kept the workspace open so you can see what went wrong."
+
+# ─────────────────────────── PHASE 6 · HANDOFF ───────────────────────────
+handoff.human_tasks:
+  running: "Listing the things only you can do."
+  done: "{count} things need you  -  I've put them in order."
+  done_none: "Nothing needs you right now."
+handoff.plan_next_tasks:
+  running: "Planning the first things your agents should tackle."
+  done: "Drafted your next {count} tasks."
+handoff.queue_tasks:
+  done: "Added them to your queue. Run any of them from your dashboard."
+handoff.recap:
+  done: "Saved a recap of everything we set up."
+handoff.welcome_email:
+  done: "Sent you a welcome email with everything you need."
+  done_draft: "Drafted your welcome email  -  it sends when you say so."
+handoff.done:
+  done: "{company} is live. Here's what I'd do next."
+
+# ──────────────────────────── OPERATE (ongoing) ──────────────────────────
+operate.cycle_start:
+  running: "Reviewing your project, backlog and recent progress."
+operate.drafting:
+  running: "Drafting your next {count} tasks."
+operate.task_added:
+  done: "Added: {title}"
+operate.cycle_done:
+  done: "Your {count} new tasks are ready  -  run any of them from your dashboard."
+operate.nothing_to_do:
+  done: "Everything looks healthy  -  nothing worth changing tonight."
+
+# ──────────────────────────── FAILURES (27 §5) ───────────────────────────
+failures:
+  warden_denied:
+    text: "I'm not allowed to do that at {level}  -  asking you instead."
+    action: "Review request"
+  guardrails_offline:
+    text: "My guardrails aren't responding, so I stopped rather than guess."
+    action: "Retry"
+  thinking_unavailable:
+    text: "The model is unavailable right now. Your progress is saved."
+    action: "Resume"
+  retrying_understanding:
+    text: "That came back garbled  -  trying once more with a stronger model."
+  budget_paused:
+    text: "Paused at today's spending cap. Nothing was lost."
+    action: "Raise cap"
+  out_of_credits:
+    text: "Your {provider} account is out of credits. Top it up to carry on."
+    action: "Open Settings"
+  venture_credits_exhausted:
+    text: "This venture is out of credits. Add your own key or ask for more."
+    action: "See options"
+  needs_credential:
+    text: "I need your {provider} login before I can finish this."
+    action: "Open task"
+  provider_busy:
+    text: "{provider} is rate-limiting me  -  retrying shortly."
+  network:
+    text: "Couldn't reach {provider}. Retrying."
+  build_wrote_nothing:
+    text: "The build changed nothing  -  retrying with stricter settings."
+  quality_check:
+    text: "{count} quality checks failed, so I didn't publish. Fixing them now."
+    action: "See failures"
+  interrupted:
+    text: "I was interrupted mid-step. Picking up where I left off."
+    action: "Resume"
+  internal:
+    text: "Something went wrong on my side. I saved your progress and logged it."
+    action: "Retry"

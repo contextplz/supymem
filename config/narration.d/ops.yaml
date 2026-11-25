@@ -1,0 +1,17 @@
+# Ops activity lines (Polsia supersets, doc 49). Merged by load_deck.
+# Every text ≤ 72 chars, second person, no jargon.
+
+ops.morning:
+  running: "Planning today's ops for you."
+  done: "Today's ops plan is ready."
+ops.evening:
+  running: "Writing your evening summary."
+  done: "Evening summary is ready for you."
+ops.agent_trigger:
+  running: "Starting that ops agent for you."
+  done: "That ops run finished."
+ops.sandbox:
+  done: "Simulated — sandbox is still on."
+ops.deploy:
+  running: "Recording a deploy intent."
+  done: "Deploy intent saved (sandbox)."

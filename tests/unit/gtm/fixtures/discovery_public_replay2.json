@@ -1,0 +1,22 @@
+{
+  "recall": [
+    {"url": "https://threads.test/r/Dentistry/comments/fixture08/no_shows/", "title": "What does your front desk do after a dental no-show?", "description": "We rebook missed dental appointments only if the patient calls back, because our front desk is too busy to follow up after a no-show."},
+    {"url": "https://threads.test/r/Dentists/comments/fixture09/front_desk_app/", "title": "Try our front-desk scheduling app", "description": "Our platform automatically sends a rebooking nudge after a dental no-show. Book a demo to try it."}
+  ],
+  "splash": [
+    {"url": "https://www.paper-otter.example/coaching/swimming/kids", "title": "Kids Swimming Classes in Bangalore | Paper Otter", "description": "Swimming classes for kids", "markdown": "# Swimming classes for kids\n\nPaper Otter Swim School teaches swimming classes for kids at our pool on Lantern Road in Bangalore.\n\n[Contact the pool](https://www.paper-otter.example/contact/)"},
+    {"url": "https://photo-posts.test/p/fixture-swim-venue-1/", "title": "Bangalore Tin Trout Club opens swim admissions", "description": "Kids can join weekday lessons at the club in Bangalore."},
+    {"url": "https://photo-posts.test/reel/fixture-swim-venue-2/", "title": "Felt Dolphin Swimming Pool | Bangalore", "description": "Parents watch their children practice water safety and beginner strokes in Bangalore."}
+  ],
+  "brew": [
+    {"url": "https://www.countertop-burr.example/", "title": "Countertop Burr | Home Espresso", "description": "Discussion forums for home espresso", "markdown": "Welcome to the Countertop Burr discussion forums for people learning to make espresso at home."},
+    {"url": "https://steam-mitten.example/", "title": "Steam Mitten | Coffee Classes", "description": "", "markdown": "## Coffee classes in New York\n\nOur New York workshop teaches beginner and advanced coffee classes. We welcome home espresso enthusiasts.\n\n[Upcoming Classes](https://steam-mitten.example/classes/)"},
+    {"url": "https://folded-cup.test/", "title": "Folded Cup | Espresso Supplies", "description": "Espresso equipment for beginners and shops across Canada.", "markdown": "[Coffee Classes](https://folded-cup.test/pages/coffee-classes)\n\nOur workshop in Calgary, Canada offers espresso classes for home enthusiasts."},
+    {"url": "https://threads.test/r/espresso/comments/fixture10/dialling_in/", "title": "Dialling in fresh beans", "description": "How many shots do home espresso enthusiasts pull before a new bag tastes right?"},
+    {"url": "https://threads.test/r/Coffee/comments/fixture11/practice/", "title": "Dialling in espresso with fewer practice shots", "description": "My first three espresso shots with this grinder were too fast."},
+    {"url": "https://threads.test/r/pourover/comments/fixture12/subscriptions/", "title": "Choosing a coffee subscription", "description": "I would rather try a few small bags than sign up for coffee by the kilo."},
+    {"url": "https://coffee-time.invalid/d/fixture13/", "title": "Dialling in at home", "description": "A thread about wasting beans while dialling in.", "markdown": "I used the first quarter of a bag before my grinder was set correctly."},
+    {"url": "https://threads.test/r/espresso/comments/fixture14/roasters/", "title": "Recommendations for roasters in Canada", "description": "Home espresso enthusiasts compare samples and roast dates."},
+    {"url": "https://threads.test/r/espresso/comments/fixture15/first_grinder/", "title": "Getting used to a first espresso grinder", "description": "A home espresso grinder takes time to learn. I keep notes for each bag."}
+  ]
+}

@@ -1,0 +1,70 @@
+version: 1
+capabilities:
+  - id: web_app.nextjs
+    kind: build
+    stack: [nextjs, typescript, tailwind]
+    maturity: ga
+    requires: [hosting.static]
+  - id: api.fastapi
+    kind: build
+    stack: [fastapi, python]
+    maturity: ga
+    requires: [hosting.service]
+  - id: hosting.static
+    kind: infra
+    maturity: ga
+  - id: hosting.service
+    kind: infra
+    maturity: ga
+  - id: db.postgres
+    kind: infra
+    maturity: ga
+  - id: auth.cognito
+    kind: infra
+    maturity: ga
+  - id: payments.stripe
+    kind: integration
+    maturity: ga
+    byo: true
+  - id: payments.razorpay_route
+    kind: integration
+    maturity: beta
+    byo: true
+  - id: email.ses
+    kind: infra
+    maturity: ga
+  - id: ai.proxy
+    kind: infra
+    maturity: ga
+  - id: realtime.websocket
+    kind: build
+    maturity: ga
+  - id: landing.waitlist
+    kind: build
+    maturity: ga
+    requires: [hosting.static]
+  - id: mobile.react_native
+    kind: build
+    maturity: planned
+  - id: mobile.native_ios
+    kind: build
+    maturity: never
+    message: "Native iOS apps are out of scope in v1. We can ship a responsive web app, or you bring your own iOS repo later."
+  - id: media.video_processing
+    kind: build
+    maturity: never
+    message: "Video processing at scale isn't something Supymem hosts. We can integrate Mux or Cloudinary instead."
+  - id: hardware.iot
+    kind: build
+    maturity: never
+    message: "Hardware and IoT firmware is out of scope. We can build the cloud companion app."
+  - id: compliance.hipaa
+    kind: policy
+    maturity: never
+    message: "Supymem is not HIPAA-certified infrastructure."
+policies:
+  - id: no_adult_content
+  - id: no_gambling_real_money
+  - id: no_regulated_finance_without_license
+  - id: no_scraping_behind_login
+  - id: no_crypto_custody

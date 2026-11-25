@@ -1,0 +1,44 @@
+version: 1
+families:
+  waitlist:
+    milestones:
+      - kind: landing
+        title: Landing and waitlist
+      - kind: validation
+        title: Talk to first users
+      - kind: core
+        title: Core product loop
+      - kind: monetisation
+        title: Take payment
+      - kind: acquisition
+        title: First acquisition channel
+      - kind: first_paid_user
+        title: First paid user
+  marketplace:
+    milestones:
+      - kind: landing
+        title: Two-sided landing
+      - kind: validation
+        title: Supply or demand wedge
+      - kind: core
+        title: Match and transact
+      - kind: monetisation
+        title: Take a fee
+      - kind: acquisition
+        title: Fill the thinner side
+      - kind: first_paid_user
+        title: First paid transaction
+  default:
+    milestones:
+      - kind: landing
+        title: Landing page
+      - kind: validation
+        title: Validate the offer
+      - kind: core
+        title: Smallest useful product
+      - kind: monetisation
+        title: Checkout
+      - kind: acquisition
+        title: First channel
+      - kind: first_paid_user
+        title: First paid user

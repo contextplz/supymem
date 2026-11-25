@@ -1,0 +1,38 @@
+id: gen_dept_automation
+version: 1.0.0
+lineage: []
+archetype: dept_automation
+agents:
+  - role: orchestrator
+    capability_ids: [cap.learn.signals]
+  - role: architect
+    capability_ids: [cap.build.software]
+  - role: integrator
+    capability_ids: [cap.build.software]
+  - role: support
+    capability_ids: [cap.operate.support]
+workflows:
+  - id: process_mapping
+    description: Map the operating process before automating it.
+  - id: integration_rollout
+    description: Validate integrations with staged approvals.
+capability_bindings:
+  cap.build.software: [skill.integration]
+  cap.operate.support: [skill.process_mapping]
+default_channels: []
+default_phases:
+  - id: map_process
+    proves: The existing department process is observable.
+    estimated_days: 10
+  - id: automate_one_step
+    proves: One approved process step can be automated safely.
+    estimated_days: 21
+prompt_overrides: {}
+thresholds:
+  automation_error_rate: 0.02
+playbook_overrides: {}
+fitness:
+  ventures: 0
+  held: 0
+  regressed: 0
+provenance: seed

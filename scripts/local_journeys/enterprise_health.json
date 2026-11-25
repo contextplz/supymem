@@ -1,0 +1,5 @@
+{
+  "idea": "A local coordination tool for hospital operations teams to track discharge equipment requests without storing patient records",
+  "answers": ["Hospital discharge coordinators and equipment managers at multi-site health systems. They lose hours reconciling equipment requests across email and spreadsheets. The first test is a workflow interview, not clinical advice."],
+  "results": "For this disposable acceptance scenario, I interviewed five hospital operations managers; two agreed to review a workflow prototype. These are supplied test inputs, not verified market evidence."
+}

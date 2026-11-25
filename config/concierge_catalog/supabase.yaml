@@ -1,0 +1,14 @@
+id: supabase_setup
+title: Set up supabase
+verified_on: "2026-06-01"
+prerequisites: []
+steps:
+  - id: open
+    title: Open supabase settings
+    url: "https://supabase.com/dashboard/project/_/settings/api"
+    ui_locator: "text=Project API keys"
+    expect_to_see: "anon"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Refresh and ensure you are logged in"
+    est_seconds: 60

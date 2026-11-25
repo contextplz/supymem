@@ -1,0 +1,16 @@
+<svg width="100%" viewBox="0 0 680 392" role="img"><title>HTTP request</title><desc>A request travels from browser to server</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="node c-purple" onclick="sendPrompt('Tell me more about browser request')"><rect x="40" y="40" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="170" y="58" text-anchor="middle" dominant-baseline="central">Browser request</text><text class="ts" x="170" y="78" text-anchor="middle" dominant-baseline="central">Choose a URL</text></g>
+<g class="node c-purple" onclick="sendPrompt('Tell me more about dns lookup')"><rect x="360" y="40" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="490" y="58" text-anchor="middle" dominant-baseline="central">DNS lookup</text><text class="ts" x="490" y="78" text-anchor="middle" dominant-baseline="central">Resolve the address</text></g>
+<g class="node c-purple" onclick="sendPrompt('Tell me more about network connection')"><rect x="360" y="148" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="490" y="166" text-anchor="middle" dominant-baseline="central">Network connection</text><text class="ts" x="490" y="186" text-anchor="middle" dominant-baseline="central">Connect securely</text></g>
+<g class="node c-teal" onclick="sendPrompt('Tell me more about http handler')"><rect x="40" y="148" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="170" y="166" text-anchor="middle" dominant-baseline="central">HTTP handler</text><text class="ts" x="170" y="186" text-anchor="middle" dominant-baseline="central">Route the request</text></g>
+<g class="node c-teal" onclick="sendPrompt('Tell me more about application logic')"><rect x="40" y="256" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="170" y="274" text-anchor="middle" dominant-baseline="central">Application logic</text><text class="ts" x="170" y="294" text-anchor="middle" dominant-baseline="central">Read and write data</text></g>
+<g class="node c-teal" onclick="sendPrompt('Tell me more about browser response')"><rect x="360" y="256" width="260" height="56" rx="8" stroke-width="0.5"/><text class="th" x="490" y="274" text-anchor="middle" dominant-baseline="central">Browser response</text><text class="ts" x="490" y="294" text-anchor="middle" dominant-baseline="central">Render the result</text></g>
+<path class="arr" d="M304 68L356 68" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M490 100L490 144" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M356 176L304 176" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M170 208L170 252" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M304 284L356 284" fill="none" marker-end="url(#arrow)"/>
+<path class="arr" d="M624 284L640 284L640 120L490 120L490 100" fill="none" marker-end="url(#arrow)"/>
+<text class="ts" x="40" y="352">Purple: preparation · Teal: execution and learning</text>
+</svg>

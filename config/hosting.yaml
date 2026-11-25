@@ -1,0 +1,6 @@
+# Public site domain suffix (optional hosted preview)
+# Leave empty for local-only /w/{workspace}/site/ URLs.
+# Example production: SITE_DOMAIN_SUFFIX=ventures.yourdomain.com
+# → https://{workspace_slug}.ventures.yourdomain.com
+SITE_DOMAIN_SUFFIX: ""
+LOCAL_PREVIEW_SUFFIX: "preview.localhost"

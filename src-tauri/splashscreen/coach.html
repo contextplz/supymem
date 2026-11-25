@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Turn this on</title>
+    <style>
+      :root {
+        --bg: #f4f1ec;
+        --card: #fff;
+        --fg: #1c1917;
+        --muted: #78716c;
+        --accent: #7a3aad;
+        --ok: #1f8a4c;
+        --line: rgba(32, 24, 18, 0.1);
+        --font: -apple-system, "SF Pro Text", "DM Sans", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 400 13px/1.45 var(--font); }
+      .wrap { padding: 16px 18px 18px; }
+      h1 { margin: 0 0 6px; font: 650 16px/1.3 var(--font); }
+      .lede { margin: 0 0 14px; color: var(--muted); }
+      .mock {
+        background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+        overflow: hidden; box-shadow: 0 8px 28px rgba(28, 25, 23, 0.12);
+      }
+      .mock-bar { height: 28px; background: #ece8e1; display: flex; align-items: center; gap: 6px; padding: 0 10px; }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: #d4d0c8; }
+      .mock-title { font-size: 11px; color: var(--muted); margin-left: 4px; }
+      .row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 14px; border-top: 1px solid var(--line); position: relative;
+      }
+      .row.dim { opacity: 0.4; }
+      .row.target { background: rgba(122, 58, 173, 0.06); }
+      .who { font-weight: 650; }
+      .toggle {
+        width: 40px; height: 24px; border-radius: 999px; background: #d6d3d1;
+        position: relative; flex-shrink: 0;
+      }
+      .toggle.on { background: #34c759; }
+      .knob {
+        position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+        border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+        transition: left .2s;
+      }
+      .toggle.on .knob { left: 18px; }
+      .finger {
+        position: absolute; right: -6px; top: 18px; font-size: 28px;
+        animation: tap 1.1s ease-in-out infinite; pointer-events: none;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,.15));
+      }
+      @keyframes tap {
+        0%, 100% { transform: translate(8px, 0) rotate(-20deg); }
+        50% { transform: translate(-2px, 4px) rotate(-8deg); }
+      }
+      .pulse {
+        position: absolute; right: 10px; top: 10px; width: 48px; height: 32px;
+        border-radius: 999px; border: 2px solid var(--accent);
+        animation: pulse 1.4s ease-out infinite; pointer-events: none;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.9); opacity: .9; }
+        100% { transform: scale(1.45); opacity: 0; }
+      }
+      ol { margin: 14px 0 0; padding-left: 18px; color: var(--fg); }
+      li { margin: 6px 0; }
+      .wait { margin-top: 14px; color: var(--accent); font-weight: 650; }
+      .wait.ok { color: var(--ok); }
+      .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+      button {
+        font: 650 13px/1 var(--font); border: 0; border-radius: 10px;
+        padding: 12px 14px; cursor: pointer; background: var(--accent); color: #fff;
+      }
+      button.secondary { background: #ece8e1; color: var(--fg); }
+      button:disabled { opacity: 0.5; cursor: default; }
+      .whale { font-size: 42px; text-align: center; margin: 12px 0 4px; animation: bob 1.6s ease-in-out infinite; }
+      @keyframes bob { 50% { transform: translateY(-6px); } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1 id="title">Turn on Supymem</h1>
+      <p class="lede" id="lede">Settings is open. Click only the switch we highlight.</p>
+      <div id="stage"></div>
+      <ol id="steps"></ol>
+      <p class="wait" id="wait">If the switch already looks on, that row is often a previous DMG. Select it, click minus to remove, plus, pick /Applications/Supymem.app, turn ON, then click I’ve turned it on.</p>
+      <div class="actions">
+        <button type="button" id="confirm">I’ve turned it on</button>
+        <button type="button" class="secondary" id="reopen">Open Settings again</button>
+        <button type="button" class="secondary" id="relaunch">Relaunch Supymem</button>
+      </div>
+    </div>
+    <script>
+      const invoke = (cmd, args) => {
+        const fn = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+        if (!fn) return Promise.reject(new Error("needs the Mac app"));
+        return fn(cmd, args || {});
+      };
+      const listen = (event, handler) => {
+        const fn = window.__TAURI__?.event?.listen;
+        if (!fn) return Promise.resolve(() => {});
+        return fn(event, (ev) => handler(ev.payload));
+      };
+      let kind = "accessibility";
+      let tool = "cursor";
+      let done = false;
+
+      function appName() {
+        return window.__SUPYMEM__?.mode === "local" ? "Supymem Local" : "Supymem";
+      }
+
+      function render(guide) {
+        kind = guide.kind || kind;
+        tool = guide.tool || tool;
+        document.getElementById("title").textContent = guide.title || "Turn this on";
+        document.getElementById("lede").textContent = guide.message || "";
+        if (window.__SUPYMEM__?.mode === "local") {
+          document.getElementById("wait").textContent = document.getElementById("wait").textContent.replace(/Supymem(?! Local)/g, appName());
+          document.getElementById("relaunch").textContent = "Relaunch " + appName();
+        }
+        const steps = document.getElementById("steps");
+        steps.innerHTML = (guide.steps || []).map((s) => "<li>" + s + "</li>").join("");
+        const stage = document.getElementById("stage");
+        const reopen = document.getElementById("reopen");
+        const relaunch = document.getElementById("relaunch");
+        if (kind === "docker") {
+          stage.innerHTML = '<div class="whale">🐳</div><p class="lede" style="text-align:center">If a password box appears, that is the one click we need from you.</p>';
+          reopen.hidden = true;
+          relaunch.hidden = true;
+        } else if (kind === "cli") {
+          stage.innerHTML = '<div class="mock"><div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mock-title">No Settings toggle</span></div><div class="row"><span class="who">CLI only</span></div></div>';
+          reopen.hidden = true;
+          relaunch.hidden = true;
+        } else if (kind === "automation") {
+          stage.innerHTML = mockList("Cursor", true);
+          reopen.hidden = false;
+          relaunch.hidden = false;
+        } else {
+          stage.innerHTML = mockList(appName(), false);
+          reopen.hidden = false;
+          relaunch.hidden = false;
+        }
+      }
+
+      function mockList(target, nested) {
+        const extra = nested
+          ? '<div class="row dim"><span class="who">System Events</span><span class="toggle"><span class="knob"></span></span></div>'
+          : '<div class="row dim"><span class="who">Finder</span><span class="toggle"><span class="knob"></span></span></div>';
+        return (
+          '<div class="mock"><div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mock-title">Privacy &amp; Security</span></div>' +
+          extra +
+          '<div class="row target"><span class="who">' + target + '</span><span class="toggle" id="sw"><span class="knob"></span></span><span class="pulse"></span><span class="finger">👆</span></div>' +
+          '<div class="row dim"><span class="who">Terminal</span><span class="toggle"><span class="knob"></span></span></div></div>'
+        );
+      }
+
+      async function markReady() {
+        done = true;
+        document.getElementById("wait").className = "wait ok";
+        document.getElementById("wait").textContent = "Got it.";
+        const sw = document.getElementById("sw");
+        if (sw) sw.classList.add("on");
+        document.getElementById("confirm").hidden = true;
+        document.getElementById("reopen").hidden = true;
+        document.getElementById("relaunch").hidden = true;
+        window.setTimeout(() => invoke("hide_permission_coach").catch(() => {}), 600);
+      }
+
+      function markNeedsRelaunch(message) {
+        document.getElementById("wait").className = "wait";
+        document.getElementById("wait").textContent = message || `The Settings row is often a previous DMG. Select ${appName()}, click minus, plus, pick /Applications/${appName()}.app, turn it on, then click I’ve turned it on. Relaunch is optional.`;
+        document.getElementById("reopen").hidden = false;
+        document.getElementById("relaunch").hidden = false;
+      }
+
+      async function tick() {
+        if (done) return;
+        try {
+          const st = await invoke("macos_control_status", { tool });
+          if (st && st.ready) {
+            await markReady();
+            return;
+          }
+          if (st && st.kind && st.kind !== kind && st.kind !== "needs_relaunch") render(st);
+        } catch (_) {}
+      }
+
+      document.getElementById("confirm").addEventListener("click", async () => {
+        const btn = document.getElementById("confirm");
+        btn.disabled = true;
+        document.getElementById("wait").textContent = "Saving…";
+        try {
+          await invoke("confirm_macos_permission", { tool });
+        } catch (_) {}
+        // Always dismiss — Settings can show ON for a previous DMG while this
+        // process is still untrusted. Do not wait on AXIsProcessTrusted.
+        await markReady();
+      });
+      document.getElementById("reopen").addEventListener("click", async () => {
+        try {
+          await invoke("open_macos_privacy_pane", { pane: kind === "automation" ? "automation" : "accessibility" });
+          document.getElementById("wait").textContent = `Settings is open again. Turn on ${appName()}, then click I’ve turned it on.`;
+        } catch (_) {}
+      });
+      document.getElementById("relaunch").addEventListener("click", async () => {
+        document.getElementById("wait").textContent = "Relaunching…";
+        try { await invoke("relaunch_app"); } catch (_) {}
+      });
+
+      listen("permission-coach", (payload) => {
+        if (payload && payload.ready) {
+          void markReady();
+          return;
+        }
+        done = false;
+        document.getElementById("confirm").hidden = false;
+        document.getElementById("wait").className = "wait";
+        document.getElementById("wait").textContent = `If the switch already looks on, that row is often a previous DMG. Remove it with minus, add /Applications/${appName()}.app with plus, turn it on, then click I’ve turned it on.`;
+        if (payload && typeof payload === "object") render(payload);
+      }).catch(() => {});
+
+      invoke("macos_control_status", { tool: "cursor" }).then((st) => { if (st) render(st); }).catch(() => {});
+      window.setInterval(() => void tick(), 900);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 680 160" role="img">
+<style>.node rect { fill: teal; } .th { font-size: 14px; }</style>
+<title>DentRecall rebooking</title><desc>Patients move from a missed appointment to a rebooked visit</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"/></marker></defs>
+<g class="node c-teal"><rect x="-20" y="40" width="180" height="56"/><text class="th" x="70" y="68" text-anchor="middle">Identify patients needing an appointment follow up</text></g>
+<g class="node c-teal"><rect x="240" y="40" width="180" height="56"/><text class="th" x="330" y="68" text-anchor="middle">Send a consented rebooking text</text></g>
+<g class="node c-teal"><rect x="580" y="40" width="180" height="56"/><text class="th" x="670" y="68" text-anchor="middle">Book a return visit</text></g>
+<line class="arr" x1="164" y1="68" x2="236" y2="68" marker-end="url(#arrow)"/>
+<path class="arr" d="M424 68L576 68" marker-end="url(#arrow)"/>
+<script>alert('model output must never execute')</script>
+</svg>

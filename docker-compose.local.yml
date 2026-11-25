@@ -1,0 +1,214 @@
+x-local-env: &local-env
+  SUPYMEM_MODE: local
+  APP_ENV: local
+  COMPANY_OS_DATA_DIR: /workspace/data
+  PORT: "3300"
+  COMPANY_OS_DB_URL: ${COMPANY_OS_DB_URL:-sqlite:////workspace/data/local.db}
+  COMPANY_OS_WORKING_MEMORY_PATH: /workspace/data/working_memory.sqlite3
+  CORE_URL: http://127.0.0.1:3300
+  CONSOLE_ORIGIN: http://127.0.0.1:${CONSOLE_PORT:-3100}
+  FIRECRAWL_SELF_HOSTED_URL: ${FIRECRAWL_SELF_HOSTED_URL:-http://127.0.0.1:3002}
+  FIRECRAWL_SELF_HOSTED_TOKEN: ${FIRECRAWL_SELF_HOSTED_TOKEN:-}
+  LLM_PROVIDER: ${LLM_PROVIDER:-}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_BASE_URL: ${LLM_BASE_URL:-}
+  LLM_API_VERSION: ${LLM_API_VERSION:-}
+  LLM_DEPLOYMENT_NAME: ${LLM_DEPLOYMENT_NAME:-}
+  LLM_DEPLOYMENT_PRO: ${LLM_DEPLOYMENT_PRO:-}
+  LLM_DEPLOYMENT_FLASH: ${LLM_DEPLOYMENT_FLASH:-}
+  SUPYMEM_LLM_PROVIDER:
+  OPENAI_API_KEY:
+  OPENAI_BASE_URL:
+  AZURE_OPENAI_API_KEY:
+  AZURE_OPENAI_ENDPOINT:
+  ANTHROPIC_API_KEY:
+  ANTHROPIC_BASE_URL:
+  OPENAI_COMPATIBLE_API_KEY:
+  OPENAI_COMPATIBLE_BASE_URL:
+  SUPYMEM_MODEL_CHAT:
+  SUPYMEM_MODEL_PLANNING:
+  SUPYMEM_MODEL_EXTRACTION:
+  SUPYMEM_MODEL_VISION:
+  SUPYMEM_MODEL_REALTIME:
+
+x-core: &core
+  build:
+    context: .
+    dockerfile: services/company_os/Dockerfile
+    target: local
+  env_file:
+    - path: .env
+      required: false
+  volumes:
+    - local-data:/workspace/data
+    - local-proxy:/run/local-proxy:rw
+  restart: unless-stopped
+
+x-firecrawl-env: &firecrawl-env
+  REDIS_URL: redis://firecrawl-redis:6379
+  REDIS_RATE_LIMIT_URL: redis://firecrawl-redis:6379
+  PLAYWRIGHT_MICROSERVICE_URL: http://firecrawl-browser:3000/scrape
+  POSTGRES_USER: ${FIRECRAWL_POSTGRES_USER:-crawler}
+  POSTGRES_PASSWORD: ${FIRECRAWL_POSTGRES_PASSWORD:-}
+  POSTGRES_DB: ${FIRECRAWL_POSTGRES_DB:-crawler}
+  POSTGRES_HOST: firecrawl-postgres
+  POSTGRES_PORT: "5432"
+  NUQ_RABBITMQ_URL: amqp://firecrawl-rabbitmq:5672
+  USE_DB_AUTHENTICATION: "false"
+  SEARXNG_ENDPOINT: http://firecrawl-search:8080
+  BULL_AUTH_KEY: ${FIRECRAWL_BULL_AUTH_KEY:-}
+
+services:
+  core:
+    <<: *core
+    environment:
+      <<: *local-env
+      APP_ROLE: api
+      SUPYMEM_LOCAL_PROXY_SECRET_FILE: /run/local-proxy/secret
+    command: ["sh", "-c", "python -c 'from app.state import db; db()' && exec uvicorn app.main:app --host 0.0.0.0 --port 3300 --no-proxy-headers"]
+    ports:
+      - "127.0.0.1:${CORE_PORT:-3300}:3300"
+      - "127.0.0.1:${CONSOLE_PORT:-3100}:3100"
+      - "127.0.0.1:${FIRECRAWL_PORT:-3002}:3002"
+
+  worker:
+    <<: *core
+    network_mode: service:core
+    environment:
+      <<: *local-env
+      APP_ROLE: worker
+      PORT: "3301"
+      WORKER_HEALTH_PORT: "3301"
+    command: ["python", "-m", "app.worker.main"]
+    depends_on:
+      core:
+        condition: service_healthy
+
+  console:
+    network_mode: service:core
+    build:
+      context: apps/console
+      target: runner-with-notices
+      additional_contexts:
+        release_source: .
+      args:
+        SUPYMEM_MODE: local
+        CORE_URL: http://127.0.0.1:3300
+        NEXT_PUBLIC_GATEWAY_URL: http://127.0.0.1:${CONSOLE_PORT:-3100}
+    environment:
+      SUPYMEM_MODE: local
+      CORE_URL: http://127.0.0.1:3300
+      SUPYMEM_LOCAL_PROXY_SECRET_FILE: /run/local-proxy/secret
+      NEXT_PUBLIC_GATEWAY_URL: http://127.0.0.1:${CONSOLE_PORT:-3100}
+    volumes:
+      - local-proxy:/run/local-proxy:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/api/local-ready',{redirect:'error'}).then(r=>process.exit(r.status===204?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    depends_on:
+      core:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Enable this profile and set COMPANY_OS_DB_URL to your Postgres connection URL.
+  # Your existing SQLite volume is retained. No data is moved automatically.
+  postgres:
+    profiles: [postgres]
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-local}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-local}
+    volumes:
+      - local-postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Set FIRECRAWL_SOURCE_DIR to your checkout of upstream Firecrawl v2.11.0.
+  # This profile runs only self-hosted services, with no paid search fallback.
+  firecrawl:
+    profiles: [firecrawl]
+    network_mode: service:core
+    build: ${FIRECRAWL_SOURCE_DIR:-./vendor/firecrawl}/apps/api
+    init: true
+    environment:
+      <<: *firecrawl-env
+      HOST: 127.0.0.1
+      PORT: "3002"
+      EXTRACT_WORKER_PORT: "3004"
+      WORKER_PORT: "3005"
+      ENV: local
+    command: ["node", "dist/src/harness.js", "--start-docker"]
+    depends_on:
+      core:
+        condition: service_healthy
+      firecrawl-redis:
+        condition: service_healthy
+      firecrawl-rabbitmq:
+        condition: service_healthy
+      firecrawl-postgres:
+        condition: service_healthy
+      firecrawl-browser:
+        condition: service_started
+      firecrawl-search:
+        condition: service_started
+
+  firecrawl-browser:
+    profiles: [firecrawl]
+    build: ${FIRECRAWL_SOURCE_DIR:-./vendor/firecrawl}/apps/playwright-service-ts
+    environment:
+      PORT: "3000"
+      BLOCK_MEDIA: "true"
+
+  firecrawl-redis:
+    profiles: [firecrawl]
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  firecrawl-rabbitmq:
+    profiles: [firecrawl]
+    image: rabbitmq:3.13-management
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  firecrawl-postgres:
+    profiles: [firecrawl]
+    build: ${FIRECRAWL_SOURCE_DIR:-./vendor/firecrawl}/apps/nuq-postgres
+    environment:
+      POSTGRES_USER: ${FIRECRAWL_POSTGRES_USER:-crawler}
+      POSTGRES_PASSWORD: ${FIRECRAWL_POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${FIRECRAWL_POSTGRES_DB:-crawler}
+    volumes:
+      - local-firecrawl-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  firecrawl-search:
+    profiles: [firecrawl]
+    image: searxng/searxng:2026.10.17-1c10abe2d
+    volumes:
+      - ${FIRECRAWL_SEARCH_CONFIG_DIR:-./data/runtime/local/search}:/etc/searxng
+
+volumes:
+  local-proxy:
+  local-data:
+  local-postgres:
+  local-firecrawl-postgres:

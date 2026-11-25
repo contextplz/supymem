@@ -1,0 +1,498 @@
+.page {
+  --nf-bg: #fff;
+  --nf-text: #1c1c1e;
+  --nf-muted: #666666;
+  --nf-border: rgba(28, 28, 30, 0.18);
+  --nf-tile: min(112px, 22vw);
+  --nf-font: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  box-sizing: border-box;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px;
+  padding: 72px 24px 32px;
+  background: var(--nf-bg);
+  color: var(--nf-text);
+  font-family: var(--nf-font);
+}
+
+.page > * { flex-shrink: 0; }
+
+.dragRegion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  height: 52px;
+}
+
+.title {
+  margin: 0;
+  color: var(--nf-text);
+  font: 650 22px / 1.25 var(--nf-font);
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.profiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  max-width: min(1100px, 100%);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.profile {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: var(--nf-tile);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.profile:focus-visible .avatar,
+.add:focus-visible .addCircle {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.avatar,
+.addCircle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--nf-tile);
+  height: var(--nf-tile);
+  overflow: hidden;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  box-sizing: border-box;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.avatar {
+  background: var(--tile-color, #e50914);
+  /* The transparent hover border must not show the fallback colour as a red frame around every card. */
+  background-clip: padding-box;
+}
+
+.name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--nf-muted);
+  font: 500 14px / 1.25 var(--nf-font);
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.profile:hover .avatar,
+.profile:focus-visible .avatar,
+.add:hover .addCircle,
+.add:focus-visible .addCircle {
+  border-color: var(--nf-border);
+}
+
+.profile:hover .name,
+.profile:focus-visible .name,
+.add:hover .name,
+.add:focus-visible .name {
+  color: var(--nf-text);
+}
+
+.add .addCircle {
+  border-radius: 50%;
+  background: transparent;
+}
+
+.addGlyph {
+  display: grid;
+  place-items: center;
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 4px #808080;
+  color: #808080;
+  font: 300 48px / 1 var(--nf-font);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.add:hover .addGlyph,
+.add:focus-visible .addGlyph {
+  background: #e5e5e5;
+  color: #141414;
+  box-shadow: inset 0 0 0 4px #e5e5e5;
+}
+
+.manage {
+  margin-top: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--nf-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--nf-text);
+  cursor: pointer;
+  font: 500 14px / 1.2 var(--nf-font);
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.manage:hover,
+.manage:focus-visible {
+  border-color: var(--nf-text);
+  color: var(--nf-text);
+}
+
+.manage:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.manageActive {
+  border-color: var(--nf-text);
+  color: var(--nf-text);
+}
+
+.editBadge {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.managing .editBadge {
+  opacity: 1;
+}
+
+.editIcon {
+  display: grid;
+  place-items: center;
+  width: 42%;
+  height: 42%;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+}
+
+.state,
+.error {
+  margin: 0;
+  color: var(--nf-muted);
+  font: 400 1.1rem / 1.4 var(--nf-font);
+  text-align: center;
+}
+
+.error {
+  color: #e50914;
+}
+
+.banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(560px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid var(--nf-border);
+  border-radius: 4px;
+  background: var(--nf-bg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  transform: translateX(-50%);
+}
+
+.banner p {
+  margin: 0;
+  color: var(--nf-text);
+  font: 400 0.95rem / 1.35 var(--nf-font);
+}
+
+.bannerError {
+  margin-top: 6px !important;
+  color: #e50914 !important;
+}
+
+.bannerActions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.bannerActions button {
+  padding: 8px 12px;
+  border: 1px solid #808080;
+  background: transparent;
+  color: var(--nf-text);
+  cursor: pointer;
+  font: 500 0.8rem / 1 var(--nf-font);
+  letter-spacing: 0.06em;
+}
+
+.bannerActions button:hover {
+  border-color: var(--nf-text);
+}
+
+.managePanel {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.manageCard {
+  width: min(420px, 100%);
+  padding: 28px;
+  border: 1px solid var(--nf-border);
+  background: var(--nf-bg);
+  color: var(--nf-text);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.16);
+}
+
+.manageCard h2 {
+  margin: 0 0 8px;
+  font: 500 1.4rem / 1.2 var(--nf-font);
+}
+
+.manageCard p {
+  margin: 0 0 22px;
+  color: var(--nf-muted);
+  font: 400 0.95rem / 1.45 var(--nf-font);
+}
+
+.manageActions {
+  display: grid;
+  gap: 10px;
+}
+
+.manageActions button,
+.manageActions a {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #808080;
+  background: transparent;
+  color: var(--nf-text);
+  cursor: pointer;
+  font: 500 0.85rem / 1 var(--nf-font);
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+
+.manageActions button:hover,
+.manageActions a:hover {
+  border-color: var(--nf-text);
+}
+
+.danger {
+  border-color: #e50914 !important;
+  color: #e50914 !important;
+}
+
+.danger:hover {
+  background: #e50914 !important;
+  color: #fff !important;
+}
+
+.trash {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 15;
+  width: min(320px, calc(100vw - 36px));
+  color: var(--nf-text);
+  font-family: var(--nf-font);
+}
+
+.trash summary {
+  cursor: pointer;
+  list-style: none;
+  font: 500 0.8rem / 1.2 var(--nf-font);
+  letter-spacing: 0.12em;
+}
+
+.trash summary::-webkit-details-marker {
+  display: none;
+}
+
+.trashList {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.trashRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--nf-border);
+  background: var(--nf-bg);
+}
+
+.trashRow strong {
+  display: block;
+  color: var(--nf-text);
+  font: 500 0.9rem / 1.2 var(--nf-font);
+}
+
+.trashRow span {
+  color: #808080;
+  font: 400 0.75rem / 1.2 var(--nf-font);
+}
+
+.trashRow button {
+  border: 1px solid #808080;
+  background: transparent;
+  color: var(--nf-text);
+  cursor: pointer;
+  font: 500 0.7rem / 1 var(--nf-font);
+  letter-spacing: 0.08em;
+  padding: 7px 9px;
+}
+
+@media (max-width: 720px) {
+  .page {
+    --nf-tile: min(112px, 38vw);
+    gap: 24px;
+    justify-content: flex-start;
+    padding-top: 72px;
+  }
+
+  .profiles {
+    gap: 20px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar,
+  .addCircle,
+  .name,
+  .addGlyph,
+  .manage,
+  .editBadge {
+    transition: none;
+  }
+}
+
+.managePanel {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.managePanel::backdrop { background: transparent; }
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+  max-width: 560px;
+  color: #666666;
+  text-align: center;
+}
+
+.empty p { margin: 0; }
+
+.newButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1px solid #808080;
+  background: transparent;
+  color: var(--nf-text);
+  text-decoration: none;
+  font: 500 0.95rem / 1.2 var(--nf-font);
+}
+
+.newButton:hover { border-color: var(--nf-text); color: var(--nf-text); }
+
+.draftBanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--nf-border);
+  border-radius: 4px;
+  background: var(--nf-bg);
+  color: var(--nf-text);
+}
+
+.draftBanner p { margin: 0; }
+
+.trashError { color: #e50914; }
+
+.page :where(a, button):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.page :where(a[class], button):active:not(:disabled) { transform: none; }
+
+.page button { border-radius: var(--r-full, 999px); }
+.page .profile { border-radius: 0; }
+
+.page .profile:hover:not(:disabled) { background: transparent; border-color: transparent; }
+.page .manage:hover:not(:disabled) { background: transparent; border-color: var(--nf-text); color: var(--nf-text); }
+.page .manageActions button:hover:not(:disabled),
+.page .bannerActions button:hover:not(:disabled),
+.page .trashRow button:hover:not(:disabled) { background: transparent; border-color: var(--nf-text); color: var(--nf-text); }
+.page button:disabled { background: #f3f3f3; border-color: var(--nf-border); color: var(--nf-muted); }
+
+@media (max-width: 720px) {
+  .draftBanner { flex-direction: column; text-align: center; }
+}
+
+.cardArt { width: 100%; height: 100%; object-fit: cover; }
+.artPick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.art { padding: 0; overflow: hidden; border: 2px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; }
+.art img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.art[aria-pressed="true"] { border-color: var(--accent); }
+.art:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.field { display: grid; gap: 6px; margin: 12px 0; }
+.profile:focus-visible .avatar, .add:focus-visible .addCircle { outline-color: var(--focus-ring); }

@@ -1,0 +1,24 @@
+{
+  "task_id": "task_one",
+  "title": "Build and check the approved page",
+  "instruction": "Implement the approved static contract inside the marked venture folder, then run the reviewed offline checks.",
+  "applications": ["com.companyos.app"],
+  "origins": [],
+  "actions": ["editor.edit", "terminal.execute"],
+  "credit_ceiling_micro": 0,
+  "duration_seconds": 2700,
+  "coding_loop_verification": {
+    "operation": "workspace_loop_v1",
+    "provider": "claude",
+    "workspace_slug": "test-venture",
+    "profile": "web_app_static_v1",
+    "check_recipe": "web_app_static_checks_v1",
+    "network": "none",
+    "read_scope": "venture_workspace",
+    "write_scope": "venture_workspace",
+    "max_iterations": 6,
+    "max_wall_seconds": 2700,
+    "per_call_seconds": 720,
+    "max_turns": 40
+  }
+}

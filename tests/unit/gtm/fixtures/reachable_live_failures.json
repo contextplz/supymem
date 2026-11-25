@@ -1,0 +1,40 @@
+{
+  "contact_pages": [
+    {"url": "https://thimble-studio.example/contact", "text": "# Contact Thimble Studio\n[hello@thimble-studio.example](mailto:hello@thimble-studio.example)\n[Request a quote](https://thimble-studio.example/request-a-quote)"},
+    {"url": "https://kite-studio.test/contact/", "text": "# Kite Studio design enquiries\nFor a packaging project, email design@kite-studio.test."},
+    {"url": "https://fable-studio.example/contact", "text": "# Contact\nSend a message about your project using the form below."},
+    {"url": "https://marble-studio.test/contact/", "text": "# Contact\nFirst Name (required)\nLast Name (required)\nEmail (required)\nMessage (required)\nSubmit"},
+    {"url": "https://plume-studio.example/contact-us/", "text": "# Work with Plume Studio\nPlease complete the form below to describe your project."},
+    {"url": "https://spool-studio.test/contact", "text": "# Contact Spool Studio\nUse our enquiry form to tell us about your design project.\nSubscribe to our newsletter for studio updates."}
+  ],
+  "splash_profiles": [
+    {"url": "https://profiles.test/in/fixture-swim-01", "title": "Aster Tumblefin - swimming coach - LinkedIn", "snippet": "Swimming Coach. Paper Otter Swim School, Toronto. I teach water safety to new swimmers."},
+    {"url": "https://profiles.test/in/fixture-swim-02", "title": "Pip.Pondstar Pip.Pondstar - Learn to swim coach at pasteboard pools toronto", "snippet": "Learn to swim coach at pasteboard pools toronto. For lesson enquiries, email lessons@pasteboard-pools.example."},
+    {"url": "https://profiles.test/in/fixture-swim-03", "title": "ORBIT SPOONWAVE - Swimming Coach - LinkedIn", "snippet": "Swimming Coach at Felt Dolphin Club. I teach floating and stroke basics in Toronto."},
+    {"url": "https://profiles.test/in/fixture-swim-04", "title": "PEBBLE TEACUP - Swimming Coach @ Tin Trout School | LinkedIn", "snippet": "Swimming Coach at Tin Trout School. I help children get comfortable in the pool in Toronto."},
+    {"url": "https://profiles.test/in/fixture-swim-05", "title": "Moss Bubbletail - Swimming coach at Clockwork Minnow School", "snippet": "Swimming coach at Clockwork Minnow School, Toronto. I teach small classes for beginner swimmers."}
+  ],
+  "splash_judgement": {
+    "items": [
+      {"id": 0, "kind": "person", "quote": "I teach water safety to new swimmers.", "affiliation": "", "name": "Aster Tumblefin", "url": "https://profiles.test/in/fixture-swim-01", "role": "Swimming Coach", "company": "Paper Otter Swim School, Toronto", "location": "Toronto", "fit": 85, "why": "Teaches beginner swimmers.", "value_exchange": "Share a sample progress note for swim families."},
+      {"id": 1, "kind": "person", "quote": "Learn to swim coach at pasteboard pools toronto", "affiliation": "", "name": "Pip.Pondstar Pip.Pondstar", "url": "https://profiles.test/in/fixture-swim-02", "role": "Learn to swim coach", "company": "pasteboard pools toronto", "location": "Toronto", "fit": 85, "why": "Runs learn-to-swim lessons.", "value_exchange": "Offer a progress checklist for beginner lessons."},
+      {"id": 2, "kind": "person", "quote": "I teach floating and stroke basics in Toronto.", "affiliation": "", "name": "ORBIT SPOONWAVE", "url": "https://profiles.test/in/fixture-swim-03", "role": "Swimming Coach", "company": "Felt Dolphin Club", "location": "Toronto", "fit": 85, "why": "Teaches basic strokes.", "value_exchange": "Share a way to show stroke milestones to parents."},
+      {"id": 4, "kind": "person", "quote": "I teach small classes for beginner swimmers.", "affiliation": "", "name": "Moss Bubbletail", "url": "https://profiles.test/in/fixture-swim-05", "role": "Swimming coach", "company": "Clockwork Minnow School, Toronto", "location": "Toronto", "fit": 85, "why": "Teaches beginner classes.", "value_exchange": "Share a family-friendly summary of lesson milestones."}
+    ]
+  },
+  "brew_judgement": {
+    "items": [
+      {"id": 0, "kind": "customer_voice", "quote": "My first shot ran too quickly with the new beans.", "affiliation": "Burr Club", "name": "Burr Club", "url": "https://burr-club.test/espresso/"},
+      {"id": 1, "kind": "customer_voice", "quote": "I used half a bag trying to dial in the grind.", "affiliation": "Burr Club", "name": "Burr Club", "url": "https://burr-club.test/espresso/"},
+      {"id": 2, "kind": "customer_voice", "quote": "No shops near me sell small bags for home espresso.", "affiliation": "Steam Notes", "name": "Steam Notes", "url": "https://steam-notes.example/"},
+      {"id": 3, "kind": "channel", "quote": "", "affiliation": "", "name": "Bean Discussion", "url": "https://steam-notes.example/forums/beans/", "fit": 0},
+      {"id": 4, "kind": "customer_voice", "quote": "The roast date was already a month old on delivery.", "affiliation": "Burr Club", "name": "Burr Club", "url": "https://burr-club.test/espresso/"},
+      {"id": 5, "kind": "channel", "quote": "", "affiliation": "", "name": "Paper Cup Cafe", "url": "https://paper-cup.invalid/", "fit": 0},
+      {"id": 6, "kind": "customer_voice", "quote": "I want a less expensive roast for practice shots.", "affiliation": "Shot Log", "name": "Shot Log", "url": "https://shot-log.example/"},
+      {"id": 7, "kind": "customer_voice", "quote": "I would rather learn the grinder with smaller samples.", "affiliation": "Shot Log", "name": "Shot Log", "url": "https://shot-log.example/"},
+      {"id": 8, "kind": "competitor_switch", "quote": "Choose two small bags to match your roast preferences.", "affiliation": "Bean Parcel", "name": "Bean Parcel", "url": "https://bean-parcel.test/"},
+      {"id": 9, "kind": "competitor_switch", "quote": "This sampler rotates through a different roaster each month.", "affiliation": "Cup Review", "name": "Cup Review", "url": "https://cup-review.example/"}
+    ]
+  },
+  "empty_judgements": [{"items": []}, {"items": []}]
+}

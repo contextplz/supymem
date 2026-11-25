@@ -1,0 +1,21 @@
+# Memory layer config (doc 72 §3). Default is fully offline.
+version: 1
+
+memory:
+  tier1: sqlite
+  tier2: local   # local | supymem | hosted
+  adapters:
+    local:
+      store: sqlite
+      fusion: rrf
+      rerank: none
+    supymem:
+      base_url: ${SUPYMEM_BASE_URL}
+      api_key: ${SUPYMEM_API_KEY}
+      org_id: ${SUPYMEM_ORG_ID}
+      venture_to_project: true
+      require_mnemos: true
+      timeout_fast_ms: 800
+      timeout_slow_ms: 15000
+    hosted:
+      kind: zep

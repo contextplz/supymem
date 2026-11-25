@@ -1,0 +1,16 @@
+.companies { display: grid; gap: var(--s-4); }
+.company { border-top: 1px solid var(--line-subtle); padding-top: var(--s-3); overflow-wrap: anywhere; }
+.company h3 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin: 0 0 var(--s-2); }
+.status { border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--fg-1); font: var(--t-meta); }
+.field { margin-bottom: var(--s-3); }
+.field dt { font-weight: 600; }
+.field dd { margin: var(--s-1) 0 0; color: var(--fg-1); }
+.source { display: block; margin-top: var(--s-1); }
+.sources, .note { font: var(--t-meta); color: var(--fg-2); overflow-wrap: anywhere; }
+.lessons, .people { padding-left: var(--s-4); }
+.lessons li, .people li { margin-bottom: var(--s-3); overflow-wrap: anywhere; }
+.lessons p, .people p { margin: var(--s-1) 0; }
+.timeline { margin-bottom: var(--s-3); }
+.timeline summary { cursor: pointer; font-weight: 600; }
+.timeline li { margin-bottom: var(--s-2); overflow-wrap: anywhere; }
+.company a:focus-visible, .lessons a:focus-visible, .people a:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }

@@ -1,0 +1,51 @@
+@property --n { syntax: "<integer>"; inherits: false; initial-value: 0; }
+
+.badge { display: inline-block; padding: 3px 12px; border-radius: 999px; font: var(--t-eyebrow); letter-spacing: var(--track-label); text-transform: uppercase; }
+.proceed { background: var(--ok-dim); color: var(--ok); }
+.test_first { background: var(--warn-dim); color: var(--warn); }
+.not_yet { background: var(--danger-dim); color: var(--danger); }
+
+.count { counter-reset: n var(--n); animation: countUp 900ms ease-out forwards; font: var(--t-display); font-variant-numeric: tabular-nums; }
+.count::after { content: counter(n); }
+@keyframes countUp { from { --n: 0; } to { --n: var(--to); } }
+.stat { display: flex; flex-direction: column; gap: 2px; }
+.statLabel { font: var(--t-meta); color: var(--fg-2); }
+
+.meter { display: flex; flex-direction: column; gap: var(--s-1); margin: var(--s-4) 0; }
+.meterTrack { height: 8px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.meterFill { height: 100%; width: var(--pct); background: var(--accent); border-radius: 999px; transform-origin: left; animation: grow 900ms ease-out; }
+@keyframes grow { from { transform: scaleX(0); } }
+.meterText { font: var(--t-meta); color: var(--fg-2); }
+
+.strength { display: inline-flex; gap: 3px; vertical-align: middle; }
+.strength i { width: 18px; height: 6px; border-radius: 3px; background: var(--bg-3); }
+.strength i.segOn { background: var(--accent); animation: grow 700ms ease-out; transform-origin: left; }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--bg-subtle); color: var(--fg-1); font: var(--t-meta); text-decoration: none; max-width: 100%; }
+.chip:hover { border-color: var(--accent-line); color: var(--fg-0); }
+.initial { width: 14px; height: 14px; border-radius: 3px; flex: none; }
+.initial { display: inline-grid; place-items: center; background: var(--bg-3); font: var(--t-label); }
+
+.running { margin: 0 0 var(--s-5); }
+.running p { margin: var(--s-2) 0 0; color: var(--fg-1); }
+.shimmer { height: 6px; border-radius: 999px; background: linear-gradient(90deg, var(--bg-2) 0%, var(--accent-dim) 40%, var(--accent) 50%, var(--accent-dim) 60%, var(--bg-2) 100%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+.lines { list-style: none; margin: var(--s-4) 0; padding: 0; display: grid; gap: var(--s-3); }
+.lines li { position: relative; padding-left: var(--s-5); font: var(--t-body-md); color: var(--fg-0); animation: rise 500ms ease-out both; animation-delay: var(--delay); }
+.lines li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.risk { margin: var(--s-4) 0; padding: var(--s-3) var(--s-4); border-left: 3px solid var(--warn); background: var(--warn-dim); border-radius: 0 8px 8px 0; font: var(--t-body); }
+.risk span { display: block; font: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--warn); margin-bottom: 2px; }
+
+.reveal { animation: rise 600ms ease-out both; animation-delay: var(--delay); }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@supports (animation-timeline: view()) {
+  .reveal { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; animation-delay: 0s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .count, .meterFill, .strength i.segOn, .lines li, .reveal { animation: none; }
+  .count { --n: var(--to); }
+  .shimmer { animation: none; background: var(--accent-dim); }
+}

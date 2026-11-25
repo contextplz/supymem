@@ -1,0 +1,69 @@
+# First-look palettes (45 §3.1).
+#
+# Twelve curated hue families, picked deterministically from sha256(idea). Pure
+# red and neon saturations are absent on purpose: they read as amateur, and the
+# first thirty seconds of a first look are spent deciding whether we are
+# credible. Ramp steps and text pairs are computed in `app/firstlook/brandkit.py`
+# and every pair is contrast-checked against WCAG AA before it ships.
+version: 1
+
+families:
+  - name: slate
+    hue: 214
+    saturation: 0.30
+  - name: indigo
+    hue: 243
+    saturation: 0.34
+  - name: violet
+    hue: 268
+    saturation: 0.30
+  - name: plum
+    hue: 292
+    saturation: 0.26
+  - name: rose
+    hue: 338
+    saturation: 0.28
+  - name: clay
+    hue: 22
+    saturation: 0.32
+  - name: amber
+    hue: 41
+    saturation: 0.36
+  - name: olive
+    hue: 92
+    saturation: 0.26
+  - name: fern
+    hue: 136
+    saturation: 0.26
+  - name: emerald
+    hue: 158
+    saturation: 0.30
+  - name: teal
+    hue: 184
+    saturation: 0.30
+  - name: cyan
+    hue: 199
+    saturation: 0.32
+
+# Lightness anchors for the five-step ramp, per tone. Backgrounds sit at the
+# extremes so a near-black or near-white text pair always clears 4.5:1.
+tones:
+  light:
+    page: 0.975
+    surface: 0.945
+    border: 0.855
+    muted: 0.400
+    ink: 0.145
+  dark:
+    page: 0.115
+    surface: 0.165
+    border: 0.275
+    muted: 0.660
+    ink: 0.960
+
+# Accent lightness starts here and is darkened or lightened in fixed steps until
+# its label text clears AA (see brandkit.accent_pair).
+accent:
+  light_start: 0.38
+  dark_start: 0.62
+  step: 0.02

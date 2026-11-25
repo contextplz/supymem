@@ -1,0 +1,12 @@
+{# Hardware / physical: what it is, who it is for, notify-me. #}
+{% extends "_base.html.j2" %}
+
+{% block eyebrow %}Something being made{% endblock %}
+
+{% block sections %}
+{% with points_heading = "What it is" %}{% include "_points.html.j2" %}{% endwith %}
+{% with steps_heading = "How it gets to you" %}{% include "_steps.html.j2" %}{% endwith %}
+{% endblock %}
+
+{% block capture_heading %}Tell me when it exists{% endblock %}
+{% block capture_blurb %}Leave your email and I'll say when there's something real to see.{% endblock %}

@@ -1,0 +1,7 @@
+{
+  "url": "https://members.sample-physio-directory.example.org/find-a-physio",
+  "title": "Find a physio",
+  "snippet": "Directory of independent physiotherapy clinics in the UK.",
+  "kind": "business",
+  "html": "<main><h1>Find a physio</h1><p>Directory of independent physiotherapy clinics in the UK.</p><a href='https://willowphysio.example/'>Willow Physiotherapy</a><a href='https://birchphysio.example/'>Birch Physiotherapy</a><a href='https://cedarphysio.example/'>Cedar Physiotherapy</a><a href='https://clinics.sample-physio-directory.example.org/'>Our listings</a><a href='/clinics/123'>Clinic listing</a><a href='https://willowphysio.example/contact?email=private@example.com'>Duplicate</a><a href='https://profiles.test/in/fixture-physio'>LinkedIn</a><a href='https://photos.test/fixture-physio'>Instagram</a><a href='https://directory.invalid/'>Another directory</a><a href='https://journal.example/articles/research'>Research</a><a href='http://loopback.invalid/'>Internal</a><a href='https://user:password@private.example/'>Credentials</a><a href='mailto:info@sample-physio-directory.example.org'>Email</a></main>"
+}

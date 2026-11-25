@@ -1,0 +1,14 @@
+id: x_setup
+title: Set up x
+verified_on: "2026-06-01"
+prerequisites: []
+steps:
+  - id: open
+    title: Open x settings
+    url: "https://developer.x.com/en/portal/projects-and-apps"
+    ui_locator: "text=Keys and tokens"
+    expect_to_see: "API Key"
+    copy_this: null
+    paste_target: null
+    if_stuck: "Refresh and ensure you are logged in"
+    est_seconds: 60

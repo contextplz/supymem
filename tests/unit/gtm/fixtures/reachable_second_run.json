@@ -1,0 +1,21 @@
+{
+  "recall": {
+    "plan": {
+      "queries": [
+        {"query": "site:profiles.test/in ", "intent": "person"},
+        {"query": "", "intent": "business"},
+        {"query": "", "intent": ""},
+        {"query": "", "intent": ""}
+      ]
+    }
+  },
+  "freelance_design": {
+    "profiles": [
+      {"url": "https://short-posts.test/fixtureinvoice", "title": "Paper Ledger (@fixtureinvoice) / X", "snippet": "Invoicing software with automatic payment reminders. Start your trial."},
+      {"url": "https://short-posts.test/fixtureoffice", "title": "Puzzle Office (@fixtureoffice) / X", "snippet": "Unpaid invoice reminder advice. Read our guide to chasing late invoices."},
+      {"url": "https://short-posts.test/FixtureBranding", "title": "Mallow Clipcloud (@FixtureBranding) / X", "snippet": "Freelance Graphic Designer. I design labels and packaging for small shops."},
+      {"url": "https://short-posts.test/fixtureroles", "title": "Design Vacancies Board (@fixtureroles) / X", "snippet": "Latest design vacancies in graphic design, digital design and art direction. London, England."},
+      {"url": "https://short-posts.test/fixtureweekly", "title": "Paperwork Weekly (@fixtureweekly) / X", "snippet": "Do you have any freelancing invoice horror stories? Read our roundup about late payments."}
+    ]
+  }
+}

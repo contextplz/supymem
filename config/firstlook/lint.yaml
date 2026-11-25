@@ -1,0 +1,235 @@
+# Content-linter vocabulary (45 §6, LD-60).
+#
+# The linter is deterministic and refuses copy rather than trusting a prompt
+# instruction: models produce fake testimonials and invented market sizes by
+# default, and a founder who has to tell a friend the testimonials are fake has
+# been actively harmed by us. Phrases are matched case-insensitively on word
+# boundaries. `app/firstlook/lint.py` merges `config/idealab_banned.yaml` on top
+# of `banned_vocabulary` when that file exists (shared list, 37 §5.4).
+version: 1
+
+social_proof:
+  - trusted by
+  - as seen in
+  - as featured in
+  - backed by
+  - award-winning
+  - award winning
+  - loved by
+  - join thousands
+  - used by teams at
+  - customers include
+  - our customers say
+  - testimonials
+  - "#1"
+  - number one
+  - top rated
+  - top-rated
+  - highest rated
+
+superlatives:
+  - best
+  - best-in-class
+  - leading
+  - market-leading
+  - revolutionary
+  - world-class
+  - world class
+  - cutting-edge
+  - cutting edge
+  - unmatched
+  - unrivalled
+  - unrivaled
+  - state-of-the-art
+  - industry-standard
+  - the ultimate
+
+banned_vocabulary:
+  - ai-powered
+  - ai powered
+  - powered by ai
+  - seamless
+  - seamlessly
+  - one-stop
+  - one stop shop
+  - disrupt
+  - disrupting
+  - disruptive
+  - game-changing
+  - game changing
+  - game changer
+  - supercharge
+  - supercharged
+  - effortless
+  - frictionless
+  - next-generation
+  - synergy
+  - leverage
+  - turnkey
+  - "Built for"
+  - "Designed for"
+  - purple gradient
+  - frictionless
+
+commitments:
+  - guaranteed
+  - guarantee
+  - money-back
+  - money back
+  - no risk
+  - risk-free
+  - we promise
+  - promise you
+  - free forever
+  - lifetime access
+  - cancel anytime
+  - launching in
+  - available from
+  - ships in
+  - coming in
+  - starting at
+  - as little as
+  - /mo
+  - /month
+
+# Named third-party products. Flagged when they appear in generated copy but not
+# in the founder's own sentence: naming an integration we have not built implies
+# a partnership that does not exist.
+third_parties:
+  - stripe
+  - paypal
+  - klarna
+  - square
+  - quickbooks
+  - xero
+  - shopify
+  - woocommerce
+  - salesforce
+  - hubspot
+  - zapier
+  - notion
+  - airtable
+  - slack
+  - microsoft teams
+  - zoom
+  - google calendar
+  - google sheets
+  - gmail
+  - outlook
+  - calendly
+  - mailchimp
+  - klaviyo
+  - twilio
+  - whatsapp
+  - instagram
+  - tiktok
+  - facebook
+  - linkedin
+  - github
+  - gitlab
+  - linear
+  - jira
+  - asana
+  - trello
+  - openai
+  - anthropic
+  - aws
+  - azure
+  - uber
+  - doordash
+  - airbnb
+  - etsy
+  - amazon
+  - apple pay
+
+# Role words that turn a capitalised name into an attributed quote.
+attribution_roles:
+  - ceo
+  - cto
+  - coo
+  - cfo
+  - founder
+  - co-founder
+  - owner
+  - director
+  - manager
+  - head of growth
+  - head of product
+  - product manager
+  - engineer
+  - designer
+  - customer
+  - user
+  - client
+
+# Words that make a bare number a claim about traction rather than a plain fact.
+metric_nouns:
+  - user
+  - users
+  - customer
+  - customers
+  - team
+  - teams
+  - company
+  - companies
+  - business
+  - businesses
+  - member
+  - members
+  - subscriber
+  - subscribers
+  - signup
+  - signups
+  - download
+  - downloads
+  - booking
+  - bookings
+  - order
+  - orders
+  - review
+  - reviews
+  - revenue
+  - arr
+  - mrr
+  - gmv
+  - market
+  - tam
+  - industry
+  - growth
+  - retention
+  - conversion
+  - hours saved
+  - faster
+  - cheaper
+  - more productive
+
+# English stopwords used only to notice that generated copy drifted out of the
+# language the founder wrote in.
+english_markers:
+  - the
+  - a
+  - an
+  - and
+  - or
+  - for
+  - with
+  - to
+  - of
+  - in
+  - on
+  - your
+  - you
+  - we
+  - it
+  - is
+  - are
+  - that
+  - who
+  - what
+  - when
+  - where
+  - without
+  - so
+  - then
+  - from
+  - by

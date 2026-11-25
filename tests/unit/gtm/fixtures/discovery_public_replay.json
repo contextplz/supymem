@@ -1,0 +1,83 @@
+{
+  "recall": {
+    "plan": "{\n  \"queries\": [\n    {\"query\": \"dental front desk manager complaints about no-show patient follow-up\", \"intent\": \"prior_complaints\"},\n    {\"query\": \"dental scheduling software reviews no-show rebooking challenges\", \"intent\": \"customer_voice\"},\n    {\"query\": \"alternatives to Paper Calendar for small dental office appointment reminders\", \"intent\": \"competitor_switch\"},\n    {\"query\": \"hiring dental office receptionist scheduling skills\", \"intent\": \"need_hiring\"},\n    {\"query\": \"site:threads.test dental front desk no-shows frustration\", \"intent\": \"community\"},\n    {\"query\": \"site:group-posts.test groups dental office manager tips patient cancellations\", \"intent\": \"community\"},\n    {\"query\": \"dental clinic lost revenue from missed appointments forum\", \"intent\": \"channel\"},\n    {\"query\": \"site:dental-trade.example practices reducing no-show rates\", \"intent\": \"channel\"}\n  ]\n}",
+    "web": [
+      {
+        "url": "https://threads.test/r/Dentistry/comments/fixture01/phone_queue/",
+        "title": "Managing the front-desk phone queue",
+        "description": "The reception desk switches the phone to voicemail during lunch."
+      },
+      {
+        "url": "https://threads.test/r/Dentistry/comments/fixture02/closing_tasks/",
+        "title": "Front desk closing checklist",
+        "description": "The last shift files the forms and closes the reception desk."
+      }
+    ]
+  },
+  "splash": {
+    "plan": "{\n  \"queries\": [\n    {\n      \"query\": \"site:group-posts.test \\\"swimming lessons\\\" Bangalore apartment kids quit\",\n      \"intent\": \"community\"\n    },\n    {\n      \"query\": \"site:threads.test swimming lessons child progress feedback Bangalore parents\",\n      \"intent\": \"community\"\n    },\n    {\n      \"query\": \"site:parent-forum.example swimming lessons dropout progress update\",\n      \"intent\": \"community\"\n    },\n    {\n      \"query\": \"swimming lesson frustration no feedback child progress Bangalore review\",\n      \"intent\": \"customer_voice\"\n    },\n    {\n      \"query\": \"\\\"swimming class\\\" complaint no progress update kids parent\",\n      \"intent\": \"prior_complaints\"\n    },\n    {\n      \"query\": \"kids stopped swimming lessons why parents communication problem\",\n      \"intent\": \"prior_complaints\"\n    },\n    {\n      \"query\": \"swimming coach feedback gated community Bangalore kid quit\",\n      \"intent\": \"customer_voice\"\n    },\n    {\n      \"query\": \"\\\"parents association\\\" swimming lessons apartment forum Bangalore\",\n      \"intent\": \"community\"\n    }\n  ]\n}",
+    "web": [
+      {
+        "url": "https://threads.test/r/GatedCommunitiesIndia/comments/fixture03/courtyard_activities/",
+        "title": "Outdoor activities in apartment courtyards",
+        "description": "A courtyard can offer space for small groups of children to play."
+      },
+      {
+        "url": "https://threads.test/r/AskParents/comments/fixture04/shared_play_area/",
+        "title": "Explaining the shared play area to a child",
+        "description": "Families with children talk about sharing space in gated communities."
+      },
+      {
+        "url": "https://threads.test/r/GatedCommunitiesIndia/comments/fixture03/courtyard_activities/",
+        "title": "Outdoor activities in apartment courtyards",
+        "description": "Parents compare whether kids can play outdoors in gated communities."
+      },
+      {
+        "url": "https://threads.test/r/AutisticParents/comments/fixture05/description/",
+        "title": "Read the community description",
+        "description": "This community discusses accessibility at local libraries."
+      }
+    ]
+  },
+  "brew": {
+    "plan": "{\n  \"queries\": [\n    {\n      \"query\": \"espresso bean subscription fresh roasted monthly us canada\",\n      \"intent\": \"customer_voice\"\n    },\n    {\n      \"query\": \"home barista forum specialty espresso beans dialing in\",\n      \"intent\": \"community\"\n    },\n    {\n      \"query\": \"Bean Parcel subscription review complaints\",\n      \"intent\": \"prior_complaints\"\n    },\n    {\n      \"query\": \"Cup Carton espresso beans negative review feedback\",\n      \"intent\": \"prior_complaints\"\n    },\n    {\n      \"query\": \"Steam Crate Coffee Club espresso roast review problems\",\n      \"intent\": \"prior_complaints\"\n    },\n    {\n      \"query\": \"wasting coffee beans dialing in espresso solutions\",\n      \"intent\": \"community\"\n    },\n    {\n      \"query\": \"espresso enthusiast newsletter academy specialty coffee\",\n      \"intent\": \"channel\"\n    },\n    {\n      \"query\": \"dialed in espresso beans specialty online club canada\",\n      \"intent\": \"community\"\n    }\n  ]\n}",
+    "web": [
+      {
+        "url": "https://threads.test/r/espresso/",
+        "title": "r/espresso",
+        "description": "Rules: Be civil and ask before promoting anything in the home espresso community."
+      },
+      {
+        "url": "https://threads.test/r/espresso/comments/fixture06/first_tools/",
+        "title": "First impressions of home espresso tools",
+        "description": "Espresso enthusiasts share how they make a stand for their tamper."
+      },
+      {
+        "url": "https://threads.test/r/espresso/",
+        "title": "r/espresso rules",
+        "description": "Rules: Be civil and welcome new home espresso enthusiasts."
+      },
+      {
+        "url": "https://threads.test/r/espresso/",
+        "title": "r/espresso",
+        "description": "A forum for home espresso technique and equipment."
+      },
+      {
+        "url": "https://www.countertop-burr.example/forums/",
+        "title": "Forums - Countertop Burr",
+        "description": "Discussion forums for home espresso",
+        "markdown": "Countertop Burr discussion forums\n\n- [Tips and Techniques](https://www.countertop-burr.example/tips/)\n\nHome espresso enthusiasts share ways to hold the tamper level.\n\n- [Espresso Machines](https://www.countertop-burr.example/espresso-machines/)\n\nShare how you maintain an espresso machine at home.\n\n- [Grinders](https://www.countertop-burr.example/grinders/)\n\nDiscuss grinder adjustments for espresso.\n\n- [Coffees](https://www.countertop-burr.example/coffees/)\n\nDiscuss coffee and espresso flavor.\n\n- [Coffee Roasting](https://www.countertop-burr.example/roasting/)\n\nDiscuss roasting coffee for espresso.\n\n- [Knockbox](https://www.countertop-burr.example/knockbox/)\n\nShare your home espresso setup here."
+      },
+      {
+        "url": "https://threads.test/r/espresso/",
+        "title": "r/espresso",
+        "description": "The espresso forum is open to home brewers."
+      },
+      {
+        "url": "https://threads.test/r/espresso/comments/fixture07/practice/",
+        "title": "Practice shots on weekends",
+        "description": "Home espresso takes practice, especially when learning to steam milk."
+      }
+    ]
+  }
+}

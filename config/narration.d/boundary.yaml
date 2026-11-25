@@ -1,0 +1,39 @@
+# Data boundary copy (43 §4, §8). Names the file and the class, never the value.
+#
+# These are the only strings the founder sees when something is refused or
+# stripped. They must not claim a guarantee the code does not enforce: every
+# line here corresponds to an enforced refusal in app/boundary/filter.py.
+
+boundary.blocked_secret:
+  done: Skipped {file} — it contains credentials.
+  blocked: Skipped {file} — it contains credentials.
+
+boundary.blocked_pii:
+  done: Skipped {file} — it holds other people's personal details.
+  blocked: Skipped {file} — it holds other people's personal details.
+
+boundary.blocked_unknown:
+  done: Skipped {file} — I could not tell what is in it.
+  blocked: Skipped {file} — I could not tell what is in it.
+
+boundary.blocked_records:
+  done: Skipped {file} — it is a table of records, not writing.
+  blocked: Skipped {file} — it is a table of records, not writing.
+
+boundary.redacted:
+  done: Removed {count} sensitive values before sending.
+
+boundary.offer_local:
+  done: I can count and group that here instead, without sending it.
+  detail_hint: >-
+    Offered whenever a request would require sending other people's records to
+    a model. The local computation runs on the founder's machine.
+
+boundary.injection_seen:
+  done: Ignored an instruction hidden in {file}.
+  detail_hint: >-
+    Content we read is data, never instruction. This line tells the founder we
+    noticed, so a silent ignore does not look like a silent compliance.
+
+boundary.nothing_left:
+  done: Nothing has left this machine yet.

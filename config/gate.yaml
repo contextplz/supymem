@@ -1,0 +1,4 @@
+min_sample: 30
+min_collectors: 2
+min_effect_size: 0.20
+min_days_stable: 2

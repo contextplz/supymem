@@ -1,0 +1,271 @@
+[
+  {
+    "idea": "A robotic inspection crawler for wind-turbine blades that finds internal cracks with ultrasound, sold as a service to wind farm operators to cut blade downtime.",
+    "saved_customer": "wind-turbine blades",
+    "customer": "wind farm operators",
+    "bad_question": "What would be the first step for wind-turbine blades to get help?",
+    "question": "How do the wind farm operators you want to serve currently check for internal blade cracks when damage is suspected?",
+    "response": {
+      "case": "know",
+      "action": "question",
+      "message": "You have a specific service in mind: an ultrasound inspection crawler for internal blade cracks, sold to wind farm operators to reduce blade downtime. What remains unclear is how your service would fit into their existing inspection process.",
+      "understanding": {
+        "summary": "You want to sell robotic ultrasound inspection of wind-turbine blades as a service to wind farm operators, finding internal cracks to reduce blade downtime.",
+        "problem": "Internal cracks in wind-turbine blades and associated blade downtime.",
+        "customer": "wind farm operators",
+        "customer_extraction": {
+          "text": "wind farm operators",
+          "kind": "organisation",
+          "quote": "sold as a service to wind farm operators to cut blade downtime"
+        },
+        "offer": "A robotic inspection crawler that uses ultrasound to find internal cracks in wind-turbine blades, sold as an inspection service.",
+        "first_user_path": "",
+        "pricing_hypothesis": "Sell inspections as a service; price and charging unit are unspecified.",
+        "workflow": "A robotic crawler inspects wind-turbine blades using ultrasound to detect internal cracks.",
+        "current_workaround": "",
+        "why_now": "",
+        "evidence": "",
+        "desired_outcome": "Reduce blade downtime.",
+        "requirements": [
+          "Robotic inspection crawler",
+          "Ultrasound detection of internal blade cracks"
+        ],
+        "constraints": [],
+        "assumptions": [],
+        "open_questions": [
+          "How operators currently investigate suspected internal blade cracks.",
+          "How the crawler accesses and moves along the blade.",
+          "What inspection result would justify action by an operator.",
+          "How you could reach an operator for an initial service trial."
+        ],
+        "risks": [
+          "Detection reliability and safe blade access remain unestablished."
+        ],
+        "proposed_options": []
+      },
+      "question": {
+        "text": "How do the wind farm operators you want to serve currently check for internal blade cracks when damage is suspected?",
+        "field": "current_workaround",
+        "why": "Their existing inspection method determines what your crawler must replace or improve to reduce downtime.",
+        "options": [
+          "They bring in specialist technicians for manual ultrasound inspection.",
+          "They start with drone or rope-access visual checks, then arrange further testing for suspected internal damage.",
+          "I'm not sure how they check for internal cracks yet."
+        ],
+        "requires_detail": [
+          "They bring in specialist technicians for manual ultrasound inspection.",
+          "They start with drone or rope-access visual checks, then arrange further testing for suspected internal damage."
+        ],
+        "detail_prompt": "Describe one inspection example you know of and how you learned about it.",
+        "selection_mode": "single",
+        "option_labels": [],
+        "recommended_option": "I'm not sure how they check for internal cracks yet.",
+        "recommendation_reason": "No current inspection method is established in your brief; the other options are hypotheses, so select one only if you know it actually happens."
+      },
+      "confidence": 0.77
+    }
+  },
+  {
+    "idea": "A robotic inspection crawler that finds internal cracks in turbine blades with ultrasound, sold as a service to independent power producers to reduce downtime.",
+    "saved_customer": "independent power producers",
+    "customer": "independent power producers",
+    "bad_question": "What would be the first step for independent power producers to get help?",
+    "question": "How do the independent power producers you have in mind currently check turbine blades for internal cracks?",
+    "response": {
+      "case": "know",
+      "action": "question",
+      "message": "Your idea is an ultrasound inspection crawler offered as a service to independent power producers, with reduced downtime as the goal. The first useful version needs to fit how they currently inspect turbine blades.",
+      "understanding": {
+        "summary": "You want to sell a robotic ultrasound inspection service to independent power producers to find internal cracks in turbine blades and reduce downtime.",
+        "problem": "Internal cracks in turbine blades and the downtime associated with detecting them.",
+        "customer": "independent power producers",
+        "customer_extraction": {
+          "text": "independent power producers",
+          "kind": "organisation",
+          "quote": "sold as a service to independent power producers to reduce downtime"
+        },
+        "offer": "A robotic inspection crawler that detects internal cracks in turbine blades using ultrasound, sold as a service.",
+        "first_user_path": "",
+        "pricing_hypothesis": "",
+        "workflow": "A robotic crawler uses ultrasound to inspect turbine blades for internal cracks.",
+        "current_workaround": "",
+        "why_now": "",
+        "evidence": "",
+        "desired_outcome": "Reduce downtime for independent power producers.",
+        "requirements": [
+          "Robotic crawler inspection",
+          "Ultrasound detection of internal cracks in turbine blades",
+          "Service delivery rather than equipment sales"
+        ],
+        "constraints": [],
+        "assumptions": [],
+        "open_questions": [
+          "The turbine type and blade access conditions are unspecified.",
+          "Your customers' current inspection method is unknown.",
+          "Your route to a first service trial and pricing are unspecified."
+        ],
+        "risks": [
+          "Crawler access and ultrasound coupling on turbine blades need technical validation.",
+          "The inspection service would need to demonstrate reliable crack detection before operational use."
+        ],
+        "proposed_options": []
+      },
+      "question": {
+        "text": "How do the independent power producers you have in mind currently check turbine blades for internal cracks?",
+        "field": "current_workaround",
+        "why": "Their current inspection method determines where your crawler could reduce downtime and what it would need to replace or complement.",
+        "options": [
+          "They use technicians with handheld ultrasound equipment during planned outages.",
+          "They remove blades and send them to a specialist inspection service.",
+          "I'm not sure how they currently inspect for internal cracks."
+        ],
+        "requires_detail": [
+          "They use technicians with handheld ultrasound equipment during planned outages.",
+          "They remove blades and send them to a specialist inspection service."
+        ],
+        "detail_prompt": "Briefly describe an inspection example you know and how you learned about it.",
+        "selection_mode": "single",
+        "option_labels": [],
+        "recommended_option": "I'm not sure how they currently inspect for internal cracks.",
+        "recommendation_reason": "You have not described their current method yet; the other options are hypotheses, so select one only if you know it happens."
+      },
+      "confidence": 0.76
+    }
+  },
+  {
+    "idea": "A wearable sweat sensor for endurance athletes that measures electrolyte loss during training and suggests how much salt to replace.",
+    "saved_customer": "endurance athletes",
+    "customer": "endurance athletes",
+    "bad_question": "What limits must you work within to help endurance athletes?",
+    "question": "What do you know about how endurance athletes currently decide how much salt to replace during training?",
+    "response": {
+      "case": "know",
+      "action": "question",
+      "message": "Your idea connects electrolyte loss during training to a concrete salt replacement recommendation for endurance athletes. Understanding how they currently choose salt intake will help define what your first sensor needs to improve.",
+      "understanding": {
+        "summary": "You want a wearable sweat sensor for endurance athletes that measures electrolyte loss during training and recommends how much salt to replace.",
+        "problem": "",
+        "customer": "endurance athletes",
+        "customer_extraction": {
+          "text": "endurance athletes",
+          "kind": "person",
+          "quote": "A wearable sweat sensor for endurance athletes"
+        },
+        "offer": "A wearable sweat sensor that measures electrolyte loss during training and suggests salt replacement amounts.",
+        "first_user_path": "",
+        "pricing_hypothesis": "",
+        "workflow": "Measure electrolyte loss through a wearable sweat sensor during training, then suggest how much salt to replace.",
+        "current_workaround": "",
+        "why_now": "",
+        "evidence": "",
+        "desired_outcome": "Help endurance athletes determine how much salt to replace during training.",
+        "requirements": [
+          "Wearable sweat sensing",
+          "Measurement of electrolyte loss during training",
+          "Salt replacement recommendations"
+        ],
+        "constraints": [],
+        "assumptions": [],
+        "open_questions": [
+          "How endurance athletes currently determine salt intake during training.",
+          "Which training situations most need personalized salt replacement.",
+          "How you could reach athletes for an initial trial.",
+          "What athletes would pay for the sensor and recommendations."
+        ],
+        "risks": [
+          "Measurement accuracy and the safety of salt replacement recommendations would need evaluation."
+        ],
+        "proposed_options": []
+      },
+      "question": {
+        "text": "What do you know about how endurance athletes currently decide how much salt to replace during training?",
+        "field": "current_workaround",
+        "why": "Their current method determines whether your first version should replace guesswork, fixed dosing, or an existing personalized plan.",
+        "options": [
+          "I'm not sure how endurance athletes currently choose their salt intake.",
+          "I can describe athletes using sports drink labels or a fixed number of salt capsules per hour.",
+          "I can describe athletes using a sweat test or a coach's personalized sodium plan."
+        ],
+        "requires_detail": [
+          "I can describe athletes using sports drink labels or a fixed number of salt capsules per hour.",
+          "I can describe athletes using a sweat test or a coach's personalized sodium plan."
+        ],
+        "detail_prompt": "Describe one athlete's actual method and the training situation where they use it.",
+        "selection_mode": "single",
+        "option_labels": [],
+        "recommended_option": "I'm not sure how endurance athletes currently choose their salt intake.",
+        "recommendation_reason": "You have not shared observations yet, so choose a stronger answer only if you actually know an example."
+      },
+      "confidence": 0.76
+    }
+  },
+  {
+    "idea": "A smart medication dispenser for older adults living alone that releases the prescribed dose and alerts a chosen family member when a dose is missed.",
+    "saved_customer": "older adults living alone",
+    "customer": "older adults living alone",
+    "bad_question": "What would be the first step for older adults living alone to get help?",
+    "question": "What do you know about how the older adults living alone you have in mind currently organise their doses and notice a missed dose?",
+    "response": {
+      "case": "know",
+      "action": "question",
+      "message": "Your idea has a clear core: release the prescribed dose for older adults living alone, and alert a chosen family member when a dose is missed. The first version should fit how medication is managed today.",
+      "understanding": {
+        "summary": "You want a smart medication dispenser for older adults living alone, with prescribed-dose release and missed-dose alerts to a chosen family member.",
+        "problem": "Missed medication doses among older adults living alone may go unnoticed by family.",
+        "customer": "older adults living alone",
+        "customer_extraction": {
+          "text": "older adults living alone",
+          "kind": "person",
+          "quote": "A smart medication dispenser for older adults living alone"
+        },
+        "offer": "A smart medication dispenser that releases the prescribed dose and alerts a chosen family member when a dose is missed.",
+        "first_user_path": "",
+        "pricing_hypothesis": "",
+        "workflow": "The dispenser releases the prescribed dose. If a dose is missed, it alerts a chosen family member.",
+        "current_workaround": "",
+        "why_now": "",
+        "evidence": "",
+        "desired_outcome": "Help older adults living alone take prescribed doses and make missed doses visible to a chosen family member.",
+        "requirements": [
+          "Release the prescribed dose.",
+          "Alert a chosen family member when a dose is missed."
+        ],
+        "constraints": [],
+        "assumptions": [
+          "Assumed: Understanding the existing medication routine will help define the smallest useful dispenser."
+        ],
+        "open_questions": [
+          "How medication is currently organised and missed doses are noticed.",
+          "Who would pay for the dispenser.",
+          "How medication would be loaded and prescriptions updated.",
+          "How the dispenser would distinguish a released dose from a dose actually taken."
+        ],
+        "risks": [
+          "An incorrect dose release could cause harm.",
+          "Releasing medication does not establish that it was taken."
+        ],
+        "proposed_options": []
+      },
+      "question": {
+        "text": "What do you know about how the older adults living alone you have in mind currently organise their doses and notice a missed dose?",
+        "field": "current_workaround",
+        "why": "Their existing routine determines whether your dispenser should first replace pill sorting or add oversight to a routine that already works.",
+        "options": [
+          "I know a routine using a weekly pill organiser, with a family member checking by phone.",
+          "I know a routine using pharmacy blister packs and phone or clock reminders, without family checking each dose.",
+          "I'm not sure how they manage doses today."
+        ],
+        "requires_detail": [
+          "I know a routine using a weekly pill organiser, with a family member checking by phone.",
+          "I know a routine using pharmacy blister packs and phone or clock reminders, without family checking each dose."
+        ],
+        "detail_prompt": "Describe one routine you actually know, including how a missed dose becomes apparent.",
+        "selection_mode": "single",
+        "option_labels": [],
+        "recommended_option": "I'm not sure how they manage doses today.",
+        "recommendation_reason": "You have not shared an observed routine yet, so choose a stronger answer only if you actually know such an example."
+      },
+      "confidence": 0.76
+    }
+  }
+]
