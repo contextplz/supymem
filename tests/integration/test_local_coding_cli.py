@@ -134,7 +134,8 @@ def serve(app, listener):
     thread = threading.Thread(target=server.run, kwargs={"sockets": [listener]}, daemon=True)
     thread.start()
     try:
-        wait_for(lambda: server.started, bool, timeout=30)
+        # Startup includes SQLite schema setup, which can exceed 30s on loaded CI runners.
+        wait_for(lambda: server.started, bool, timeout=120)
         with httpx.Client(base_url=f"http://127.0.0.1:{listener.getsockname()[1]}", trust_env=False) as client:
             yield client
     finally:

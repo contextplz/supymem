@@ -1478,9 +1478,10 @@ def test_pending_credential_read_never_blocks_settings_or_overwrites_secrets(loc
     assert (root / "local-settings.json").read_bytes() == before
 
 
-def test_denied_legacy_wrapping_key_refuses_to_replace_the_encrypted_vault(local_settings):
+def test_denied_legacy_wrapping_key_refuses_to_replace_the_encrypted_vault(local_settings, monkeypatch):
     _, root, domain = local_settings
     from app.core import local_secrets
+    monkeypatch.setenv("SUPYMEM_DESKTOP_INSTANCE_ID", "fixture")
     local_secrets.update_settings("smtp", {"host": domain}, {"password": "old-test-password"})
     local_secrets.read_settings("runtime")
     before = (root / "local-settings.json").read_bytes()

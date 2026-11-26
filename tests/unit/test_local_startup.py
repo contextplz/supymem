@@ -2381,12 +2381,15 @@ def test_maintenance_command_keeps_its_cwd_outside_replaceable_data(tmp_path):
     source = (ROOT / "src-tauri/src/local_stack.rs").read_text()
     function = source.split("    fn command(&self", 1)[1].split("    fn credentials(&self", 1)[0]
     function = function.replace('env!("SUPYMEM_DESKTOP_VERSION")', '"fixture"')
+    roles = "const ROLES" + source.split("const ROLES", 1)[1].split("\n];", 1)[0] + "\n];"
+    openssl = "fn set_openssl_conf" + source.split("fn set_openssl_conf", 1)[1].split("\n}", 1)[0] + "\n}"
     run_startup_rust_test(tmp_path, '''
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 const HOST: &str = "127.0.0.1";
+''' + roles + '\n' + openssl + '''
 struct LocalStack { data_dir: PathBuf, resource_dir: PathBuf, ports: [u16; 4], instance: String,
-    bridge_token: String, native_bridge_token: String }
+    bridge_token: String, native_bridge_token: String, readiness_keys: [String; ROLES.len()] }
 impl LocalStack {
     fn runtime_target() -> &'static str { "test-runtime" }
     fn url(&self, _: &str) -> String { "http://127.0.0.1:3300".into() }
@@ -2398,7 +2401,8 @@ fn stable_working_directory() {
         let parent = std::env::temp_dir().join(format!("your app {domain} ü"));
         let stack = LocalStack { data_dir: parent.join("data"), resource_dir: parent.join("resources"),
             ports: [3300, 3301, 3100, 3500], instance: "fixture".into(),
-            bridge_token: "bridge-fixture".into(), native_bridge_token: "native-fixture".into() };
+            bridge_token: "bridge-fixture".into(), native_bridge_token: "native-fixture".into(),
+            readiness_keys: std::array::from_fn(|_| "readiness-fixture".into()) };
         for role in ["core", "worker", "console", "bridge"] {
             let command = stack.command(role, 3300);
             assert_eq!(command.get_current_dir(), Some(parent.as_path()));

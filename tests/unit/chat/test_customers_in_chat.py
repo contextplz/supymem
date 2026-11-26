@@ -542,6 +542,10 @@ def test_requested_email_automation_executes_without_customer_search(customer_ch
     journey.update_icp(data["wid"], data["vid"], data["audience"], problem=data["problem"], start=False)
     if connected:
         _mail(data)
+    elif is_local():
+        from app.core.local_secrets import update_settings
+
+        update_settings("capabilities", {"send_email": True}, {})
     monkeypatch.setattr(outreach, "_send_one", lambda *_args: pytest.fail("Automation must retain the sending worker checks"))
     reply = asyncio.run(execute_action(data["vid"], "gtm.automate",
         payload={"prepare": True}, actor_subject=data["actor"]))
@@ -809,6 +813,7 @@ def test_waiting_draft_commands_keep_their_draft_routes(outreach_email_chat, mon
 def test_explicit_people_search_with_saved_outreach_starts_without_showing_records(outreach_email_chat, monkeypatch, saved_state):
     from app.autopilot import outreach
     from app.chat.execute import find_customers_reply
+    from app.core.local_mode import is_local
     from app.credits import metered
     from app.db.models import GtmTouch, Job, PlannedTask
     from app.gtm import journey
@@ -841,7 +846,8 @@ def test_explicit_people_search_with_saved_outreach_starts_without_showing_recor
     request = f"Find 10 {data['audience']} I can interview about {data['problem']}. Do not send anything."
     reply = asyncio.run(find_customers_reply(data["vid"], request))
     assert reply["kind"] == "gtm_search_progress", reply
-    assert "Finding people" in reply["body_md"] and "check progress" in reply["body_md"].lower()
+    progress = "Searching public sources" if is_local() else "Finding people"
+    assert progress in reply["body_md"] and "check progress" in reply["body_md"].lower()
     assert "Nothing is sent" in reply["body_md"] and "credit" not in reply["body_md"].lower()
     assert contact.email not in reply["body_md"] and contact.first_name not in reply["body_md"]
     assert "Your saved leads" not in reply["body_md"] and "Your email records" not in reply["body_md"]
@@ -996,6 +1002,7 @@ def test_typed_recipient_draft_is_saved_for_the_checked_send_path(customer_chat,
         if is_local():
             from app.core.local_secrets import update_settings
             update_settings("smtp", {"postal_address": _settings(session, data["wid"]).sender_postal_address}, {})
+            update_settings("capabilities", {"send_email": True}, {})
     if connected:
         _mail(data)
     async def compose(*args):
@@ -3204,6 +3211,7 @@ def test_find_first_customers_starts_a_new_local_search_after_saved_results(cust
 
 @pytest.mark.parametrize("message", ["I want GTM", "Give me a go-to-market diagnosis"])
 def test_explicit_gtm_requests_start_from_internal_quote_after_customer_search(customer_chat, monkeypatch, message):
+    from app.core.local_mode import is_local
     from app.credits import metered
     from app.db.models import CreditReservation, Job
     from app.db.supymem_models import EntryChatProposal
@@ -3256,14 +3264,20 @@ def test_explicit_gtm_requests_start_from_internal_quote_after_customer_search(c
     for request in ("find my first customers", "find customers"):
         result = client.post(f"/ventures/{data['vid']}/chat", json={"message": request})
         assert result.status_code == 200, result.text
-        assert result.json()["id"] != quote["id"]
-        assert "Saved contact" in result.json()["body_md"]
-        assert any(action["label"] == "Search again" and action["style"] == "ghost" for action in result.json()["actions"])
-        assert "credit" not in result.json()["body_md"].lower()
+        reply = result.json()
+        assert reply["id"] != quote["id"]
+        if is_local():
+            assert reply["kind"] == "gtm_search_progress" and "Nothing is sent" in reply["body_md"]
+            assert not any(action.get("confirmation") for action in reply["actions"])
+        else:
+            assert "Saved contact" in reply["body_md"]
+            assert any(action["label"] == "Search again" and action["style"] == "ghost" for action in reply["actions"])
+        assert "credit" not in reply["body_md"].lower()
     assert len(calls) == 1
     assert len(starts) == 1
     with data["factory"]() as session:
-        assert list(session.query(Job.id)) == job_ids
+        all_jobs = list(session.query(Job.id))
+        assert len(all_jobs) == len(job_ids) + int(is_local()) and set(job_ids) <= set(all_jobs)
         assert list(session.query(CreditReservation.id)) == hold_ids
 
 
@@ -3520,9 +3534,11 @@ def test_asking_to_see_found_people_shows_them_without_a_new_search(journey_db, 
     assert text not in shown[0]["search_request"] and shown[0]["start_search"] is False
 
 
-def test_leads_render_source_email_people_linkedin_and_copyable_notes():
+@pytest.mark.parametrize("mode", ["local", "hosted"])
+def test_leads_render_source_email_people_linkedin_and_copyable_notes(monkeypatch, mode):
     from app.chat import customers
 
+    monkeypatch.setenv("SUPYMEM_MODE", mode)
     lead = {"name": "Ada Bakery", "company": "Ada Bakery", "person": "Ada Lovelace", "kind": "business", "why": "Takes phone orders daily.",
             "source_url": "https://bakery.example/contact",
             "routes": [{"kind": "email", "email": "ada@bakery.example", "route_type": "published"}],
@@ -3537,10 +3553,14 @@ def test_leads_render_source_email_people_linkedin_and_copyable_notes():
                      "ada@bakery.example (published)", "Ada Lovelace (Owner) [LinkedIn search]", "```\nHi Ada, quick question?\n```",
                      "```\nHi Ada, thanks for connecting.\n```"):
         assert expected in body
-    # published addresses without Gmail: the next step is connecting it, in chat
     reply = customers.render("ven_x", view)
     assert "1 of them publish an email address" in reply["body_md"]
-    assert any(a.get("action") == "connections.connect" for a in reply["actions"])
+    assert "Drafts still depend on fit and permission." in reply["body_md"]
+    if mode == "local":
+        assert any(action.get("href") == "/settings/local#smtp-title" for action in reply["actions"])
+        assert not any(action.get("action") == "connections.connect" for action in reply["actions"])
+    else:
+        assert any(action.get("action") == "connections.connect" for action in reply["actions"])
     view["gmail"] = {"connected": True}
     assert "publish an email address" not in customers.render("ven_x", view)["body_md"]
     before = customers.render("ven_x", view)

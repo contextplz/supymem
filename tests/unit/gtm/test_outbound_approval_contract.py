@@ -19,6 +19,7 @@ def _fresh_db(monkeypatch, tmp_path):
     monkeypatch.setenv("COMPANY_OS_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("COMPANY_OS_DB_URL", f"sqlite:///{dbfile}")
     monkeypatch.setenv("DB_URL", f"sqlite:///{dbfile}")
+    from app.credits import policy
     from app.db.models import Base
     from app.state import db, reset_db_factory
 
@@ -26,6 +27,7 @@ def _fresh_db(monkeypatch, tmp_path):
     factory = db()
     with factory() as session:
         Base.metadata.create_all(session.get_bind())
+    policy.invalidate()
     return factory
 
 

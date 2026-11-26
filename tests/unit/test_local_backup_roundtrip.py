@@ -350,7 +350,8 @@ def test_backup_does_not_change_chosen_directory_mode(local_cli, recovery_domain
     cli, root, database, _ = local_cli
     seed(database, recovery_domain)
     destination = root.parent / recovery_domain
-    destination.mkdir(mode=0o755)
+    destination.mkdir(mode=0o700)
+    destination.chmod(0o755)
     archive = cli.backup(destination)
     assert destination.stat().st_mode & 0o777 == 0o755
     assert archive.stat().st_mode & 0o077 == 0
@@ -631,7 +632,8 @@ def test_all_archives_keep_saved_keys_encrypted_and_modes_private(local_cli):
         connection.execute("INSERT INTO venture_resources VALUES (?)", (secret,))
         connection.commit()
     destination = root.parent / "backups"
-    destination.mkdir(mode=0o755)
+    destination.mkdir(mode=0o700)
+    destination.chmod(0o755)
     backup = cli.backup(destination)
     exported = local_data.export_data()
     if os.name != "nt":

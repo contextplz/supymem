@@ -41,9 +41,10 @@ def seed(factory, actor="pagebuilder-test-owner"):
 
 def connect_local_tool(monkeypatch):
     from app import coding_agents_consent
-    from app.core.local_owner import ensure_owner
+    from app.core.local_owner import _ensure_proxy_secret, ensure_owner
     from desktop_runtime import agent_status
     ensure_owner()
+    _ensure_proxy_secret()
     monkeypatch.setattr(coding_agents_consent, "consents", lambda actor: {"codex": True})
     monkeypatch.setattr(agent_status, "statuses", lambda: [{"name": "codex", "installed": True,
         "signed_in": True, "available": True, "subscription_login": True}])
@@ -148,6 +149,7 @@ def setup(tmp_path, monkeypatch):
     monkeypatch.delenv("SUPYMEM_MODE", raising=False)
     for key, value in {"COMPANY_OS_DB_URL": "sqlite:///" + str(tmp_path / "pagebuilder.db"),
         "COMPANY_OS_DATA_DIR": str(tmp_path), "COMPANY_OS_WORKING_MEMORY_PATH": str(tmp_path / "memory.db"),
+        "SUPYMEM_LOCAL_PROXY_SECRET_FILE": str(tmp_path / "owner-session.secret"),
         "SUPYMEM_PAGEBUILDER_ENABLED": "1", "LLM_OFFLINE": "0", "LLM_API_KEY": "synthetic-test-only",
         "LLM_BASE_URL": "https://provider.example.invalid", "LLM_PROVIDER": "azure_foundry", "LLM_DEPLOYMENT_PRO": "DeepSeek-V4-Pro",
         "PUBLIC_GATEWAY_URL": "https://gateway.supymem.com", "APP_ENV": "local", "COMPANY_OS_REQUIRE_SIGNED_CALLER": "0"}.items():

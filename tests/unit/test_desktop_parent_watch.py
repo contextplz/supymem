@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -39,10 +40,12 @@ def test_no_watch_without_parent_pid(monkeypatch):
 
 @pytest.mark.parametrize("domain", ["fleet-tools.invalid", "recipe-club.invalid"])
 def test_local_console_exits_when_your_app_parent_stops(tmp_path, domain):
+    node = shutil.which("node")
+    assert node, "Node must be available on the test runner PATH"
     server = tmp_path / "server.cjs"
     server.write_text(f"console.log({json.dumps(domain)}); setInterval(() => {{}}, 1000);\n")
     parent = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
-    console = subprocess.Popen(["node", str(Path(__file__).resolve().parents[2] / "scripts/desktop/local_console.cjs"), str(server)],
+    console = subprocess.Popen([node, str(Path(__file__).resolve().parents[2] / "scripts/desktop/local_console.cjs"), str(server)],
                                env={"PATH": os.defpath, "SUPYMEM_PARENT_PID": str(parent.pid)},
                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
     try:

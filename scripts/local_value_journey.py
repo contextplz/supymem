@@ -641,7 +641,8 @@ def gate_main(argv):
         if args.log_dir:
             logs.mkdir(mode=0o700)
         os.chmod(logs, 0o700)
-        data = tempfile.TemporaryDirectory(prefix="supymem-local-data-", dir=Path.home() if any(selections) else None)
+        data = tempfile.TemporaryDirectory(prefix="supymem-local-data-",
+                                           dir=Path.home() if not args.offline and any(selections) else None)
         state = Path(data.name)
         if args.offline:
             state = state / "state"

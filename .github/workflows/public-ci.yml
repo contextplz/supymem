@@ -13,7 +13,8 @@ permissions:
 jobs:
   python:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    # GitHub-hosted runners need ~35-60 min per shard; 40 cut most shards off.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -37,6 +38,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.23.4'
+      - name: Provision Linux check isolation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
       - name: Install locked ./start source dependencies and test tools
         run: |
           python -m venv .venv
@@ -97,8 +105,9 @@ jobs:
             -e packages/desktop_runtime -e services/company_os
       - name: Check both founder journeys on loopback only
         run: |
-          sudo unshare --net bash -c 'ip link set lo up; exec runuser -u "$1" -p -- "${@:2}"' \
-            _ "$(id -un)" env "PATH=$PATH" "PYTHONPATH=$PYTHONPATH" SUPYMEM_TEST_FAKE_CODING_TOOL=1 \
+          journey_home=$(mktemp -d "$RUNNER_TEMP/supymem-journey-home.XXXXXX")
+          sudo unshare --net bash -c 'ip link set lo up && exec runuser -u "$1" -p -- "${@:2}"' \
+            _ "$(id -un)" env "HOME=$journey_home" "TMPDIR=$journey_home" "PATH=$PATH" "PYTHONPATH=$PYTHONPATH" SUPYMEM_TEST_FAKE_CODING_TOOL=1 \
             .venv/bin/python scripts/local_value_journey.py --offline --timeout 45
 
   console:

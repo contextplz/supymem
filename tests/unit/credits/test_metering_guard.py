@@ -9,6 +9,8 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import urlsplit
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[3]
 APP = ROOT / "services/company_os/app"
@@ -113,7 +115,10 @@ def test_guard_fails_for_new_direct_calls_and_import_aliases():
     assert provider_calls("await metered.llm([])\nawait metered.call(callback)") == {}
 
 
-def test_converted_feature_modules_keep_shared_facade():
-    for path, seam in {"gbrain/think.py": "await llm(", "gtm/localization/service.py": "await llm(",
-                       "actuation/tools/email_send.py": "await call("}.items():
-        assert seam in (APP / path).read_text(), f"Missing paid-call facade in {path}"
+@pytest.mark.parametrize("path,seam", [
+    ("gtm/localization/service.py", "await llm("),
+    ("actuation/tools/email_send.py", "await call("),
+    pytest.param("gbrain/think.py", "await llm(", id="hosted-think"),
+])
+def test_converted_feature_modules_keep_shared_facade(path, seam):
+    assert seam in (APP / path).read_text(), f"Missing paid-call facade in {path}"

@@ -1455,7 +1455,7 @@ def _trusted_git(workspace: Path, *args: str, binary_output=False) -> str | byte
         raise ValueError("coding_git_scope_invalid")
     value = run_git(["-c", "user.name=Supymem", "-c", "user.email=noreply@supymem.com",
         "-c", f"core.hooksPath={null_device}", "-c", "core.fsmonitor=false", "-c", f"core.attributesFile={null_device}",
-        "-c", "commit.gpgsign=false", "-c", "core.quotePath=true", *args])
+        "-c", "commit.gpgsign=false", "-c", "core.quotePath=true", "-c", "maintenance.auto=false", *args])
     if value.returncode or len(value.stdout) > (20 if binary_output else 1) * 1024 * 1024:
         raise ValueError("coding_git_checkpoint_failed")
     return value.stdout if binary_output else value.stdout.decode("utf-8", "strict").strip()

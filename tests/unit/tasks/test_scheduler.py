@@ -486,8 +486,6 @@ def test_signed_tick_and_scheduler_share_dedupe_window(scheduler, monkeypatch):
 
 @pytest.mark.parametrize("mode", [None, "local"])
 def test_specialist_leader_still_enqueues_global_maintenance(scheduler, monkeypatch, mode):
-    from app.api import internal_tick
-
     if mode:
         monkeypatch.setenv("SUPYMEM_MODE", mode)
     else:
@@ -499,6 +497,18 @@ def test_specialist_leader_still_enqueues_global_maintenance(scheduler, monkeypa
             "gtm.gmail.read", "suggestions.generate"}
     else:
         assert {kind for tick in result["ticks"] for kind in tick["enqueued"]} >= {"credits.sweep", "ops.signal_sweep", "learning.cycle"}
+
+
+@pytest.mark.parametrize("mode", [None, "local"])
+def test_signed_tick_respects_specialist_worker_kinds(scheduler, monkeypatch, mode):
+    from app.api import internal_tick
+
+    if mode:
+        monkeypatch.setenv("SUPYMEM_MODE", mode)
+    else:
+        monkeypatch.delenv("SUPYMEM_MODE", raising=False)
+    monkeypatch.setenv("WORKER_KINDS", "credits.sweep")
+    fire(scheduler)
     monkeypatch.setattr(scheduler.module, "publish_wake", lambda: None)
     dispatched = internal_tick.dispatch_tick("5m", now=NOW)["enqueued"]
     if mode == "local":
