@@ -474,7 +474,7 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
         if local and (hosted_only or item.get_closest_marker("hosted")):
             item.add_marker(pytest.mark.skip(reason="Hosted service contract; run with SUPYMEM_MODE unset."))
         private = _PRIVATE_INPUTS.get(path, {})
-        inputs = set(private.get(item.name, private.get(name, private.get("*", ()))))
+        inputs = set(private.get(getattr(item, "name", name), private.get(name, private.get("*", ()))))
         if isinstance(item, pytest.Function):
             parameters = item.callspec.params if hasattr(item, "callspec") else {}
             for fixture_name in item.fixturenames:

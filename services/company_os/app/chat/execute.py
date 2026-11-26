@@ -1411,6 +1411,8 @@ def _saved_outreach_drafts(venture_id: str) -> dict[str, Any]:
     view = customers._view(venture_id)
     view["drafts"] = outreach.drafts(venture_id, "draft", "manual")
     if view["drafts"]:
+        if not view.get("allow_sending") and any(draft.get("review_state") == "approved" for draft in view["drafts"]):
+            view["sends_left_today"] = customers._remaining_today(venture_id, view)
         return customers.render(venture_id, view, show_saved=True)
     notes = outreach.review_notes(venture_id)
     if notes:
